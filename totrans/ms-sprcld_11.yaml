@@ -1306,6 +1306,8 @@
   id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: 启动发现、网关以及所有必需的微服务实例之后，您可以执行与之前示例相同的测试。如果配置正确，您在应用启动过程中在日志中应看到以下片段。测试结果与基于 RabbitMQ
+    的示例完全相同：
 - en: '[PRE34]'
   id: totrans-172
   prefs: []
@@ -1316,6 +1318,7 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 支持 Kafka Streams API
 - en: 'Spring Cloud Stream Kafka provides a binder specially designed for Kafka Streams
     binding. With this binder, the application can leverage the Kafka Streams API.
     To enable such a feature for your application, include the following dependency
@@ -1323,6 +1326,8 @@
   id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: Spring Cloud Stream Kafka 提供了一个专门为 Kafka Streams 绑定设计的绑定器。通过这个绑定器，应用程序可以利用 Kafka
+    Streams API。为了为您的应用程序启用此功能，请在您的项目中包含以下依赖项：
 - en: '[PRE35]'
   id: totrans-175
   prefs: []
@@ -1338,6 +1343,10 @@
   id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: Kafka Streams API 提供了高级流 DSL。可以通过声明接收 `KStream` 接口作为参数的 `@StreamListener` 方法来访问它。KStream
+    为流处理提供了些有用的方法，这些方法在其他流式 API 中也很知名，如 `map`、`flatMap`、`join` 或 `filter`。还有一些 Kafka
+    Stream 特有的方法，例如 `to(...)`（用于将流发送到主题）或 `through(...)`（与 `to` 相同，但还会从主题创建一个新的 `KStream`
+    实例）：
 - en: '[PRE36]'
   id: totrans-177
   prefs: []
@@ -1348,6 +1357,7 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 配置属性
 - en: 'Some of the Spring Cloud configuration settings for Kafka have been presented
     before when discussing the implementation of the sample application. Here''s a
     table with the most important properties, which can be set for customizing the
@@ -1355,59 +1365,72 @@
   id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 一些 Spring Cloud 针对 Kafka 的配置设置在讨论示例应用程序实现时已经介绍过。下面是一个包含为自定义 Apache Kafka 绑定器设置的最重要属性的表格，所有这些属性都带有
+    `spring.cloud.stream.kafka.binder` 前缀：
 - en: '| Name | Default value | Description |'
   id: totrans-180
   prefs: []
   type: TYPE_TB
+  zh: '| Name | 默认值 | 描述 |'
 - en: '| --- | --- | --- |'
   id: totrans-181
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| `brokers` | `localhost` | A comma-separated list of brokers with or without
     port information. |'
   id: totrans-182
   prefs: []
   type: TYPE_TB
+  zh: '| `brokers` | `localhost` | 带或不带端口信息的经纪人列表，以逗号分隔。 |'
 - en: '| `defaultBrokerPort` | `9092` | It sets the default port if no port is defined
     using the `brokers` property. |'
   id: totrans-183
   prefs: []
   type: TYPE_TB
+  zh: '| `defaultBrokerPort` | `9092` | 如果没有使用`brokers`属性定义端口，则设置默认端口。 |'
 - en: '| `zkNodes` | `localhost` | A comma-separated list of ZooKeeper nodes with
     or without port information. |'
   id: totrans-184
   prefs: []
   type: TYPE_TB
+  zh: '| `zkNodes` | `localhost` | 带或不带端口信息的 ZooKeeper 节点列表，以逗号分隔。 |'
 - en: '| `defaultZkPort` | `2181` | It sets the default ZooKeeper port if no port
     is defined using the `zkNodes` property. |'
   id: totrans-185
   prefs: []
   type: TYPE_TB
+  zh: '| `defaultZkPort` | `2181` | 如果没有使用 `zkNodes` 属性定义端口，则设置默认 ZooKeeper 端口。 |'
 - en: '| `configuration` | - | A Key/Value map of Kafka client properties. It applies
     to all the clients created by the binder. |'
   id: totrans-186
   prefs: []
   type: TYPE_TB
+  zh: '| `configuration` | - | Kafka 客户端属性的键/值映射。它适用于绑定器创建的所有客户端。 |'
 - en: '| `headers` | - | The list of custom headers that will be forwarded by the
     binder. |'
   id: totrans-187
   prefs: []
   type: TYPE_TB
+  zh: '| `headers` | - | 将由绑定器传递的自定义头列表。 |'
 - en: '| `autoCreateTopics` | `true` | If set to `true`, the binder creates new topics
     automatically. |'
   id: totrans-188
   prefs: []
   type: TYPE_TB
+  zh: '| `autoCreateTopics` | `true` | 如果设置为`true`，则绑定器会自动创建新主题。 |'
 - en: '| `autoAddPartitions` | `false` | If set to `true`, the binder creates new
     partitions automatically. |'
   id: totrans-189
   prefs: []
   type: TYPE_TB
+  zh: '| `autoAddPartitions` | `false` | 如果设置为`true`，则绑定器会自动创建新的分区。 |'
 - en: Multiple binders
   id: totrans-190
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 多个绑定器
 - en: In Spring Cloud Stream nomenclature, the interface that may be implemented to
     provide connection to physical destinations at the external middleware is called
     **binder**. Currently, there are two available built-in binder implementations—Kafka
@@ -1418,6 +1441,9 @@
   id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Spring Cloud Stream 命名约定中，可以实现以提供对外部中间件的物理目的地连接的接口称为**绑定器**。目前，有两大内置绑定器实现——Kafka
+    和 RabbitMQ。如果您想要提供一个自定义的绑定器库，关键的接口是一个将输入和输出连接到外部中间件的策略的抽象，称为 `Binder`，有两个方法——`bindConsumer`
+    和 `bindProducer`。有关更多详细信息，请参考 Spring Cloud Stream 规范。
 - en: 'The important thing for us is an ability to use multiple binders in a single
     application. You can even mix different implementations, for example, RabbitMQ
     with Kafka. Spring Cloud Stream relies on Spring Boot''s auto-configuration in
