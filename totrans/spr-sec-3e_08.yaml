@@ -159,10 +159,12 @@
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 修改`SecurityConfig.java`配置文件，添加`rememberMe`方法。
 - en: 'Take a look at the following code snippet:'
   id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 请查看以下代码片段：
 - en: '[PRE1]'
   id: totrans-25
   prefs: []
@@ -172,6 +174,7 @@
   id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 你应该从`chapter07.00-calendar`开始。
 - en: 'If we try running the application now, we''ll see nothing different in the
     flow. This is because we also need to add a field to the login form that allows
     the user to opt for this functionality. Edit the `login.html` file and add a checkbox,
@@ -180,6 +183,7 @@
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 如果我们现在尝试运行应用程序，我们会发现流程中没有不同。这是因为我们还需要在登录表单中添加一个字段，允许用户选择此功能。编辑`login.html`文件，并添加一个复选框，如下面的代码片段所示：
 - en: '[PRE2]'
   id: totrans-28
   prefs: []
@@ -189,17 +193,20 @@
   id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 您的代码应该看起来像`chapter07.01-calendar`。
 - en: When we next log in, if the remember-me box is selected, a remember-me cookie
     is set in the user's browser.
   id: totrans-30
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 当我们下次登录时，如果选择了记住我框，则在用户的浏览器中设置了记住我cookie。
 - en: Spring Security understands that it should remember the user by inspecting the
     HTTP parameter `remember_me`.
   id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: Spring Security理解它应该通过检查HTTP参数`remember_me`来记住用户。
 - en: In Spring Security 3.1 and earlier versions, the default parameter for the remember-me
     form field was `spring_security_remember_me`. Now, in Spring Security 4.x, the
     default remember-me form field is `remember-me`. This can be overridden with the
@@ -207,6 +214,8 @@
   id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Spring Security 3.1及更早版本中，记住我表单字段的默认参数是`spring_security_remember_me`。现在，在Spring
+    Security 4.x中，默认的记住我表单字段是`remember-me`。这可以通过`rememberMeParameter`方法来覆盖。
 - en: If the user then closes his/her browser and reopens it to an authenticated page
     on the JBCP calendar website, he/she won't be presented with the login page a
     second time. Try it yourself now-log in with the remember-me option selected,
@@ -218,10 +227,12 @@
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 如果用户然后关闭他的浏览器，重新打开它以登录JBCP日历网站的认证页面，他/她不会第二次看到登录页面。现在试试自己-选择记住我选项登录，将主页添加到书签中，然后重新启动浏览器并访问主页。您会看到，您会立即成功登录，而无需再次提供登录凭据。如果这种情况出现在您身上，这意味着您的浏览器或浏览器插件正在恢复会话。
 - en: Try closing the tab first and then close the browser.
   id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 先尝试关闭标签页，然后再关闭浏览器。
 - en: One more effective solution is to use a browser plugin, such as **Firebug**
     ([https://addons.mozilla.org/en-US/firefox/addon/firebug/](https://addons.mozilla.org/en-US/firefox/addon/firebug/)),
     to remove the `JSESSIONID` cookie. This can often save time and annoyance during
@@ -229,51 +240,61 @@
   id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一个有效的方法是使用浏览器插件，如**Firebug**（[https://addons.mozilla.org/en-US/firefox/addon/firebug/](https://addons.mozilla.org/en-US/firefox/addon/firebug/)），以删除`JSESSIONID`cookie。这通常可以在开发和验证您网站上此类功能时节省时间和烦恼。
 - en: 'After logging in and selecting remember-me, you should see two cookies have
     been set, `JSESSIONID` and `remember-me`, as shown in the following screenshot:'
   id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 登录后选择记住我，你应该会看到已经设置了两个cookie，`JSESSIONID`和`remember-me`，如下面的截图所示：
 - en: '![](img/486134eb-1413-42f7-b94d-70070a43966b.png)'
   id: totrans-37
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/486134eb-1413-42f7-b94d-70070a43966b.png)'
 - en: How the token-based remember-me feature works
   id: totrans-38
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 基于令牌的记住我功能是如何工作的
 - en: 'The remember-me feature sets a cookie in the user''s browser containing a Base64-encoded
     string with the following pieces:'
   id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 记住我功能在用户的浏览器中设置一个cookie，包含一个Base64编码的字符串，包含以下内容：
 - en: The username
   id: totrans-40
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 用户名
 - en: An expiration date/time
   id: totrans-41
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 过期日期/时间
 - en: An MD5 hash value of the `expiration` date/time, `username`, `password`, and
     the `key` attribute of the `rememberMe` method
   id: totrans-42
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`expiration`日期/时间的MD5散列值、`username`、`password`以及`rememberMe`方法的`key`属性。'
 - en: These are combined into a single cookie value that is stored in the browser
     for later use.
   id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些被组合成一个单一的cookie值，存储在浏览器中供以后使用。
 - en: MD5
   id: totrans-44
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: MD5
 - en: MD5 is one of the several well-known cryptographic hash algorithms. Cryptographic
     hash algorithms compute a compact and unique text representation of input data
     with arbitrary length, called a **digest**. This digest can be used to determine
@@ -282,14 +303,17 @@
   id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: MD5是几种著名的加密散列算法之一。加密散列算法计算具有任意长度的输入数据的最紧凑且唯一的文本表示，称为**摘要**。这个摘要可以用来确定是否应该信任一个不可信的输入，通过将不可信输入的摘要与预期输入的有效摘要进行比较。
 - en: 'The following diagram illustrates how this works:'
   id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下图表说明了它是如何工作的：
 - en: '![](img/a2fb3cec-4da4-4033-ba05-b83fac2bfa16.png)'
   id: totrans-47
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/a2fb3cec-4da4-4033-ba05-b83fac2bfa16.png)'
 - en: For example, many open source software sites allow mirrors to distribute their
     software to help increase download speeds. However, as a user of the software,
     we would want to be sure that the software is authentic and doesn't include any
@@ -303,6 +327,7 @@
   id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，许多开源软件网站允许镜像站点分发它们的软件，以帮助提高下载速度。然而，作为软件的用户，我们希望确保软件是真实的，并且不包含任何病毒。软件分发商将计算并在其网站上发布与他们已知的好版本软件对应的预期MD5校验和。然后，我们可以从任何位置下载文件。在安装软件之前，我们对下载的文件计算不信任的MD5校验和。然后，我们将不信任的MD5校验和与预期的MD5校验和进行比较。如果这两个值匹配，我们就知道可以安全地安装我们下载的文件。如果这两个值不匹配，我们不应该信任下载的文件并删除它。
 - en: Although it is impossible to obtain the original data from the hash value, MD5
     is vulnerable to several types of attack, including the exploitation of weaknesses
     in the algorithm itself and rainbow table attacks. Rainbow tables typically contain
@@ -313,11 +338,14 @@
   id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管无法从哈希值中获取原始数据，但MD5算法存在多种攻击风险，包括利用算法本身的弱点以及彩虹表攻击。彩虹表通常包含数百万输入值预先计算的哈希值。这使得攻击者可以在彩虹表中查找哈希值，并确定实际的（未哈希）值。Spring
+    Security通过在哈希值中包括过期日期、用户的密码和记住我键来对抗这种风险。
 - en: Remember-me signature
   id: totrans-50
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 记住我签名
 - en: 'We can see how MD5 can ensure that we have downloaded the correct file, but
     how does this apply to Spring Security''s remember-me service? Much like the file
     we downloaded, the cookie is untrusted, but we can trust it if we can validate
@@ -328,10 +356,12 @@
   id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以看到MD5如何确保我们下载了正确的文件，但这与Spring Security的记住我服务有何关联呢？与下载的文件类似，cookie是不信任的，但如果我们能验证来自我们应用程序的签名，我们就可以信任它。当带有记住我cookie的请求到来时，其内容被提取，期望的签名与cookie中找到的签名进行比较。计算期望签名的步骤在下图中说明：
 - en: '![](img/6014f753-534c-4041-84e4-f55339e3c5a8.png)'
   id: totrans-52
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/6014f753-534c-4041-84e4-f55339e3c5a8.png)'
 - en: The remember-me cookie contains the **username**, **expiration**, and a **signature**.
     Spring Security will extract the **username** and **expiration** from the cookie.
     It will then utilize the `username` from the cookie to look up the **password**
@@ -343,6 +373,8 @@
   id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 记住我cookie包含**用户名**、**过期时间**和一个**签名**。Spring Security将从中提取**用户名**和**过期时间**。然后使用来自cookie的`username`通过`UserDetailsService`查找**密码**。**密钥**已知，因为它是通过`rememberMe`方法提供的。现在所有参数都知道了，Spring
+    Security可以使用**用户名**、**过期时间**、**密码**和**密钥**计算期望的签名。然后，它将期望签名与cookie中的**签名**进行比较。
 - en: If the two signatures match, we can trust that the **username** and **expiration**
     date are valid. Forging a **signature** is next to impossible without knowing
     the remember-me key (which only the application knows) and the user's password
@@ -351,6 +383,7 @@
   id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果两个签名匹配，我们可以确信**用户名**和**过期日期**是有效的。不知道记住我密钥（只有应用程序知道）和用户密码（只有这个用户知道）的情况下伪造签名几乎是不可能的。这意味着如果签名匹配且令牌没有过期，用户可以登录。
 - en: You have anticipated that if the user changes their username or password, any
     remember-me token set will no longer be valid. Make sure that you provide appropriate
     messaging to users if you allow them to change these bits of their account. Later
@@ -1137,6 +1170,7 @@
   id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们回顾一下本章示例代码中包含的Spring配置，用于`IpAwarePersistentTokenRepository`。在以下代码片段中，我们首先创建了一个`IpAwarePersistentTokenRepository`声明，它包装了一个新的`JpaPersistentTokenRepository`声明。然后通过实例化`OrderedRequestContextFilter`接口来初始化一个`RequestContextFilter`类：
 - en: '[PRE18]'
   id: totrans-164
   prefs: []
@@ -1148,6 +1182,7 @@
   id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了让Spring Security使用我们的自定义`RememberMeServices`，我们需要更新我们的安全配置以指向它。接着，在`SecurityConfig.java`中进行以下更新：
 - en: '[PRE19]'
   id: totrans-166
   prefs: []
@@ -1160,10 +1195,13 @@
   id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，大胆尝试启动应用程序。您可以使用第二台计算机和插件（如Firebug），来操作您的remember-me cookie。如果您尝试从一个计算机使用remember-me
+    cookie在另一台计算机上，Spring Security现在将忽略remember-me请求并删除相关cookie。
 - en: Your code should look like `chapter07.07-calendar`.
   id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 您的代码应类似于`chapter07.07-calendar`。
 - en: Note that the IP-based remember-me tokens may behave unexpectedly if the user
     is behind a shared or load balanced network infrastructure, such as a multi-WAN
     corporate environment. In most scenarios, however, the addition of an IP address
@@ -1172,11 +1210,13 @@
   id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 请注意，基于IP的remember-me令牌如果用户位于共享或负载均衡的网络基础架构后面，例如多WAN企业环境，可能会出现意外行为。然而，在大多数场景下，向remember-me功能添加IP地址为用户提供了一个额外的、受欢迎的安全层。
 - en: Custom cookie and HTTP parameter names
   id: totrans-170
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 自定义cookie和HTTP参数名称
 - en: 'Curious users may wonder if the expected value of the remember-me form field
     checkbox to be remember-me, or the cookie name to be remember-me, can be changed
     to obscure the use of Spring Security. This change can be made in one of two locations.
@@ -1184,11 +1224,14 @@
   id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: 好奇的用户可能会想知道remember-me表单字段的预期值是否可以更改为remember-me，或者cookie名称是否可以更改为remember-me，以使Spring
+    Security的使用变得模糊。这个更改可以在两个位置中的一个进行。请按照以下步骤查看：
 - en: 'First, we can add additional methods to the `rememberMe` method, as follows:'
   id: totrans-172
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 首先，我们可以在`rememberMe`方法中添加额外的方法，如下所示：
 - en: '[PRE20]'
   id: totrans-173
   prefs: []
@@ -1201,6 +1244,7 @@
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 此外，既然我们已经将自定义的`RememberMeServices`实现声明为Spring bean，我们只需定义更多的属性来更改复选框和cookie名称，如下所示：
 - en: '[PRE21]'
   id: totrans-175
   prefs: []
@@ -1213,6 +1257,7 @@
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 不要忘记将`login.html`页面更改为设置复选框`form`字段的名称，并与我们声明的参数值相匹配。接着，按照以下内容更新`login.html`：
 - en: '[PRE22]'
   id: totrans-177
   prefs: []
@@ -1224,15 +1269,18 @@
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 我们鼓励您在此处进行实验，以确保您了解这些设置之间的关系。大胆尝试启动应用程序并尝试一下。
 - en: Your code should look like `chapter07.08-calendar`.
   id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 您的代码应类似于`chapter07.08-calendar`。
 - en: Summary
   id: totrans-180
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 总结
 - en: This chapter explained and demonstrated the use of the remember-me feature in
     Spring Security. We started with the most basic setup and learned how to gradually
     make the feature more secure. Specifically, we learned about a token-based remember-me
@@ -1242,12 +1290,14 @@
   id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章解释并演示了Spring Security中remember-me功能的用法。我们从最基本的设置开始，学习了如何逐步使该功能更加安全。具体来说，我们了解了基于令牌的remember-me服务以及如何对其进行配置。我们还探讨了基于持久性的remember-me服务如何提供额外的安全功能，它是如何工作的，以及在使用它们时需要考虑的额外因素。
 - en: We also covered the creation of a custom remember-me implementation that restricts
     the remember-me token to a specific IP address. We saw various other ways to make
     the remember-me feature more secure.
   id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们还介绍了创建自定义remember-me实现的过程，该实现将remember-me令牌限制为特定的IP地址。我们还看到了使remember-me功能更加安全的各种其他方法。
 - en: Up next is certificate-based authentication, and we will discuss how to use
     trusted client-side certificates to perform authentication.
   id: totrans-183
