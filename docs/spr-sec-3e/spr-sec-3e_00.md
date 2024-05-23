@@ -74,15 +74,34 @@
 
 在本书中，您会找到多种文本样式，用于区分不同类型的信息。以下是一些这些样式的示例及其含义。文本中的代码单词、数据库表名、文件夹名、文件名、文件扩展名、路径名、假 URL、用户输入和 Twitter 处理方式如下所示："下一步涉及对 `web.xml` 文件进行一系列更新"。代码块如下所示：
 
-[PRE0]
+```java
+ //build.gradle:
+    dependencies {
+        compile "org.springframework.security:spring-security-  
+        config:${springSecurityVersion}"
+        compile "org.springframework.security:spring-security- 
+        core:${springSecurityVersion}"
+        compile "org.springframework.security:spring-security- 
+        web:${springSecurityVersion}"
+        ...
+    }
+```
 
 当我们需要引起您对代码块中的特定部分注意时，相关的行或项目将被加粗：
 
-[PRE1]
+```java
+ [default]
+ exten => s,1,Dial(Zap/1|30)
+ exten => s,2,Voicemail(u100)
+ exten => s,102,Voicemail(b100)
+ exten => i,1,Voicemail(s0)
+```
 
 任何命令行输入或输出如下所示：
 
-[PRE2]
+```java
+$ ./gradlew idea
+```
 
 **新术语**和**重要词汇**以粗体显示。
 

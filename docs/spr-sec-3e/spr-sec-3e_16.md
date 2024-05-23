@@ -126,75 +126,152 @@ Spring Security 4 中的许多变化将在基于 XML 的配置的命名空间风
 
 `SecurityConfig.createSingleAttributeList(String)`接口已被`SecurityConfig.createList(String¦ )`取代。这意味着如果你有这样的内容：
 
-[PRE0]
+```java
+     List<ConfigAttribute> attrs = SecurityConfig.createSingleAttributeList
+     ("ROLE_USER");
+```
 
 它需要用以下代码替换：
 
-[PRE1]
+```java
+    List<ConfigAttribute> attrs = SecurityConfig.createList("ROLE_USER");
+```
 
 # **UserDetailsServiceWrapper**
 
 `UserDetailsServiceWrapper`已被`RoleHierarchyAuthoritiesMapper`取代。例如，你可能有这样的内容：
 
-[PRE2]
+```java
+@Bean
+public AuthenticationManager authenticationManager(List<AuthenticationProvider> providers) {
+      return new ProviderManager(providers);
+}
+@Bean
+public AuthenticationProvider authenticationProvider(UserDetailsServiceWrapper userDetailsService) {
+      DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+      provider.setUserDetailsService(userDetailsService);
+      return provider;
+}
+@Bean
+public UserDetailsServiceWrapper userDetailsServiceWrapper(RoleHierarchy roleHierarchy) {
+      UserDetailsServiceWrapper wrapper = new UserDetailsServiceWrapper();
+      wrapper.setRoleHierarchy(roleHierarchy);
+      wrapper.setUserDetailsService(userDetailsService());
+      return wrapper;
+}
+```
 
 它需要被替换成类似这样的内容：
 
-[PRE3]
+```java
+@Bean
+public AuthenticationManager authenticationManager(List<AuthenticationProvider> providers) {
+      return new ProviderManager(providers);
+}
+@Bean
+public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, GrantedAuthoritiesMapper authoritiesMapper) {
+      DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+      provider.setUserDetailsService(userDetailsService);
+      provider.setAuthoritiesMapper(authoritiesMapper);
+      return provider;
+}
+@Bean
+public RoleHierarchyAuthoritiesMapper roleHierarchyAuthoritiesMapper(RoleHierarchy roleHierarchy) {
+      return new RoleHierarchyAuthoritiesMapper(roleHierarchy);
+}
+```
 
 # **UserDetailsWrapper**
 
 `UserDetailsWrapper`因使用`RoleHierarchyAuthoritiesMapper`而被废弃。通常用户不会直接使用`UserDetailsWrapper`类。然而，如果他们这样做，他们可以使用`RoleHierarchyAuthoritiesMapper`，例如，下面代码可能存在：
 
-[PRE4]
+```java
+    UserDetailsWrapper authenticate = new UserDetailsWrapper
+    (userDetails, roleHiearchy);
+```
 
 如果如此，则需要用以下代码片段替换：
 
-[PRE5]
+```java
+    Collection<GrantedAuthority> allAuthorities = roleHiearchy.
+    getReachableGrantedAuthorities(userDetails.getAuthorities());
+    UserDetails authenticate = new User(userDetails.getUsername(), 
+    userDetails.getPassword(), allAuthorities);
+```
 
 # 抽象访问决策管理器
 
 `AbstractAccessDecisionManager`的默认构造函数以及`setDecisionVoters`方法已被废弃。自然而然，这影响了`AffirmativeBased`、`ConsensusBased`和`UnanimousBased`子类。例如，您可能使用以下代码片段：
 
-[PRE6]
+```java
+    AffirmativeBased adm = new AffirmativeBased();
+    adm.setDecisionVoters(voters);
+```
 
 如果如此，它需要更改为以下代码片段：
 
-[PRE7]
+```java
+    AffirmativeBased adm = new AffirmativeBased(voters);
+```
 
 # 认证异常
 
 在`AuthenticationException`中接受`extraInformation`的构造函数已被移除，以防止意外泄露`UserDetails`对象。具体来说，我们移除了以下代码：
 
-[PRE8]
+```java
+    public AccountExpiredException(String msg, Object extraInformation) {
+      ...
+    }
+```
 
 这影响了子类`AccountStatusException`、`AccountExpiredException`、`BadCredentialsException`、`CredentialsExpiredException`、`DisabledException`、`LockedException`和`UsernameNotFoundException`。如果您使用这些构造函数中的任何一个，只需移除附加参数。例如，以下代码片段更改了：
 
-[PRE9]
+```java
+    new LockedException("Message", userDetails);
+```
 
 上述代码片段应更改为以下代码片段：
 
-[PRE10]
+```java
+    new LockedException("Message");
+```
 
 # 匿名认证提供者
 
 `AnonymousAuthenticationProvider`的默认构造函数和`setKey`方法因使用构造器注入而被废弃。例如，您可能有以下代码片段：
 
-[PRE11]
+```java
+    AnonymousAuthenticationProvider provider = new 
+    AnonymousAuthenticationProvider();
+    provider.setKey(key);
+```
 
 上述代码片段应更改为以下代码：
 
-[PRE12]
+```java
+    AnonymousAuthenticationProvider provider = new 
+    AnonymousAuthenticationProvider(key);
+```
 
 # 认证详情源实现类
 
 `AuthenticationDetailsSourceImpl`类因编写自定义`AuthenticationDetailsSource`而被废弃。例如，您可能有以下内容：
 
-[PRE13]
+```java
+    AuthenticationDetailsSourceImpl source = new 
+    AuthenticationDetailsSourceImpl();
+    source.setClazz(CustomWebAuthenticationDetails.class);
+```
 
 您应该直接实现`AuthenticationDetailsSource`类以返回`CustomSource`对象：
 
-[PRE14]
+```java
+public class CustomWebAuthenticationDetailsSource implements AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> {
+      public WebAuthenticationDetails buildDetails(HttpServletRequest context) {
+            return new CustomWebAuthenticationDetails(context);
+      }
+}
+```
 
 # 认证提供者管理器
 
@@ -202,11 +279,18 @@ Spring Security 4 中的许多变化将在基于 XML 的配置的命名空间风
 
 例如，您可能像以下内容一样：
 
-[PRE15]
+```java
+ProviderManager provider = new ProviderManager();
+provider.setParent(parent);
+provider.setProviders(providers);
+provider.setClearExtraInformation(true);
+```
 
 如果如此，上述代码应更改为以下代码：
 
-[PRE16]
+```java
+ProviderManager provider = new ProviderManager(providers, parent);
+```
 
 由于`AuthenticationException`异常已经移除了额外信息属性，因此移除了`clearExtraInformation`属性。对此没有替代方案。
 
@@ -214,31 +298,48 @@ Spring Security 4 中的许多变化将在基于 XML 的配置的命名空间风
 
 `RememberMeAuthenticationProvider`类移除了默认构造函数和`setKey`方法，改为使用构造器注入。例如，查看以下代码：
 
-[PRE17]
+```java
+    RememberMeAuthenticationProvider provider = new 
+    RememberMeAuthenticationProvider();
+    provider.setKey(key);
+```
 
 上述代码片段应迁移至以下内容：
 
-[PRE18]
+```java
+    RememberMeAuthenticationProvider provider = new 
+    RememberMeAuthenticationProvider(key);
+```
 
 # 授权实体实现类
 
 `GrantedAuthorityImpl`已被`SimpleGrantedAuthority`所取代，或者实现你自己的`GrantAuthority`对象。例如：
 
-[PRE19]
+```java
+    new GrantedAuthorityImpl(role);
+```
 
 这应该替换为以下内容：
 
-[PRE20]
+```java
+    new SimpleGrantedAuthority(role);
+```
 
 # `InMemoryDaoImpl`
 
 `InMemoryDaoImpl`已被`InMemoryUserDetailsManager`所取代。例如：
 
-[PRE21]
+```java
+InMemoryDaoImpl uds = new InMemoryDaoImpl();
+uds.setUserProperties(properties);
+```
 
 这应该被替换为：
 
-[PRE22]
+```java
+InMemoryUserDetailsManager uds = new InMemoryUserDetailsManager(properties);
+spring-security-web
+```
 
 # `spring-security-web`模块中的弃用
 
@@ -248,59 +349,113 @@ Spring Security 4 中的许多变化将在基于 XML 的配置的命名空间风
 
 `FilterChainProxy`移除了`setFilterChainMap`方法，改为使用构造注入。例如，你可能有以下内容：
 
-[PRE23]
+```java
+FilterChainProxy filter = new FilterChainProxy();
+filter.setFilterChainMap(filterChainMap);
+```
 
 它应该被替换为：
 
-[PRE24]
+```java
+FilterChainProxy filter = new FilterChainProxy(securityFilterChains);
+```
 
 `FilterChainProxy`也移除了`getFilterChainMap`，改为使用`getFilterChains`，例如：
 
-[PRE25]
+```java
+    FilterChainProxy securityFilterChain = ...
+    Map<RequestMatcher,List<Filter>> mappings = 
+    securityFilterChain.getFilterChainMap();
+    for(Map.Entry<RequestMatcher, List<Filter>> entry : mappings.entrySet()) {
+          RequestMatcher matcher = entry.getKey();
+          boolean matches = matcher.matches(request);
+          List<Filter> filters = entry.getValue();
+    }
+```
 
 这应该替换为以下代码：
 
-[PRE26]
+```java
+    FilterChainProxy securityFilterChain = ...
+    List<SecurityFilterChain> mappings = securityFilterChain.getFilterChains();
+    for(SecurityFilterChain entry : mappings) {
+          boolean matches = entry.matches(request);
+          List<Filter> filters = entry.getFilters();
+    }
+```
 
 # `ExceptionTranslationFilter`
 
 `ExceptionTranslationFilter`的默认构造函数和`setAuthenticationEntryPoint`方法已被移除，改为使用构造注入：
 
-[PRE27]
+```java
+ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
+filter.setAuthenticationEntryPoint(entryPoint);
+filter.setRequestCache(requestCache);
+```
 
 这可以用以下代码替换：
 
-[PRE28]
+```java
+    ExceptionTranslationFilter filter = new 
+    ExceptionTranslationFilter(entryPoint, requestCache);
+```
 
 # `AbstractAuthenticationProcessingFilter`
 
 `AbstractAuthenticationProcessingFilter`类的`successfulAuthentication(HttpServletRequest,HttpServletResponse,Authentication)`方法已被移除。所以，你的应用程序可能重写了以下方法：
 
-[PRE29]
+```java
+    protected void successfulAuthentication(HttpServletRequest request, 
+    HttpServletResponse response, Authentication authResult) throws IOException,    
+    ServletException {
+    }
+```
 
 应替换为以下代码：
 
-[PRE30]
+```java
+    protected void successfulAuthentication(HttpServletRequest request,
+     HttpServletResponse response, FilterChain chain, Authentication 
+     authResult) throws IOException, ServletException {
+    }
+```
 
 # `AnonymousAuthenticationFilter`
 
 `AnonymousAuthenticationFilter`类的默认构造函数和`setKey`、`setPrincipal`方法已被移除，改为使用构造注入。例如，看看以下代码片段：
 
-[PRE31]
+```java
+    AnonymousAuthenticationFilter filter = new 
+    AnonymousAuthenticationFilter();
+    filter.setKey(key);
+    filter.setUserAttribute(attrs);
+```
 
 这应该替换为以下代码：
 
-[PRE32]
+```java
+    AnonymousAuthenticationFilter filter = new   
+    AnonymousAuthenticationFilter(key,attrs.getPassword(),
+    attrs.getAuthorities());
+```
 
 # `LoginUrlAuthenticationEntryPoint`
 
 `LoginUrlAuthenticationEntryPoint`的默认构造函数和`setLoginFormUrl`方法已被移除，改为使用构造注入。例如：
 
-[PRE33]
+```java
+    LoginUrlAuthenticationEntryPoint entryPoint = new 
+    LoginUrlAuthenticationEntryPoint();
+    entryPoint.setLoginFormUrl("/login");
+```
 
 这应该替换为以下代码：
 
-[PRE34]
+```java
+    LoginUrlAuthenticationEntryPoint entryPoint = new   
+    LoginUrlAuthenticationEntryPoint(loginFormUrl);
+```
 
 # `PreAuthenticatedGrantedAuthoritiesUserDetailsService`
 
@@ -310,11 +465,27 @@ Spring Security 4 中的许多变化将在基于 XML 的配置的命名空间风
 
 这意味着如果你有一个`PreAuthenticatedGrantedAuthoritiesUserDetailsService`类的子类，它重写了`createuserDetails`，例如`SubclassPreAuthenticatedGrantedAuthoritiesUserDetailsService`扩展了`PreAuthenticatedGrantedAuthoritiesUserDetailsService`。
 
-[PRE35]
+```java
+{
+      @Override
+      protected UserDetails createuserDetails(Authentication token,
+                  Collection<? extends GrantedAuthority> authorities) {
+            // customize
+      }
+}
+```
 
 它应该更改为重写`createUserDetails`：
 
-[PRE36]
+```java
+public class SubclassPreAuthenticatedGrantedAuthoritiesUserDetailsService extends PreAuthenticatedGrantedAuthoritiesUserDetailsService {
+      @Override
+      protected UserDetails createUserDetails(Authentication token,
+                  Collection<? extends GrantedAuthority> authorities) {
+            // customize
+      }
+}
+```
 
 # `AbstractRememberMeServices`
 
@@ -324,61 +495,115 @@ Spring Security 4 中的许多变化将在基于 XML 的配置的命名空间风
 
 对`AbstractRememberMeServices`及其子类`PreAuthenticatedGrantedAuthoritiesUserDetailsService`的更改使得用法类似于以下示例：
 
-[PRE37]
+```java
+PersistentTokenBasedRememberMeServices services = new PersistentTokenBasedRememberMeServices();
+services.setKey(key);
+services.setUserDetailsService(userDetailsService);
+services.setTokenRepository(tokenRepository);
+```
 
 但实现用法现在应替换为：
 
-[PRE38]
+```java
+PersistentTokenBasedRememberMeServices services = new PersistentTokenBasedRememberMeServices(key, userDetailsService, tokenRepository);
+```
 
 # `RememberMeAuthenticationFilter`
 
 `RememberMeAuthenticationFilter`的默认构造函数、`setAuthenticationManager`和`setRememberMeServices`方法已被移除，改为使用构造器注入，如下：
 
-[PRE39]
+```java
+RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter();
+filter.setAuthenticationManager(authenticationManager);
+filter.setRememberMeServices(rememberMeServices);
+```
 
 这应该替换为：
 
-[PRE40]
+```java
+RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter(authenticationManager,rememberMeServices);
+```
 
 # TokenBasedRememberMeServices
 
 `AbstractRememberMeServices`及其子类`PersistentTokenBasedRememberMeServices`和`TokenBasedRememberMeServices`移除了默认构造函数、`setKey`和`setUserDetailsService`方法，改为使用构造器注入。例如：
 
-[PRE41]
+```java
+TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
+services.setKey(key);
+services.setUserDetailsService(userDetailsService);
+```
 
 这应该替换为：
 
-[PRE42]
+```java
+TokenBasedRememberMeServices services = new TokenBasedRememberMeServices(key, userDetailsService);
+```
 
 # ConcurrentSessionControlStrategy
 
 `ConcurrentSessionControlStrategy`已被替换为`ConcurrentSessionControlAuthenticationStrategy`。以前，`ConcurrentSessionControlStrategy`无法与`SessionFixationProtectionStrategy`解耦。现在它完全解耦了。例如：
 
-[PRE43]
+```java
+ConcurrentSessionControlStrategy strategy = new ConcurrentSessionControlStrategy(sessionRegistry);
+```
 
 这可以替换为：
 
-[PRE44]
+```java
+List<SessionAuthenticationStrategy> delegates = new ArrayList<SessionAuthenticationStrategy>();
+delegates.add(new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry));
+delegates.add(new SessionFixationProtectionStrategy());
+delegates.add(new RegisterSessionAuthenticationStrategy(sessionRegistry));
+CompositeSessionAuthenticationStrategy strategy = new CompositeSessionAuthenticationStrategy(delegates);
+```
 
 # SessionFixationProtectionStrategy
 
 `SessionFixationProtectionStrategy`移除了`setRetainedAttributes`方法，改为让用户继承`SessionFixationProtectionStrategy`并重写`extractAttributes`方法。查看以下代码：
 
-[PRE45]
+```java
+SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
+strategy.setRetainedAttributes(attrsToRetain);
+```
 
 它应该替换为：
 
-[PRE46]
+```java
+public class AttrsSessionFixationProtectionStrategy extends SessionFixationProtectionStrategy {
+      private final Collection<String> attrsToRetain;
+      public AttrsSessionFixationProtectionStrategy(
+                  Collection<String> attrsToRetain) {
+            this.attrsToRetain = attrsToRetain;
+      }
+      @Override
+      protected Map<String, Object> extractAttributes(HttpSession session) {
+            Map<String,Object> attrs = new HashMap<String, Object>();
+            for(String attr : attrsToRetain) {
+                  attrs.put(attr, session.getAttribute(attr));
+            }
+            return attrs;
+      }
+}
+SessionFixationProtectionStrategy strategy = new AttrsSessionFixationProtectionStrategy(attrsToRetain);
+```
 
 # BasicAuthenticationFilter
 
 `BasicAuthenticationFilter`的默认构造函数、`setAuthenticationManager`和`setRememberMeServices`方法已被移除，改为使用构造器注入：
 
-[PRE47]
+```java
+BasicAuthenticationFilter filter = new BasicAuthenticationFilter();
+filter.setAuthenticationManager(authenticationManager);
+filter.setAuthenticationEntryPoint(entryPoint);
+filter.setIgnoreFailure(true);
+```
 
 这应该替换为：
 
-[PRE48]
+```java
+BasicAuthenticationFilter filter = new BasicAuthenticationFilter(authenticationManager,entryPoint);
+```
 
 使用这个构造函数会自动将`ignoreFalure`设置为`true`。
 
@@ -386,47 +611,76 @@ Spring Security 4 中的许多变化将在基于 XML 的配置的命名空间风
 
 `SecurityContextPersistenceFilter`移除了`setSecurityContextRepository`，改为使用构造器注入。例如：
 
-[PRE49]
+```java
+SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();
+filter.setSecurityContextRepository(securityContextRepository);
+```
 
 这应该替换为：
 
-[PRE50]
+```java
+SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter(securityContextRepository);
+```
 
 # RequestCacheAwareFilter
 
 `RequestCacheAwareFilter`移除了`setRequestCache`，改为使用构造器注入。例如：
 
-[PRE51]
+```java
+RequestCacheAwareFilter filter = new RequestCacheAwareFilter();
+filter.setRequestCache(requestCache);
+```
 
 这应该替换为：
 
-[PRE52]
+```java
+RequestCacheAwareFilter filter = new RequestCacheAwareFilter(requestCache);
+```
 
 # ConcurrentSessionFilter
 
 `ConcurrentSessionFilter`移除了默认构造函数、`setExpiredUrl`和`setSessionRegistry`方法，改为使用构造器注入。例如：
 
-[PRE53]
+```java
+ConcurrentSessionFilter filter = new ConcurrentSessionFilter();
+filter.setSessionRegistry(sessionRegistry);
+filter.setExpiredUrl("/expired");
+```
 
 这应该替换为：
 
-[PRE54]
+```java
+ConcurrentSessionFilter filter = new ConcurrentSessionFilter(sessionRegistry,"/expired");
+```
 
 # SessionManagementFilter
 
 `SessionManagementFilter`移除了`setSessionAuthenticationStrategy`方法，改为使用构造器注入。例如：
 
-[PRE55]
+```java
+SessionManagementFilter filter = new SessionManagementFilter(securityContextRepository);
+filter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
+```
 
 这应该替换为：
 
-[PRE56]
+```java
+SessionManagementFilter filter = new SessionManagementFilter(securityContextRepository, sessionAuthenticationStrategy);
+```
 
 # RequestMatcher
 
 `RequestMatcher`及其实现已从`org.springframework.security.web.util`包移动到`org.springframework.security.web.util.matcher`。具体如下：
 
-[PRE57]
+```java
+org.springframework.security.web.util.RequestMatcher  org.springframework.security.web.util.matcher.RequestMatcher
+org.springframework.security.web.util.AntPathRequestMatcher org.springframework.security.web.util.matcher.AntPathRequestMatcher
+org.springframework.security.web.util.AnyRequestMatcher org.springframework.security.web.util.matcher.AnyRequestMatcher.INSTANCE
+org.springframework.security.web.util.ELRequestMatcher org.springframework.security.web.util.matcher.ELRequestMatcher
+org.springframework.security.web.util.IpAddressMatcher org.springframework.security.web.util.matcher.IpAddressMatcher
+org.springframework.security.web.util.RequestMatcherEditor  org.springframework.security.web.util.matcher.RequestMatcherEditor
+org.springframework.security.web.util.RegexRequestMatcher org.springframework.security.web.util.matcher.RegexRequestMatcher
+```
 
 # WebSecurityExpressionHandler
 
@@ -434,29 +688,57 @@ Spring Security 4 中的许多变化将在基于 XML 的配置的命名空间风
 
 这意味着你可能有以下内容：
 
-[PRE58]
+```java
+WebSecurityExpressionHandler handler = ...
+```
 
 这需要更新为：
 
-[PRE59]
+```java
+SecurityExpressionHandler<FilterInvocation> handler = ...
+```
 
 你可以这样实现`WebSecurityExpressionHandler`：
 
-[PRE60]
+```java
+public class CustomWebSecurityExpressionHandler implements WebSecurityExpressionHandler {
+      ...
+}
+```
 
 然后它必须更新为：
 
-[PRE61]
+```java
+public class CustomWebSecurityExpressionHandler implements SecurityExpressionHandler<FilterInvocation> {
+     ...
+}
+```
 
 # @AuthenticationPrincipal
 
 `org.springframework.security.web.bind.annotation.AuthenticationPrincipal`已被弃用，改为`org.springframework.security.core.annotation.AuthenticationPrincipal`。例如：
 
-[PRE62]
+```java
+import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
+// ...
+
+@RequestMapping("/messages/inbox")
+public ModelAndView findMessagesForUser(@AuthenticationPrincipal CustomUser customUser) {
+      // .. find messages for this user and return them ...
+}
+```
 
 这应该替换为：
 
-[PRE63]
+```java
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+// ...
+
+@RequestMapping("/messages/inbox")
+public ModelAndView findMessagesForUser(@AuthenticationPrincipal CustomUser customUser) {
+      // .. find messages for this user and return them ...
+}
+```
 
 # 迁移默认过滤器 URL
 

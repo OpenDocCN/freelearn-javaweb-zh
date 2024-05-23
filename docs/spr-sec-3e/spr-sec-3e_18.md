@@ -22,7 +22,9 @@
 
 要使用这些插件，请打开一个终端或命令提示符窗口，切换到代码库的根目录。要在 OSX 或 Linux 上执行插件，请发出以下命令：
 
-[PRE0]
+```java
+$ ./gradlew idea
+```
 
 运行此任务后，每个目录中都会有几个 IDEA 项目文件，如下面的屏幕截图所示：
 
@@ -30,7 +32,9 @@
 
 如果您是在 Windows 机器上，您将发出以下命令：
 
-[PRE1]
+```java
+C:\jbcdcalendar> gradlew.bat idea
+```
 
 之前的示例执行了`gradlew`脚本，这是 Gradle 包装器，然后给出了创建 IDE 文件的命令。IntelliJ 项目文件是通过`idea`任务创建的，而 STS 或任何基于 Eclipse 的 IDE 的项目文件是通过 eclipse 任务创建的。
 
@@ -168,13 +172,34 @@ IDEA 将允许你导入一个现有项目，或者你可以简单地从源代码
 
 如果您还没有证书，您必须首先生成一个。如果您愿意，可以跳过这一步，并使用位于本书示例源代码中`etc`目录下的`tomcat.keystore`文件。在命令提示符下输入以下命令行：
 
-[PRE2]
+```java
+$ keytool -genkey -alias jbcpcalendar -keypass changeit -keyalg RSA \
+-keystore tomcat.keystore
+Enter keystore password: changeit
+Re-enter new password: changeitWhat is your first and last name? [Unknown]: localhost
+What is the name of your organizational unit? [Unknown]: JBCP Calendar
+What is the name of your organization? [Unknown]: JBCP
+What is the name of your City or Locality? [Unknown]: Anywhere 
+What is the name of your State or Province? [Unknown]: UT
+What is the two-letter country code for this unit? [Unknown]: US
+Is CN=localhost, OU=JBCP Calendar, O=JBCP, L=Anywhere, ST=UT, C=US correct? [no]: yes
+```
 
 大多数值都是可以自解释的，但您需要确保对“您的名字是什么？”的回答是您将要从哪个主机访问您的网络应用程序。这是确保 SSL 握手成功的必要条件。
 
 现在您应该在当前目录下有一个名为`tomcat.keystore`的文件。您可以在同一目录下使用以下命令查看其内容：
 
-[PRE3]
+```java
+$ keytool -list -v -keystore tomcat.keystore
+Enter keystore password: changeit
+Keystore type: JKS
+Keystore provider: SUN
+...
+Alias name: jbcpcalendar
+...
+Owner: CN=localhost, OU=JBCP Calendar, O=JBCP, L=Anywhere, ST=UT, C=US
+Issuer: CN=localhost, OU=JBCP Calendar, O=JBCP, L=Anywhere, ST=UT, C=US
+```
 
 正如您可能已经猜到的那样，使用`changeit`作为密码是不安全的，因为这是许多 JDK 实现中使用的默认密码。在生产环境中，您应该使用一个安全的密码，而不是像`changeit`这样简单的东西。
 
@@ -188,11 +213,20 @@ IDEA 将允许你导入一个现有项目，或者你可以简单地从源代码
 
     Tomcat 8.5。您可以在 Tomcat 服务器的主目录的`conf`目录中找到此文件。在您的`server.xml`文件中找到以下条目：
 
-[PRE4]
+```java
+    <!--
+    <Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true" maxThreads="150"    
+    scheme="https" secure="true" clientAuth="false" sslProtocol="TLS" />
+```
 
 1.  取消注释连接器，并将`keystoreFile`属性的值更改为前一部分中 keystore 的位置。同时，确保更新`keystorePass`属性的值为您生成 keystore 时使用的密码。以下代码段显示了一个示例，但请确保更新`keystoreFile`和`keystorePass`的两个值：
 
-[PRE5]
+```java
+    <Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true"  maxThreads="150"    
+    scheme="https" secure="true" clientAuth="false" sslProtocol="TLS"
+    keystoreFile="/home/mickknutson/packt/etc/tomcat.keystore"
+    keystorePass="changeit"/>
+```
 
 1.  现在您应该能够启动 Tomcat 并通过`https://locahost:8443/`访问它。有关在 Tomcat 上配置 SSL 的更多信息，请参阅[`tomcat.apache.org/tomcat-8.5-doc/ssl-howto.html`](http://tomcat.apache.org/tomcat-8.5-doc/ssl-howto.html)上的*SSL 配置如何操作*。
 
@@ -204,9 +238,23 @@ IDEA 将允许你导入一个现有项目，或者你可以简单地从源代码
 
 以下示例是一个完整的连接器，将用于使用客户端证书验证的 Tomcat 部署：
 
-[PRE6]
+```java
+    //server.xml
 
-[PRE7]
+    <Connector
+    scheme="https"
+    secure="true"
+    proxyPort="443"
+    proxyHost="example.com"
+    port="8443"
+    protocol="HTTP/1.1"
+```
+
+```java
+    redirectPort="443"
+    maxThreads="750"
+    connectionTimeout="20000" />
+```
 
 `server.xml`文件可以在`TOMCAT_HOME/conf/server.xml`找到。如果您使用 Eclipse 或 Spring Tool Suite 与 Tomcat 交互，您将在包含`server.xml`文件的`Servers`项目中找到它。例如，如果您使用 Tomcat 8.5，则在 Eclipse 工作区中的路径可能类似于`/Servers/Tomcat v8.5 Server`在`localhost-config/server.xml`。
 

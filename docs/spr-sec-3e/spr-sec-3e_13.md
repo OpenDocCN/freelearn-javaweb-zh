@@ -30,7 +30,46 @@
 
 `AccessDecisionManager`的实现完全可以通过标准 Spring bean 绑定和引用进行配置。默认的`AccessDecisionManager`实现提供了一个基于`AccessDecisionVoter`和投票聚合的访问授予机制。
 
-[PRE0]
+选民是授权序列中的参与者，其任务是评估以下任何或所有内容：
+
++   请求受保护资源的上下文（例如，请求 IP 地址的 URL）
+
++   用户提交的凭证（如果有的话）
+
++   正在访问的受保护资源
+
++   系统的配置参数，以及资源本身
+
+`AccessDecisionManager`的实现还负责将被请求资源的访问声明（在代码中表示为`o.s.s.access.ConfigAttribute`接口的实现）传递给选民。对于 Web URL，选民将了解关于资源的访问声明的信息。如果我们查看我们非常基本的配置文件的 URL 拦截声明，我们将看到`ROLE_USER`被声明为用户正在尝试访问的资源的访问配置，如下所示：
+
+```java
+    .antMatchers("/**").hasRole("USER");
+```
+
+根据选民的了解，它将决定用户是否应该有权访问资源。Spring Security 允许选民做出三种决定之一，其逻辑定义映射到接口中的常量，如下表所示：
+
+| **决策类型** | **描述** |
+| --- | --- |
+| `授权 (ACCESS_GRANTED)` | 选民建议给予对资源的访问权限。 |
+| `拒绝 (ACCESS_DENIED)` | 选民建议拒绝对资源的访问。 |
+
+| `弃权 (ACCESS_ABSTAIN)` | 选民弃权（不对资源的访问做出决定）。这可能发生的原因很多，比如：
+
++   选民没有确凿的信息
+
++   选民无法对这种类型的请求做出决定
+
+|
+
+正如您可能从与访问决策相关的对象和接口的设计中猜测的那样，Spring Security 的这部分已经被设计为可以应用于不仅仅是 Web 领域的验证和访问控制场景。当我们在本章后面讨论方法级安全时，我们将遇到选民和访问决策管理器。
+
+当我们将所有这些内容组合在一起时，Web 请求的默认授权检查的整体流程类似于以下图表：
+
+![](img/af1ee98e-6dd7-4e44-b87a-9a06588d2e3b.png)
+
+我们可以看到，`ConfigAttribute`的抽象允许从配置声明中传递数据（保存在`o.s.s.web.access.intercept.DefaultFilterinvocationSecurityMetadataSource`接口中）给负责处理`ConfigAttribute`的选民，而不需要任何中介类了解`ConfigAttribute`的内容。这种关注点的分离为构建新类型的安全声明（例如我们稍后将在方法安全中看到的声明）提供了坚实的基础，同时利用相同的访问决策模式。
+
+# 访问决策聚合的配置
 
 Spring Security 实际上允许在安全命名空间中配置`AccessDecisionManager`。`<http>`元素上的`access-decision-manager-ref`属性允许你指定一个 Spring bean 引用，以引用`AccessDecisionManager`的实现。Spring Security 随货提供了这个接口的三个实现，全部在`o.s.s.access.vote`包中，如下所示：
 
@@ -44,11 +83,33 @@ Spring Security 实际上允许在安全命名空间中配置`AccessDecisionMana
 
 如果我们想要修改我们的应用程序以使用访问决策管理器，我们需要进行两项修改。为此，我们需要在我们的`SecurityConfig.java`文件中的`http`元素中添加`accessDecisionManager`条目，如下所示：
 
-[PRE1]
+```java
+    //src/main/java/com/packtpub/springsecurity/configuration/
+    SecurityConfig.java
+
+    http.authorizeRequests()
+         .anyRequest()
+         .authenticated()
+         .accessDecisionManager(accessDecisionManager());
+```
 
 这是一个标准的 Spring bean 引用，所以这应该对应于 bean 的`id`属性。我们然后可以定义`UnanimousBased` bean，如下面的代码片段所示。请注意，我们实际上不会在练习中使用这个配置：
 
-[PRE2]
+```java
+//src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
+
+@Bean
+public AccessDecisionManager accessDecisionManager() {
+   List<AccessDecisionVoter<? extends Object>> decisionVoters
+           = Arrays.asList(
+           new AuthenticatedVoter(),
+           new RoleVoter(),
+           new WebExpressionVoter()
+   );
+
+   return new UnanimousBased(decisionVoters);
+}
+```
 
 您可能想知道`decisionVoters`属性是关于什么。这个属性在我们声明自己的`AccessDecisionManager`之前是自动配置的。默认的`AccessDecisionManager`类需要我们声明一个投票者列表，这些投票者被咨询以做出认证决策。这里列出的两个投票者是安全命名空间配置提供的默认值。
 
@@ -95,25 +156,115 @@ Spring Security 为将`ConfigAttribute`对象映射到资源提供了多种方�
 
 第一步是能够从数据库中获取必要的信息。这将替换从我们的安全豆配置中读取`antMatchers()`方法的逻辑。为了实现这一点，章节示例代码中包含了`JpaRequestConfigMappingService`，它将从数据库中获取表示为`RequestConfigMapping`的 ant 模式和表达式的映射。这个相当简单的实现如下所示：
 
-[PRE3]
+```java
+    // src/main/java/com/packtpub/springsecurity/web/access/intercept/
+   JpaRequestConfigMappingService.java
+
+    @Repository("requestConfigMappingService")
+    public class JpaRequestConfigMappingService
+    implements RequestConfigMappingService {
+       @Autowired
+   private SecurityFilterMetadataRepository securityFilterMetadataRepository;
+
+   @Autowired
+   public JpaRequestConfigMappingService(
+           SecurityFilterMetadataRepository sfmr
+   ) {
+       this.securityFilterMetadataRepository = sfmr;
+   }
+
+   @Override
+   public List<RequestConfigMapping> getRequestConfigMappings() {
+       List<RequestConfigMapping> rcm =
+           securityFilterMetadataRepository
+               .findAll()
+               .stream()
+               .sorted((m1, m2) -> {
+               return m1.getSortOrder() - m2.getSortOrder()
+               })
+               .map(md -> {
+                   return new RequestConfigMapping(
+                            new AntPathRequestMatcher 
+                             (md.getAntPattern()),
+                             new SecurityConfig 
+                             (md.getExpression()));
+              }).collect(toList());
+       return rcm;
+   }
+}
+```
 
 需要注意的是，就像`antMatchers()`方法一样，顺序很重要。因此，我们确保结果按`sort_order`列排序。服务创建了一个`AntRequestMatcher`，并将其关联到`SecurityConfig`，这是一个`ConfigAttribute`实例。这将为 HTTP 请求到`ConfigAttribute`对象的映射提供支持，这些对象可以被 Spring Security 用来保护我们的 URL。
 
 我们需要创建一个域对象，以便 JPA 将其映射如下：
 
-[PRE4]
+```java
+// src/main/java/com/packtpub/springsecurity/domain/SecurityFilterMetadata.java
+
+@Entity
+@Table(name = "security_filtermetadata")
+public class SecurityFilterMetadata implements Serializable {
+
+   @Id
+   @GeneratedValue(strategy = GenerationType.AUTO)
+   private Integer id;
+   private String antPattern;
+   private String expression;
+   private Integer sortOrder;
+
+... setters / getters ...
+}
+```
 
 最后，我们需要创建一个 Spring Data 仓库对象，如下所示：
 
-[PRE5]
+```java
+    // src/main/java/com/packtpub/springsecurity/repository/
+    SecurityFilterMetadataRepository.java
+
+   public interface SecurityFilterMetadataRepository
+   extends JpaRepository<SecurityFilterMetadata, Integer> {}
+```
 
 为了让新服务能工作，我们需要初始化我们的数据库，包括架构和访问控制映射。和实现服务一样，我们的架构相当简单：
 
-[PRE6]
+```java
+// src/main/resources/schema.sql
+
+...
+create table security_filtermetadata (
+ id         INTEGER GENERATED BY DEFAULT AS IDENTITY,
+ ant_pattern VARCHAR(1024) NOT NULL unique,
+ expression VARCHAR(1024) NOT NULL,
+ sort_order INTEGER NOT NULL,
+ PRIMARY KEY (id) 
+);
+```
 
 然后我们可以使用相同的`antMatchers()`映射从我们的`SecurityConfig.java`文件来生成`schema.sql`文件：
 
-[PRE7]
+```java
+// src/main/resources/data.sql
+
+*--* Security Filter Metadata *--* 
+insert into security_filtermetadata(id,ant_pattern,expression,sort_order) values (110, '/admin/h2/**','permitAll',10);
+
+insert into security_filtermetadata(id,ant_pattern,expression,sort_order) values (115, '/','permitAll',15);
+
+insert into security_filtermetadata(id,ant_pattern,expression,sort_order) values (120, '/login/*','permitAll',20);
+
+insert into security_filtermetadata(id,ant_pattern,expression,sort_order) values (140, '/logout','permitAll',30);
+
+insert into security_filtermetadata(id,ant_pattern,expression,sort_order) values (130, '/signup/*','permitAll',40);
+
+insert into security_filtermetadata(id,ant_pattern,expression,sort_order) values (150, '/errors/**','permitAll',50);
+
+insert into security_filtermetadata(id,ant_pattern,expression,sort_order) values (160, '/admin/**','hasRole("ADMIN")',60);
+
+insert into security_filtermetadata(id,ant_pattern,expression,sort_order) values (160, '/events/','hasRole("ADMIN")',60);
+
+insert into security_filtermetadata(id,ant_pattern,expression,sort_order) values (170, '/**','hasRole("USER")',70);
+```
 
 此时，你的代码应该以`chapter13.00-calendar`开始。
 
@@ -121,7 +272,47 @@ Spring Security 为将`ConfigAttribute`对象映射到资源提供了多种方�
 
 为了让 Spring Security 了解我们的 URL 映射，我们需要提供一个自定义的`FilterInvocationSecurityMetadataSource`实现。`FilterInvocationSecurityMetadataSource`包扩展了`SecurityMetadataSource`接口，对于特定的 HTTP 请求，它提供了 Spring Security 确定是否应授予访问权限所需的信息。让我们看看如何利用我们的`RequestConfigMappingService`接口来实现一个`SecurityMetadataSource`接口：
 
-[PRE8]
+```java
+    //src/main/java/com/packtpub/springsecurity/web/access/intercept/
+    FilterInvocationServiceSecurityMetadataSource.java
+
+    @Component("filterInvocationServiceSecurityMetadataSource")
+    public class FilterInvocationServiceSecurityMetadataSource implements
+    FilterInvocationSecurityMetadataSource, InitializingBean{
+           ¦ constructor and member variables omitted ...
+
+       public Collection<ConfigAttribute> getAllConfigAttributes() {
+           return this.delegate.getAllConfigAttributes();
+       }
+
+       public Collection<ConfigAttribute> getAttributes(Object object) {
+           return this.delegate.getAttributes(object);
+       }
+
+       public boolean supports(Class<?> clazz) {
+           return this.delegate.supports(clazz);
+       }
+
+       public void afterPropertiesSet() throws Exception {
+       List<RequestConfigMapping> requestConfigMappings =
+       requestConfigMappingService.getRequestConfigMappings();
+       LinkedHashMap requestMap = new 
+       LinkedHashMap(requestConfigMappings.size());
+       for(RequestConfigMapping requestConfigMapping 
+       requestConfigMappings) {
+           RequestMatcher matcher = 
+               requestConfigMapping.getMatcher();
+           Collection<ConfigAttribute> attributes =
+                   requestConfigMapping.getAttributes();
+           requestMap.put(matcher,attributes);
+       }
+           this.delegate =
+           new 
+           ExpressionBasedFilterInvocationSecurityMetadataSource
+          (requestMap,expressionHandler);
+       }
+    }
+```
 
 我们可以使用我们的`RequestConfigMappingService`接口创建一个`RequestMatcher`对象的映射到`ConfigAttribute`对象的映射。然后我们将工作委托给`ExpressionBasedFilterInvocationSecurityMetadataSource`的一个实例。为了简单起见，当前的实现将需要重新启动应用程序以获取更改。然而，通过一些小的改动，我们可以避免这种不便。
 
@@ -129,7 +320,22 @@ Spring Security 为将`ConfigAttribute`对象映射到资源提供了多种方�
 
 现在，剩下要做的就是配置`FilterInvocationServiceSecurityMetadataSource`。唯一的问题是 Spring Security 不支持直接配置自定义的`FilterInvocationServiceSecurityMetadataSource`接口。这并不太难，因此我们将在`SecurityConfig`文件中用我们的`FilterSecurityInterceptor`注册这个`SecurityMetadataSource`：
 
-[PRE9]
+```java
+    // src/main/java/com/packtpub/springsecurity/configuration/
+    SecurityConfig.java
+
+   @Override
+    public void configure(final WebSecurity web) throws Exception {
+       ...
+       final HttpSecurity http = getHttp();
+       web.postBuildAction(() -> {
+       FilterSecurityInterceptor fsi = http.getSharedObject
+       (FilterSecurityInterceptor.class);
+       fsi.setSecurityMetadataSource(metadataSource);
+       web.securityInterceptor(fsi);
+       });
+    }
+```
 
 这设置了我们自定义的`SecurityMetadataSource`接口，将其作为默认元数据源与`FilterSecurityInterceptor`对象关联。
 
@@ -137,7 +343,24 @@ Spring Security 为将`ConfigAttribute`对象映射到资源提供了多种方�
 
 现在既然数据库正在被用来映射我们的安全配置，我们可以在`SecurityConfig.java`文件中删除`antMatchers()`方法。大胆地删除它们，使得配置看起来类似于以下的代码片段：
 
-[PRE10]
+```java
+    // src/main/java/com/packtpub/springsecurity/configuration/
+    SecurityConfig.java
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+
+    // No interceptor methods
+    // http.authorizeRequests()
+    //     .antMatchers("/").permitAll()
+         ...
+
+    http.formLogin()
+         ...
+
+    http.logout()
+         ...
+```
 
 如果你使用了`http antMatchers`表达式中的任何一个，那么自定义表达式处理程序将不会被调用。
 
@@ -159,7 +382,23 @@ Spring Security 为将`ConfigAttribute`对象映射到资源提供了多种方�
 
 要创建一个自定义 web `SecurityExpressionhandler`，我们首先需要创建一个定义我们的`isLocal`方法的`WebSecurityExpressionRoot`子类：
 
-[PRE11]
+```java
+    //src/main/java/com/packtpub/springsecurity/web/access/expression/
+    CustomWebSecurityExpressionRoot.java
+
+    public class CustomWebSecurityExpressionRoot extends
+     WebSecurityExpressionRoot {
+
+      public CustomWebSecurityExpressionRoot(Authentication a, 
+      FilterInvocation fi) {
+       super(a, fi);
+       }
+
+      public boolean isLocal() {
+            return "localhost".equals(request.getServerName());
+       }
+   }
+```
 
 重要的是要注意`getServerName()`返回的是在`Host`头值中提供的值。这意味着恶意用户可以将不同的值注入到头中以绕过约束。然而，大多数应用服务器和代理可以强制`Host`头的值。在利用这种方法之前，请阅读适当的文档，以确保恶意用户不能注入`Host`头值以绕过这样的约束。
 
@@ -167,7 +406,29 @@ Spring Security 为将`ConfigAttribute`对象映射到资源提供了多种方�
 
 为了让我们的新方法变得可用，我们需要创建一个使用我们新根对象的定制`SecurityExpressionHandler`接口。这就像扩展`WebSecurityExpressionHandler`一样简单：
 
-[PRE12]
+```java
+    //src/main/java/com/packtpub/springsecurity/web/access/expression/
+    CustomWebSecurityExpressionHandler.java
+
+    @Component
+    public class CustomWebSecurityExpressionHandler extends  
+           DefaultWebSecurityExpressionHandler {
+       private final AuthenticationTrustResolver trustResolver =
+       new AuthenticationTrustResolverImpl();
+
+       protected SecurityExpressionOperations
+       createSecurityExpressionRoot(Authentication authentication, 
+       FilterInvocation fi)    
+    {
+          WebSecurityExpressionRoot root = new 
+          CustomWebSecurityExpressionRoot(authentication, fi);
+           root.setPermissionEvaluator(getPermissionEvaluator());
+           root.setTrustResolver(trustResolver);
+           root.setRoleHierarchy(getRoleHierarchy());
+         return root;
+       }
+    }
+```
 
 我们执行父类所做的相同步骤，只不过我们使用`CustomWebSecurityExpressionRoot`，它包含了新方法。`CustomWebSecurityExpressionRoot`成为我们 SpEL 表达式的根。
 
@@ -179,11 +440,22 @@ Spring Security 为将`ConfigAttribute`对象映射到资源提供了多种方�
 
 1.  我们现在需要配置`CustomWebSecurityExpressionHandler`。幸运的是，这可以通过使用 Spring Security 命名空间配置支持很容易地完成。在`SecurityConfig.java`文件中添加以下配置：
 
-[PRE13]
+```java
+    // src/main/java/com/packtpub/springsecurity/configuration/
+    SecurityConfig.java
+
+    http.authorizeRequests()
+       .expressionHandler(customWebSecurityExpressionHandler);
+```
 
 1.  现在，让我们更新我们的初始化 SQL 查询以使用新的表达式。更新`data.sql`文件，要求用户为`ROLE_ADMIN`，并且请求来自本地机器。你会注意到，由于 SpEL 支持 Java Bean 约定，我们能够写本地而不是`isLocal`：
 
-[PRE14]
+```java
+       // src/main/resources/data.sql
+
+      insert into security_filtermetadata(id,ant_pattern,expression,sort_order) 
+      values (160, '/admin/**','local and hasRole("ADMIN")',60);
+```
 
 1.  重新启动应用程序，使用`localhost:8443/admin/h2`和`admin1@example.com/admin1`访问 H2 控制台，以查看管理控制台。如果使用`127.0.0.1:8443/admin/h2`和`admin1@example.com admin1`访问 H2 控制台，将显示访问被拒绝的页面。
 
@@ -193,11 +465,26 @@ Spring Security 为将`ConfigAttribute`对象映射到资源提供了多种方�
 
 使用自定义表达式而不是`CustomWebSecurityExpressionHandler`接口的另一种方法是在 web 上添加一个`@Component`，如下所示：
 
-[PRE15]
+```java
+    // src/main/java/com/packtpub/springsecurity/web/access/expression/
+    CustomWebExpression.java
+
+    @Component
+     public class CustomWebExpression {
+       public boolean isLocal(Authentication authentication,
+                          HttpServletRequest request) {
+       return "localhost".equals(request.getServerName());
+   }
+}
+```
 
 现在，让我们更新我们的初始化 SQL 查询，以使用新的表达式。你会注意到，由于 SpEL 支持 Java Bean 约定，我们能够直接引用`@Component`：
 
-[PRE16]
+```java
+// src/main/resources/data.sql
+
+insert into security_filtermetadata(id,ant_pattern,expression,sort_order) values (160, '/admin/**','@customWebExpression.isLocal(authentication, request) and hasRole("ADMIN")',60);
+```
 
 # 方法安全性是如何工作的？
 
@@ -235,7 +522,57 @@ AOP 自动代理功能查询所有注册的`PointcutAdvisor`，以查看是否�
 
 下面是一个不包含任何验证的我们自定义`PermissionEvaluator`的简化版本：
 
-[PRE17]
+```java
+//src/main/java/com/packtpub/springsecurity/access/CalendarPermissionEvaluator.java
+
+public final class CalendarPermissionEvaluator implements PermissionEvaluator {
+   private final EventDao eventDao;
+
+   public CalendarPermissionEvaluator(EventDao eventDao) {
+       this.eventDao = eventDao;
+   }
+
+   public boolean hasPermission(Authentication authentication, Object 
+   targetDomainObject, Object permission) {
+       // should do instanceof check since could be any domain object
+       return hasPermission(authentication, (Event) targetDomainObject, permission);
+   }
+
+   public boolean hasPermission(Authentication authentication, 
+   Serializable targetId, String targetType,
+           Object permission) {
+       // missing validation and checking of the targetType
+       Event event = eventDao.getEvent((Integer)targetId);
+       return hasPermission(authentication, event, permission);
+   }
+
+   private boolean hasPermission(Authentication authentication, 
+   Event event, Object permission) {
+       if(event == null) {
+           return true;
+       }
+       String currentUserEmail = authentication.getName();
+       String ownerEmail = extractEmail(event.getOwner());
+       if("write".equals(permission)) {
+           return currentUserEmail.equals(ownerEmail);
+       } else if("read".equals(permission)) {
+           String attendeeEmail = 
+           extractEmail(event.getAttendee());
+           return currentUserEmail.equals(attendeeEmail) || 
+           currentUserEmail.equals(ownerEmail);
+       }
+       throw new IllegalArgumentException("permission 
+       "+permission+" is not supported.");
+   }
+
+   private String extractEmail(CalendarUser user) {
+       if(user == null) {
+           return null;
+       }
+       return user.getEmail();
+   }
+}
+```
 
 这个逻辑与我们已经使用的 Spring 表达式相当相似，不同之处在于它区分了读取和写入权限。如果当前用户的用户名与`Event`对象的拥有者邮箱匹配，那么授予读取和写入权限。如果当前用户的邮箱与参与者邮箱匹配，则授予读取权限。否则，拒绝访问。
 
@@ -245,13 +582,28 @@ AOP 自动代理功能查询所有注册的`PointcutAdvisor`，以查看是否�
 
 然后，我们可以利用本书提供的`CustomAuthorizationConfig.java`配置，提供一个使用我们的`CalendarPermissionEvaluator`的`ExpressionHandler`，如下所示：
 
-[PRE18]
+```java
+ //src/main/java/com/packtpub/springsecurity/configuration/
+ CustomAuthorizationConfig.java
+
+@Bean
+public DefaultMethodSecurityExpressionHandler defaultExpressionHandler(EventDao eventDao){
+   DefaultMethodSecurityExpressionHandler deh = new DefaultMethodSecurityExpressionHandler();
+   deh.setPermissionEvaluator(
+           new CalendarPermissionEvaluator(eventDao));
+   return deh;
+}
+```
 
 配置应该类似于第十二章的配置，*访问控制列表*，不同之处在于我们现在使用的是我们的`CalendarPermissionEvaluator`类，而不是`AclPermissionEvaluator`。
 
 接下来，我们在`SecurityConfig.java`中添加以下配置，通知 Spring Security 使用我们的自定义`ExpressionHandler`。
 
-[PRE19]
+```java
+    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
+    http.authorizeRequests().expressionHandler
+    (customWebSecurityExpressionHandler);
+```
 
 在配置中，我们确保`prePostEnabled`被启用，并将配置指向我们的`ExpressionHandler`定义。再次强调，配置应该与第十一章的配置非常相似，*细粒度访问控制*。
 
@@ -259,7 +611,12 @@ AOP 自动代理功能查询所有注册的`PointcutAdvisor`，以查看是否�
 
 最后，我们可以用`@PostAuthorize`注解来保护我们的`CalendarService getEvent(int eventId)`方法。你会注意到这一步与我们在第一章中的操作完全相同，*不安全应用程序的剖析*，我们只是改变了`PermissionEvaluator`的实现：
 
-[PRE20]
+```java
+    //src/main/java/com/packtpub/springsecurity/service/CalendarService.java
+
+    @PostAuthorize("hasPermission(returnObject,'read')")
+    Event getEvent(int eventId);
+```
 
 如果你还没有这么做，重新启动应用程序，以用户名/密码`admin1@example.com/admin1`登录，并使用欢迎页面上的链接访问电话会议事件(`events/101`)。将显示访问被拒绝的页面。然而，我们希望能够像`ROLE_ADMIN`用户一样访问所有事件。
 
@@ -267,7 +624,19 @@ AOP 自动代理功能查询所有注册的`PointcutAdvisor`，以查看是否�
 
 只有一个方法被保护，更新注解以检查用户是否有`ROLE_ADMIN`角色或权限将是微不足道的。然而，如果我们保护了所有使用事件的我们的服务方法，这将会变得非常繁琐。相反，我们只需更新我们的`CalendarPermissionEvaluator`。做出以下更改：
 
-[PRE21]
+```java
+private boolean hasPermission(Authentication authentication, Event event, Object permission) {
+   if(event == null) {
+       return true;
+   }
+   GrantedAuthority adminRole =
+           new SimpleGrantedAuthority("ROLE_ADMIN");
+   if(authentication.getAuthorities().contains(adminRole)) {
+       return true;
+   }
+   ...
+}
+```
 
 现在，重新启动应用程序并重复前面的练习。这次，电话会议事件将成功显示。你可以看到，将我们的授权逻辑封装起来可以非常有用。然而，有时扩展表达式本身可能是有用的。
 
