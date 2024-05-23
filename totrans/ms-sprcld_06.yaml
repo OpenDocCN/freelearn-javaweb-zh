@@ -546,6 +546,9 @@
   id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 我已经在`application.yml`中更改了所有微服务的配置。现在，有两个不同的配置文件，第一个用于将应用程序分配给`zone1`，第二个用于`zone2`。你可以从`feign_with_discovery`分支查看版本（[https://github.com/piomin/shown
+    here-spring-cloud-comm/tree/feign_with_discovery](https://github.com/piomin/sample-spring-cloud-comm/tree/feign_with_discovery)）。然后，使用`mvn
+    clean install`命令构建整个项目。应用应该使用`java -jar --spring.profiles.active=zone[n]`命令启动，其中`[n]`是区域编号。因为你要启动很多实例来执行那个测试，考虑通过设置`-Xmx`参数限制堆大小是有价值的，例如，`-Xmx128m`。以下是其中一个微服务当前的配置设置：
 - en: '[PRE14]'
   id: totrans-66
   prefs: []
@@ -557,10 +560,12 @@
   id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将每个区域启动每一个微服务的一个实例。所以，有九个正在运行的Spring Boot应用程序，包括服务发现服务器，如图所示：
 - en: '![](img/0333d3f0-6041-4b5e-98cc-a474b4c5a072.png)'
   id: totrans-68
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/0333d3f0-6041-4b5e-98cc-a474b4c5a072.png)'
 - en: 'If you send the test request to the instance of `order-service` running in
     `zone1` (`http://localhost:8090`), all the traffic will be forwarded to the other
     services in that zone, and the same for `zone2` (`http://localhost:9090`). I have
@@ -569,6 +574,7 @@
   id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你向在`zone1`运行的`order-service`实例（`http://localhost:8090`）发送测试请求，所有流量都将转发到该区域的其他服务，`zone2`（`http://localhost:9090`）也是如此。我突出了Ribbon客户端在该区域注册的目标服务找到的地址列表的片段：
 - en: '[PRE15]'
   id: totrans-70
   prefs: []
@@ -579,6 +585,7 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 继承支持
 - en: 'You have probably noticed that the annotations inside a controller implementation
     and the Feign client implementation for a REST service served by that controller
     are identical. We may create an interface that contains abstract REST method definitions.
@@ -587,6 +594,7 @@
   id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可能已经注意到，控制器实现内部的注解和为该控制器服务的REST服务的Feign客户端实现是相同的。我们可以创建一个包含抽象REST方法定义的接口。这个接口可以被控制器类实现或者被Feign客户端接口扩展：
 - en: '[PRE16]'
   id: totrans-73
   prefs: []
@@ -598,6 +606,7 @@
   id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，控制器类为基本接口提供了所有方法的实现，但并未包含任何REST映射注解，而只用了`@RestController`。以下是`account-service`控制器的片段：
 - en: '[PRE17]'
   id: totrans-75
   prefs: []
@@ -609,15 +618,18 @@
   id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 调用`account-service`的Feign客户端接口不提供任何方法。它只是扩展了基础接口，`AccountService`。要查看基于接口和Feign继承的全实现，切换到`feign_with_inheritance`分支：
 - en: '[https://github.com/piomin/shown here-spring-cloud-comm/tree/feign_with_inheritance](https://github.com/piomin/sample-spring-cloud-comm/tree/feign_with_inheritance)'
   id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: '[https://github.com/piomin/shown here-spring-cloud-comm/tree/feign_with_inheritance](https://github.com/piomin/sample-spring-cloud-comm/tree/feign_with_inheritance)'
 - en: 'Here''s an example Feign client declaration with inheritance support. It extends
     the `AccountService` interface, and hence handles all the methods exposed by `@RestController`:'
   id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下是一个带有继承支持的Feign客户端声明示例。它扩展了`AccountService`接口，因此处理了所有由`@RestController`暴露的方法：
 - en: '[PRE18]'
   id: totrans-79
   prefs: []
@@ -628,6 +640,7 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 手动创建客户端
 - en: 'If you are not convinced by the annotation-like style, you may always create
     a Feign client manually using the Feign Builder API. Feign has several features
     that can be customized, such as encoders and decoders for messages or HTTP client
@@ -635,6 +648,7 @@
   id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你不喜欢注解式的风格，你总是可以手动创建一个Feign客户端，使用Feign Builder API。Feign有多个可以自定义的功能，比如消息的编码器和解码器或HTTP客户端实现：
 - en: '[PRE19]'
   id: totrans-82
   prefs: []
@@ -645,12 +659,14 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 客户端定制
 - en: 'Client customization can be performed not only with the Feign Builder API,
     but also by using the annotation-like style. We may provide a configuration class
     by setting it with the `configuration` property of `@FeignClient`:'
   id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 客户端定制不仅可以使用Feign Builder API完成，还可以通过使用注解风格来进行。我们可以通过设置`@FeignClient`的`configuration`属性来提供一个配置类：
 - en: '[PRE20]'
   id: totrans-85
   prefs: []
@@ -660,6 +676,7 @@
   id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下是一个配置bean的示例：
 - en: '[PRE21]'
   id: totrans-87
   prefs: []
@@ -670,66 +687,78 @@
   id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: Spring Cloud支持以下属性通过声明Spring Beans来覆盖：
 - en: '`Decoder`: By default, `ResponseEntityDecoder`.'
   id: totrans-89
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`Decoder`：默认是`ResponseEntityDecoder`。'
 - en: '`Encoder`: By default, `SpringEncoder`.'
   id: totrans-90
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`Encoder`：默认是`SpringEncoder`。'
 - en: '`Logger`: By default, `Slf4jLogger`.'
   id: totrans-91
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`Logger`：默认是`Slf4jLogger`。'
 - en: '`Contract`: By default, `SpringMvcContract`.'
   id: totrans-92
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`Contract`：默认是`SpringMvcContract`。'
 - en: '`Feign.Builder`: By default, `HystrixFeign.Builder`.'
   id: totrans-93
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`Feign.Builder`：默认是`HystrixFeign.Builder`。'
 - en: '`Client`: If Ribbon is enabled, it is `LoadBalancerFeignClient`; otherwise,
     the default Feign client is used.'
   id: totrans-94
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`Client`：如果启用了Ribbon，则是`LoadBalancerFeignClient`；否则，使用默认的Feign客户端。'
 - en: '`Logger.Level`: It sets a default log level for Feign. You can choose between
     `NONE`, `BASIC`, `HEADERS` and `FULL`.'
   id: totrans-95
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`Logger.Level`：它为Feign设置了默认日志级别。你可以选择`NONE`、`BASIC`、`HEADERS`和`FULL`之间的一种。'
 - en: '`Retryer`: It allows the implementing of the retry algorithm in case of communication
     failure.'
   id: totrans-96
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`Retryer`：它允许在通信失败时实现重试算法。'
 - en: '`ErrorDecoder`: It allows the mapping of the HTTP status code into application-specific
     exception.'
   id: totrans-97
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`ErrorDecoder`：它允许将HTTP状态码映射为特定于应用程序的异常。'
 - en: '`Request.Options`: It allows setting read and connects timeout for the request.'
   id: totrans-98
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`Request.Options`：它允许为请求设置读取和连接超时。'
 - en: '`Collection<RequestInterceptor>`: Collection of registered `RequestInterceptor`
     implementations that perform some actions basing on data taken from request.'
   id: totrans-99
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`Collection<RequestInterceptor>`：已注册的`RequestInterceptor`实现集合，根据从请求中获取的数据执行某些操作。'
 - en: 'Feign client can also be customized using configuration properties. It is possible
     to override settings for all available clients or only for a single selected client
     by providing its name after the `feign.client.config` property prefix. If we set
@@ -744,6 +773,8 @@
   id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: Feign客户端也可以通过配置属性进行定制。通过在`feign.client.config`属性前缀后提供其名称，可以覆盖所有可用客户端的设置，或仅覆盖单个选定客户端的设置。如果我们设置名为`default`而不是特定客户端名称，它将应用于所有Feign客户端。当使用`@EnableFeignClients`注解及其`defaultConfiguration`属性时，也可以在`appplication.yml`文件中指定默认配置。提供的设置始终优先于`@Configuration`
+    bean。如果想要改变这种方法，优先使用`@Configuration`而不是YAML文件，你应该将`feign.client.default-to-properties`属性设置为`false`。以下是一个为`account-service`设置连接超时、HTTP连接的读取超时和日志级别的Feign客户端配置示例：
 - en: '[PRE22]'
   id: totrans-101
   prefs: []
@@ -754,6 +785,7 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 摘要
 - en: In this chapter, we have launched a couple of microservices that communicate
     with one another. We discussed such topics as different implementations of REST
     clients, load balancing between multiple instances, and integration with service
