@@ -1,4 +1,4 @@
-# 作为 Spring Cloud Gateway 的替代品实现 Kubernetes 特性
+# 第十七章：作为 Spring Cloud Gateway 的替代品实现 Kubernetes 特性
 
 当前微服务架构包含许多实现大规模微服务架构中所需的重要设计模式的支撑服务；例如边缘、配置和授权服务器，以及分布式跟踪服务。详情请见第一章，*微服务简介*，并参考*微服务设计模式*小节。在前一章中，我们用 Kubernetes 内置的发现服务替换了基于 Netflix Eureka 的服务发现设计模式。在本章中，我们将通过减少需要部署的支撑服务数量来进一步简化微服务架构。相反，相应的设计模式将由 Kubernetes 内置功能处理。Spring Cloud Config Server 将被 Kubernetes 配置映射和机密替换。Spring Cloud Gateway 将被 Kubernetes 入口资源替换，后者可以像 Spring Cloud Gateway 一样充当边缘服务器。
 

@@ -1,4 +1,4 @@
-# MicroProfile OpenAPI 和类型安全的 REST 客户端
+# 第七章：MicroProfile OpenAPI 和类型安全的 REST 客户端
 
 Eclipse MicroProfile 为 Java 微服务提供了一系列丰富的规范。其中两个，Eclipse MicroProfile OpenAPI 和 Eclipse MicroProfile REST Client，分别帮助您微服务的 API 文档化，并为 REST 端点提供类型安全的调用 API。OpenAPI 简化了微服务端点的文档化，并使此元数据可供第三方开发者查阅。类型安全的 REST 客户端简化了对象到 HTTP 或 JSON 的编解码。
 

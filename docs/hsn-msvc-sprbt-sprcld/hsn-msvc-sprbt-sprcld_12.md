@@ -1,4 +1,4 @@
-# 使用 Spring Cloud Gateway 将微服务隐藏在边缘服务器后面
+# 第十章：使用 Spring Cloud Gateway 将微服务隐藏在边缘服务器后面
 
 在本章中，我们将学习如何使用 Spring Cloud Gateway 作为边缘服务器，即控制从我们的基于微服务的系统架构中暴露哪些 API。我们将了解具有公共 API 的微服务将通过边缘服务器从外部访问，而只有私有 API 的微服务只能从微服务架构的内部访问。在我们的系统架构中，这意味着产品组合服务和企业级 Eureka 服务将通过边缘服务器暴露。三个核心服务—`product`、`recommendation`和`review`—将对外隐藏。
 

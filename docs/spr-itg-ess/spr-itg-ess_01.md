@@ -1,4 +1,4 @@
-# 第一章 入门
+# 第一章：入门
 
 在本章中，我们将设置我们的开发环境，并讨论如何最大限度地利用**SpringSource Tool Suite**（**STS**）。虽然任何流行的 Java 开发 IDE，如*Eclipse*、*intelliJ*、*NetBeans*和其他 IDE 都可以用于开发 Spring Integration 解决方案，但引领 Spring Integration 的公司 Pivotal 建议您使用基于 Eclipse 的**STS**。
 

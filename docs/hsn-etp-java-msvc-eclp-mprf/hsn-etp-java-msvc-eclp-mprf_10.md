@@ -1,4 +1,4 @@
-# MicroProfile 实现、Quarkus 以及通过会议应用程序实现互操作性
+# 第八章：MicroProfile 实现、Quarkus 以及通过会议应用程序实现互操作性
 
 Eclipse MicroProfile 的好处之一是它提供了一个规范，使得许多实现之间可以相互操作。这个好处激励了许多供应商和社区组织将 Eclipse MicroProfile 规范作为开源实现。目前市场上共有八个 Eclipse MicroProfile 实现，第九个实现者是 Quarkus。
 

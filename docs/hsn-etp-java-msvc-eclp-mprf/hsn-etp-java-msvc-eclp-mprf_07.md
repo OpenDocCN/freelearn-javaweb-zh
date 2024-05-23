@@ -1,4 +1,4 @@
-# MicroProfile Metrics 和 OpenTracing
+# 第六章：MicroProfile Metrics 和 OpenTracing
 
 一旦开发人员编写了代码并将其投入生产，就需要观察代码在做什么，表现如何，以及使用了哪些资源。MicroProfile 为解决这些问题创建了两个规范：Metrics 和（与）OpenTracing 的集成。
 

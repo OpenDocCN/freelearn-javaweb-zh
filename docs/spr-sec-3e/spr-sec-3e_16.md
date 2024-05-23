@@ -1,4 +1,4 @@
-# 迁移到 Spring Security 4.2。
+# 第十五章：迁移到 Spring Security 4.2。
 
 在本书的最后一章中，我们将回顾与从 Spring Security 3 迁移到 Spring Security 4.2 的常见迁移问题有关的信息。我们将花更多的时间讨论 Spring Security 3 和 Spring Security 4 之间的差异，因为这是大多数用户将遇到的难题。这是由于从 Spring Security 3 更新到 Spring Security 4.2 包含大量的非被动重构。
 

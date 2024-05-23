@@ -1,1 +1,1 @@
-+   [第一章。Instant Spring for Android Starter](ins-spr-andr-st_0.md)
++   [第一章：Instant Spring for Android Starter](ins-spr-andr-st_0.md)

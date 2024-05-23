@@ -1,4 +1,4 @@
-# 保护微服务
+# 第七章：保护微服务
 
 正如您所知，微服务是我们部署在本地或云基础设施上的组件。微服务可能提供 API 或网络应用程序。我们的示例应用程序 OTRS 提供 API。本章将重点介绍如何使用 Spring Security 和 Spring OAuth2 保护这些 API。我们还将重点介绍 OAuth 2.0 基本原理，使用 OAuth 2.0 保护 OTRS API。要了解更多关于保护 REST API 的信息，您可以参考*RESTful Java Web Services Security,* *Packt Publishing* 书籍。您还可以参考*Spring Security*, *Packt Publishing*视频以获取有关 Spring Security 的更多信息。我们还将学习跨源请求站点过滤器和跨站脚本阻止器。
 

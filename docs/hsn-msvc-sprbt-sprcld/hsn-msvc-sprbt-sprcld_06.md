@@ -1,4 +1,4 @@
-# 使用 OpenAPI/Swagger 添加 API 描述
+# 第五章：使用 OpenAPI/Swagger 添加 API 描述
 
 一个 API（如 RESTful 服务）的价值在很大程度上取决于它是多么容易消费！良好且易于访问的文档是 API 是否有用的一个重要因素。在本章中，我们将学习如何使用 OpenAPI/Swagger 来文档化我们可以从微服务架构中外部访问的 API。
 

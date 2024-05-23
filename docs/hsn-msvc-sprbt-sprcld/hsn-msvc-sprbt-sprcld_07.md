@@ -1,4 +1,4 @@
-# 添加持久化
+# 第六章：添加持久化
 
 在本章中，我们将学习如何将微服务正在使用数据进行持久化。正如在第二章《Spring Boot 简介》中提到的，我们将使用 Spring Data 项目将数据持久化到 MongoDB 和 MySQL 数据库中。`project`和`recommendation`微服务将使用 Spring Data 进行 MongoDB 操作，而`review`微服务将使用 Spring Data 的**JPA**（Java Persistence API 的缩写）访问 MySQL 数据库。我们将向 RESTful API 添加操作，以能够创建和删除数据库中的数据。现有的用于读取数据的 API 将更新以访问数据库。我们将以 Docker 容器的形式运行数据库，由 Docker Compose 管理，也就是我们运行微服务的方式。
 

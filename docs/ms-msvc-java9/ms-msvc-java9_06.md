@@ -1,4 +1,4 @@
-# 响应式微服务
+# 第六章：响应式微服务
 
 在本章中，我们将使用 Spring Boot、Spring Stream、Apache Kafka 和 Apache Avro 来实现响应式微服务。我们将利用现有的 Booking 微服务来实现消息生产者，或者说，生成事件。我们还将创建一个新的微服务（Billing），用于消费由更新的 Booking 微服务产生的消息，或者说，用于消费由 Booking 微服务生成的事件。我们还将讨论 REST-based 微服务和事件-based 微服务之间的权衡。
 

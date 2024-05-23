@@ -1,4 +1,4 @@
-# 用于微服务的 Spring
+# 第二章：用于微服务的 Spring
 
 我知道很多 Java 开发者都接触过 Spring Framework。实际上，它由许多项目组成，可以与许多其他框架一起使用，所以迟早你都会被迫尝试它。尽管与 Spring Boot 的接触经验相对较少，但它已经迅速获得了大量流行。与 Spring Framework 相比，Spring Boot 是一个相对较新的解决方案。它的实际版本是 2，而不是 Spring Framework 的 5。它的创建目的是什么？与标准 Spring Framework 方式相比，使用 Spring Boot 运行应用程序有什么区别？
 
