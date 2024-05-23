@@ -1,4 +1,5 @@
 - en: Chapter 5. Message Flow
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
@@ -9,33 +10,41 @@
     we will explore the out-of-the-box capabilities that the Spring Integration framework
     provides for a seamless flow of messages across heterogeneous components. We will
     cover the following topics in this chapter:'
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
 - en: Routers
+  id: totrans-2
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: Filters
+  id: totrans-3
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: Splitters
+  id: totrans-4
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: Aggregators
+  id: totrans-5
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: Resequencers
+  id: totrans-6
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: Chaining handlers
+  id: totrans-7
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: Routers
+  id: totrans-8
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
@@ -43,29 +52,36 @@
     on a set of pre-defined criteria, deliver them to different channels. Routers
     never change the message—they only route/reroute messages to the next destination.
     Spring Integration provides the following built-in routers:'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
 - en: Payload-type router
+  id: totrans-10
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: Header value router
+  id: totrans-11
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: Recipient list router
+  id: totrans-12
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: XPath router (part of the XML module)
+  id: totrans-13
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: Error message exception-type router
+  id: totrans-14
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: Payload-type router
+  id: totrans-15
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
@@ -74,36 +90,48 @@
     has been configured to be routed to `jmsChannel`, while `org.springframework.messaging.Message`
     has been configured to be routed to `mailChannel`. The following two elements
     have been used:'
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
 - en: '`int:payload-type-router`: This is used to provide a namespace for the payload-type
     router'
+  id: totrans-17
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`int:mapping`: This is the tag used to provide mapping between the Java object
     and the channel'
+  id: totrans-18
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: Header value router
+  id: totrans-19
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
 - en: 'Instead of using the type of message payload, this router will try to read
     headers that have been set on the payload:'
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE0]'
+  id: totrans-21
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-22
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '[PRE2]'
+  id: totrans-23
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Recipient list router
+  id: totrans-24
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
@@ -111,26 +139,33 @@
     refers to a list of channels, which can receive the message. It can be compared
     to the publish-subscribe channel use case, where a predefined set of channels
     are "subscribed" with the router:'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE3]'
+  id: totrans-26
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: 'All the messages delivered on the feeds channel will be delivered both on `transformFeedChannel`
     and `auditFeedChannel`. The elements used are simple:'
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
 - en: '`int:recipient-list-router`: This is used to provide a namespace for a recipientlist
     router'
+  id: totrans-28
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`int:recipient`: This is used to provide the name of the channel, which should
     receive the message'
+  id: totrans-29
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: XPath router
+  id: totrans-30
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
@@ -138,80 +173,104 @@
     *Message Transformers*, we discussed handling XML payloads in detail and we discussed
     an example of *XPath*-based transformers. XPath router is similar—instead of transforming
     a message based on the XPath value, it is routed to one of the channels:'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE4]'
+  id: totrans-32
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'This can send messages to a channel or a set of channels—the value of the expression
     will decide the channels to which messages should be routed. There is a way to
     route messages to specific channels based on the value of the expression:'
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE5]'
+  id: totrans-34
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Error message exception-type router
+  id: totrans-35
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
 - en: '[PRE6]'
+  id: totrans-36
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: '[PRE7]'
+  id: totrans-37
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: 'An explanation of the tags used in this code snippet is as follows:'
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
 - en: '`int:exception-type-router`: This provides the namespace for exception-type
     router.'
+  id: totrans-39
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`default-output-channel`: This is used to specify the default channel where
     the message should be delivered if none of the mappings can resolve a channel
     for the message. This is defined later in detail.'
+  id: totrans-40
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`int:mapping exception-type`: This is used to map an exception to a channel
     name.'
+  id: totrans-41
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: Default output channel
+  id: totrans-42
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
 - en: 'There can be cases where the router is unable to decide which channel a message
     should be delivered to—what to do in this case? The following two options are
     available:'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
 - en: '**Throw an exception**: Depending on a use case, this can be an exception that
     has been mapped to a channel, or the exception can be thrown to be propagated
     above in the chain.'
+  id: totrans-44
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '**Define a default output channel**: As the name suggests, this is the channel
     where all the messages for which channel delivery cannot be decided are delivered.'
+  id: totrans-45
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: 'For example, in the preceding code snippet, the default channel has been specified
     as:'
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE8]'
+  id: totrans-47
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: If the exception cannot be mapped to a defined list, a message will be put on
     the default channel.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
 - en: Using annotations
+  id: totrans-49
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
@@ -220,17 +279,22 @@
     leverage the framework''s `@Router` annotation. We can annotate any method with
     `@Router`, and can use its reference. Let''s take an example where we want to
     route our feed based on the author:'
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE9]'
+  id: totrans-51
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: The return value is a string that is the author's name—a channel with the same
     name must be present. Alternatively, we can return `MessageChannel` or a list
     of `MessageChannel` references directly.
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
 - en: Filters
+  id: totrans-53
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
@@ -239,120 +303,157 @@
     it. Unlike routers, which decide what should be the next channel for a message,
     filters only take a *boolean* decision—whether to pass or not. There are two ways
     to define a message filter in Spring Integration:'
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
 - en: Write a simple Java class and designate its method that will take decisions
     whether to pass the message or not
+  id: totrans-55
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: Configure it as a message endpoint that delegates to an implementation of the
     `MessageSelector` interface
+  id: totrans-56
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: This can be configured either in XML or annotations can be used.
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
 - en: Using a Java class to act as a filter
+  id: totrans-58
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
 - en: 'Let''s take an example of using a simple Java class as a filter—this is part
     of our example about feeds. As feeds come in, we try to validate whether the payload
     is empty or not—then only pass it on for further processing:'
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE10]'
+  id: totrans-60
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: 'The tags interpretation is as simple and intuitive as it can be:'
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
 - en: '`int:filter`: This is used to specify the Spring framework namespace for filters'
+  id: totrans-62
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`input-channel`: This is the channel from which messages will be picked'
+  id: totrans-63
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`output-channel`: This is the channel to which messages will be delivered if
     they pass the filtering criteria'
+  id: totrans-64
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`ref`: This is used for the reference of the Java bean that is acting as a
     filter'
+  id: totrans-65
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`method`: This is the method of the Java bean acting as a filter'
+  id: totrans-66
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: 'Declaration for the bean acting as a filter is as follows:'
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE11]'
+  id: totrans-68
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: 'An actual Java class that has method filtering for the messages, is shown in
     the following code snippet:'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE12]'
+  id: totrans-70
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: 'We can also decide what to do if the payload fails the filtering criteria,
     for example, if the payload is empty. In such a case, we can do either of the
     following two options:'
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
 - en: An exception can be thrown
+  id: totrans-72
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: It can be routed to a specific channel where action can be taken on it—say,
     just log the occurrence of a failure
+  id: totrans-73
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: 'To throw an exception, we can use the following code snippet:'
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE13]'
+  id: totrans-75
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: 'To log the exception, we can use the following code snippet:'
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE14]'
+  id: totrans-77
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: Here, we used a filter on a direct channel and validated the payload. If validation
     was successful, we passed on the message; otherwise, we rejected the message either
     by throwing an exception or by logging its occurrence. Another use case for filters
     could be publish-subscribe channels—many endpoints can listen on a channel and
     filter out the messages of their interest.
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
 - en: 'We can also use *annotation* to define filters. Just using the `@Filter` annotation
     on a method of Java class and Spring Integration will convert it to a filter component—no
     need to extend or implement any additional reference:'
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE15]'
+  id: totrans-80
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: 'A filter declaration in XML needs to be changed, no need to use the `method`
     parameter:'
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE16]'
+  id: totrans-82
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: Configuring a filter as a message endpoint
+  id: totrans-83
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
@@ -361,22 +462,30 @@
     Whenever a payload is passed, the `accept` method is invoked and it returns a
     decision whether to pass on the message or drop it. The following code snippet
     modifies the previous example using `MessageSelector`:'
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE17]'
+  id: totrans-85
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: 'After this definition, the filter can be declared and used as follows:'
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE18]'
+  id: totrans-87
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: Since bean class has been declared inline, there is no need for the reference
     tag.
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
 - en: Splitters
+  id: totrans-89
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
@@ -388,76 +497,102 @@
     before these can be aggregated. Spring Integration provides a `splitter` tag.
     As in the case of a filter, splitters can also be written either by extending
     the framework interface or by writing a custom POJO.
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
 - en: 'Let''s take the simpler one first, leveraging a simple Java class as a splitter:'
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE19]'
+  id: totrans-92
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: 'The elements are pretty self-explanatory:'
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
 - en: '`int:splitter`: This is used to specify the Spring framework namespace for
     filters'
+  id: totrans-94
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`ref`: This is used to provide a reference of bean acting as a splitter'
+  id: totrans-95
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`method`: This is used to specify a method in bean having message splitting
     implementation'
+  id: totrans-96
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`input-channel`: This is the channel from which messages will be read'
+  id: totrans-97
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`output-channel`: This is the channel on which messages will be written'
+  id: totrans-98
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: 'Java class acting as a splitter:'
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE20]'
+  id: totrans-100
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: 'Splitters must return a type of collection, and each item from that collection
     is then delivered one at a time to the next endpoint. If the returned value is
     not a message type, then each element will be wrapped in a message type before
     delivery. Let''s define a service activator for this splitter:'
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE21]'
+  id: totrans-102
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: 'The method `printSplitMessage` is defined in the following code snippet:'
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE22]'
+  id: totrans-104
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE22]'
 - en: 'We can avoid using the `method` tag by using annotation:'
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE23]'
+  id: totrans-106
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE23]'
 - en: 'As in the case of filters, we can also use framework support to write our splitters.
     Any Java class can extend `AbstractMessageSplitter` and override `splitMessage`.
     The previous example has been modified by extending the framework support in the
     following code snippet:'
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE24]'
+  id: totrans-108
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE24]'
 - en: Aggregators
+  id: totrans-109
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
@@ -474,56 +609,69 @@
     concepts that are used are `MessageStore`, `CorrelationStrategy`, and `ReleaseStrategy`.
     Let''s start with a code sample and then we will dive down to explore each of
     these concepts in detail:'
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE25]'
+  id: totrans-111
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE25]'
 - en: 'Hmm, a pretty big declaration! And why not—a lot of things combine together
     to act as an aggregator. Let''s quickly glance at all the tags used:'
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
 - en: '`int:aggregator`: This is used to specify the Spring framework''s namespace
     for the aggregator.'
+  id: totrans-113
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`input-channel`: This is the channel from which messages will be consumed.'
+  id: totrans-114
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`output-channel`: This is the channel to which messages will be dropped after
     aggregation.'
+  id: totrans-115
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`ref`: This is used to specify the bean having the method that is called on
     the release of messages.'
+  id: totrans-116
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`method`: This is used to specify the method that is invoked when messages
     are released.'
+  id: totrans-117
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`release-strategy`: This is used to specify the bean having the method that
     decides whether aggregation is complete or not.'
+  id: totrans-118
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`release-strategy-method`: This is the method having the logic to check for
     completeness of the message.'
+  id: totrans-119
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`correlation-strategy`: This is used to specify the bean having the method
     to correlate the messages.'
+  id: totrans-120
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
 - en: '`correlation-strategy-method`: This is the method having the actual logic to
     correlate the messages.'
+  id: totrans-121
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
@@ -531,6 +679,7 @@
     are temporarily stored until they have been correlated and are ready to release.
     This can be in memory (which is default) or can be a persistence store. If a persistence
     store is configured, message delivery will be resumed across a server crash.'
+  id: totrans-122
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
@@ -540,16 +689,21 @@
     and released after fulfilment of `ReleaseStrategy`. In the following example,
     we are just printing the messages before passing them on to the next consumer
     in the chain:'
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE26]'
+  id: totrans-124
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE26]'
 - en: Let's get to the details of the three most important components that complete
     the aggregator.
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
 - en: Correlation strategy
+  id: totrans-126
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
@@ -562,26 +716,34 @@
     to define it. If the `CorrelationStrategy` interface is implemented, then the
     `getCorrelationKey()` method should be implemented. Let''s see our correlation
     strategy in the feeds example:'
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE27]'
+  id: totrans-128
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE27]'
 - en: So how are we correlating our messages? We are correlating the feeds based on
     the category name. The method must return an object that can be used for correlating
     the messages. If a user-defined object is returned, it must satisfy the requirements
     for a key in a map such as defining `hashcode()` and `equals()`. The return value
     must not be null.
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
 - en: 'Alternatively, if we would have wanted to implement it by extending framework
     support, then it would have looked like this:'
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE28]'
+  id: totrans-131
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE28]'
 - en: Release strategy
+  id: totrans-132
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
@@ -590,18 +752,23 @@
     Similar to the correlation strategy, any Java POJO can define the release strategy
     or we can extend framework support. Here is the example of using the Java POJO
     class:'
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE29]'
+  id: totrans-134
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE29]'
 - en: The argument of a message must be of type collection and it must return a Boolean
     indication whether to release the accumulated messages or not. For simplicity,
     we have just checked for the number of messages from the same category—if it's
     greater than two, we release the messages.
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
 - en: Message store
+  id: totrans-136
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
@@ -612,19 +779,24 @@
     at all. If a persistent message store needs to be used, then it must be declared
     and its reference should be given to the `message-store` attribute. A mysql message
     store can be declared and referenced as follows:'
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE30]'
+  id: totrans-138
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE30]'
 - en: Data source is Spring framework's standard JDBC data source. The greatest advantage
     of using persistence store is recoverability—if the system recovers from a crash,
     all in-memory aggregated messages will not be lost. Another advantage is capacity—memory
     is limited, which can accommodate a limited number of messages for aggregation,
     but the database can have a much bigger space.
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
 - en: Resequencers
+  id: totrans-140
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
@@ -637,16 +809,21 @@
     to track the sequences. It can be considered as a special case of aggregator,
     which holds on to the message based on a header value but does not do any processing
     on the messages:'
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE31]'
+  id: totrans-142
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE31]'
 - en: As we mentioned, resequencers can be considered as a special case of aggregators—almost
     all tags mean the same, except the namespace declaration.
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
 - en: Chaining handlers
+  id: totrans-144
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
@@ -657,18 +834,23 @@
     can be configured as a single message endpoint. It is a chain of other handlers,
     and a message received simply delegates it to the configured handlers in a predefined
     sequence. Let''s take an example:'
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
 - en: '[PRE32]'
+  id: totrans-146
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE32]'
 - en: Let's quickly create a chain and validate it. Start with a filter, which just
     passes all the messages, add a header in the next step, and finally print the
     headers in the service activator. If we can confirm the existence of added headers
     in the second step, then we are fine—chain executed!
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
 - en: Summary
+  id: totrans-148
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
@@ -680,5 +862,8 @@
     with external systems such as connecting to a database, fetching tweets from Twitter,
     writing to a JMS queue, interacting with an FTP server, and many more—a lot of
     interesting stuff, stay tuned!
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: 深呼吸一下…这一章内容颇长，我们讨论了Spring Integration框架提供的许多创新组件，比如路由器、过滤器和分割器。这些组件都有助于消息在不同端点之间的流动。在下一章中，我们将继续探索Spring
+    Integration框架的这些内置功能，但重点将放在适配器上，以与外部系统进行交互，比如连接数据库、从Twitter获取推文、向JMS队列写入、与FTP服务器交互等等——有很多有趣的内容，请继续关注！
