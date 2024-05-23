@@ -123,27 +123,32 @@
   id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 选民是授权序列中的参与者，其任务是评估以下任何或所有内容：
 - en: The context of the request for a secured resource (such as a URL requesting
     an IP address)
   id: totrans-17
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 请求受保护资源的上下文（例如，请求IP地址的URL）
 - en: The credentials (if any) presented by the user
   id: totrans-18
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 用户提交的凭证（如果有的话）
 - en: The secured resource being accessed
   id: totrans-19
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 正在访问的受保护资源
 - en: The configuration parameters of the system, and the resource itself
   id: totrans-20
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 系统的配置参数，以及资源本身
 - en: 'The `AccessDecisionManager` implementation is also responsible for passing
     the access declaration (referred to in the code as implementations of the `o.s.s.access.ConfigAttribute`
     interface) of the resource being requested to the voter. In the case of web URLs,
@@ -154,6 +159,8 @@
   id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: '`AccessDecisionManager`的实现还负责将被请求资源的访问声明（在代码中表示为`o.s.s.access.ConfigAttribute`接口的实现）传递给选民。对于Web
+    URL，选民将了解关于资源的访问声明的信息。如果我们查看我们非常基本的配置文件的URL拦截声明，我们将看到`ROLE_USER`被声明为用户正在尝试访问的资源的访问配置，如下所示：'
 - en: '[PRE0]'
   id: totrans-22
   prefs: []
@@ -166,39 +173,47 @@
   id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据选民的了解，它将决定用户是否应该有权访问资源。Spring Security允许选民做出三种决定之一，其逻辑定义映射到接口中的常量，如下表所示：
 - en: '| **Decision type** | **Description** |'
   id: totrans-24
   prefs: []
   type: TYPE_TB
+  zh: '| **决策类型** | **描述** |'
 - en: '| `Grant (ACCESS_GRANTED)` | The voter recommends giving access to the resource.
     |'
   id: totrans-25
   prefs: []
   type: TYPE_TB
+  zh: '| `授权 (ACCESS_GRANTED)` | 选民建议给予对资源的访问权限。 |'
 - en: '| `Deny (ACCESS_DENIED)` | The voter recommends denying access to the resource.
     |'
   id: totrans-26
   prefs: []
   type: TYPE_TB
+  zh: '| `拒绝 (ACCESS_DENIED)` | 选民建议拒绝对资源的访问。 |'
 - en: '| `Abstain (ACCESS_ABSTAIN)` | The voter abstains (does not make a decision)
     on access to the resource. This may happen for a number of reasons, such as follows:'
   id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: '| `弃权 (ACCESS_ABSTAIN)` | 选民弃权（不对资源的访问做出决定）。这可能发生的原因很多，比如：'
 - en: The voter doesn't have conclusive information
   id: totrans-28
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 选民没有确凿的信息
 - en: The voter can't decide on a request of this type
   id: totrans-29
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 选民无法对这种类型的请求做出决定
 - en: '|'
   id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: '|'
 - en: As you may have guessed from the design of access decision-related objects and
     interfaces, this portion of Spring Security has been designed so that it can be
     applied to authentication and access control scenarios that aren't exclusively
@@ -207,15 +222,18 @@
   id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如您可能从与访问决策相关的对象和接口的设计中猜测的那样，Spring Security的这部分已经被设计为可以应用于不仅仅是Web领域的验证和访问控制场景。当我们在本章后面讨论方法级安全时，我们将遇到选民和访问决策管理器。
 - en: 'When we put this all together, the overall flow of the default authorization
     check for web requests is similar to the following diagram:'
   id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 当我们将所有这些内容组合在一起时，Web请求的默认授权检查的整体流程类似于以下图表：
 - en: '![](img/af1ee98e-6dd7-4e44-b87a-9a06588d2e3b.png)'
   id: totrans-33
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/af1ee98e-6dd7-4e44-b87a-9a06588d2e3b.png)'
 - en: We can see that the abstraction of `ConfigAttribute` allows for data to be passed
     from the configuration declarations (retained in the `o.s.s.web.access.intercept.DefaultFilterinvocationSecurityMetadataSource`
     interface) to the voter responsible for acting on `ConfigAttribute` without any
@@ -226,11 +244,13 @@
   id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以看到，`ConfigAttribute`的抽象允许从配置声明中传递数据（保存在`o.s.s.web.access.intercept.DefaultFilterinvocationSecurityMetadataSource`接口中）给负责处理`ConfigAttribute`的选民，而不需要任何中介类了解`ConfigAttribute`的内容。这种关注点的分离为构建新类型的安全声明（例如我们稍后将在方法安全中看到的声明）提供了坚实的基础，同时利用相同的访问决策模式。
 - en: Configuration of access decision aggregation
   id: totrans-35
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 访问决策聚合的配置
 - en: 'Spring Security does actually allow for the configuration of `AccessDecisionManager`
     in the security namespace. The `access-decision-manager-ref` attribute on the
     `<http>` element allows you to specify a Spring bean reference to an implementation
