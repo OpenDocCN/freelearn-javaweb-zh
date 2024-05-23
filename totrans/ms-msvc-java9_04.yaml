@@ -204,6 +204,7 @@
   id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 下载示例代码：详细的步骤说明在本书的前言中提到。请查看。本书的代码包也托管在GitHub上，地址为：[https://github.com/PacktPublishing/Mastering-Microservices-with-Java](https://github.com/PacktPublishing/Mastering-Microservices-with-Java-9-Second-Edition)。我们还有其他来自我们丰富的书籍和视频目录的代码包，地址为：[https://github.com/PacktPublishing/](https://github.com/PacktPublishing/)。查看它们！
 - en: Each OTRS microservice API represents a RESTful web service. The OTRS API uses
     HTTP verbs such as `GET`, `POST`, and so on, and a RESTful endpoint structure.
     Request and response payloads are formatted as JSON. If required, XML can also
@@ -211,55 +212,66 @@
   id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 每个OTRS微服务API代表一个RESTful web服务。OTRS API使用HTTP动词（如`GET`、`POST`等），以及RESTful端点结构。请求和响应负载格式化为JSON。如果需要，也可以使用XML。
 - en: Restaurant microservice
   id: totrans-27
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 餐厅微服务
 - en: 'The Restaurant microservices will be exposed to the external world using REST
     endpoints for consumption. We''ll find the following endpoints in the Restaurant
     microservice example. One can add as many endpoints as per the requirements:'
   id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 餐厅微服务将通过REST端点暴露给外部世界进行消费。在餐厅微服务示例中，我们会找到以下端点。根据需求可以添加尽可能多的端点：
 - en: 'Endpoint for retrieving restaurant by ID:'
   id: totrans-29
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 获取餐厅ID的端点：
 - en: '![](img/6dd6acef-2a4c-420e-b962-a11cbb7261f0.png)'
   id: totrans-30
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/6dd6acef-2a4c-420e-b962-a11cbb7261f0.png)'
 - en: 'Endpoint for retrieving all the restaurants that matches the value of query
     parameter `Name`:'
   id: totrans-31
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 获取匹配查询参数`Name`的所有餐厅的端点：
 - en: '![](img/4967fca0-9a41-47dc-ba3f-14de1854d494.png)'
   id: totrans-32
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/4967fca0-9a41-47dc-ba3f-14de1854d494.png)'
 - en: 'Endpoint for creating new restaurant:'
   id: totrans-33
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 创建新餐厅的端点：
 - en: '![](img/c3956c15-b2bc-460b-b4a9-0904194f97c6.png)'
   id: totrans-34
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/c3956c15-b2bc-460b-b4a9-0904194f97c6.png)'
 - en: Similarly, we can add various endpoints and their implementations. For demonstration
     purposes, we'll implement the preceding endpoints using Spring Cloud.
   id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 同样，我们可以添加各种端点及其实现。为了演示目的，我们将使用Spring Cloud实现上述端点。
 - en: OTRS implementation
   id: totrans-36
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: OTRS实现
 - en: 'We''ll create the multi-module Maven project for implementing OTRS. The following
     stack would be used to develop the OTRS application. Please note that at the time
     of writing this book, only the snapshot build of Spring Boot and Cloud was available.
@@ -267,55 +279,66 @@
   id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将创建一个多模块的Maven项目来实现OTRS。以下堆栈将用于开发OTRS应用程序。请注意，在撰写本书时，只有Spring Boot和Cloud的快照构建可用。因此，在最终发布中，可能会有一个或两个变化：
 - en: Java version 1.9
   id: totrans-38
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Java版本1.9
 - en: Spring Boot 2.0.0.M1
   id: totrans-39
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Spring Boot 2.0.0.M1
 - en: Spring Cloud Finchley.M2
   id: totrans-40
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Spring Cloud Finchley.M2
 - en: Maven Compiler Plugin 3.6.1 (for Java 1.9)
   id: totrans-41
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Maven Compiler Plugin 3.6.1（用于Java 1.9）
 - en: 'All preceding points are mentioned in the root `pom.xml`, along with the following
     OTRS modules:'
   id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 上述所有点都在根`pom.xml`中提到，还包括以下OTRS模块：
 - en: '`eureka-service`'
   id: totrans-43
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`eureka-service`'
 - en: '`restaurant-service`'
   id: totrans-44
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`restaurant-service`'
 - en: '`user-service`'
   id: totrans-45
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`user-service`'
 - en: '`booking-service`'
   id: totrans-46
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`booking-service`'
 - en: 'The root `pom.xml` file will look something like this:'
   id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 根`pom.xml`文件将如下所示：
 - en: '[PRE0]'
   id: totrans-48
   prefs: []
@@ -326,11 +349,13 @@
   id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们正在开发基于REST的微服务。我们将实现`restaurant`模块。`booking`和`user`模块是在类似的基础上开发的。
 - en: Controller class
   id: totrans-50
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 控制器类
 - en: The `RestaurantController` class uses the `@RestController` annotation to build
     the Restaurant service endpoints. We have already gone through the details of
     `@RestController` in [Chapter 2](58549a01-e3b9-4702-9326-692008cc32c2.xhtml),
@@ -338,21 +363,25 @@
   id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: '`RestaurantController`类使用`@RestController`注解构建餐厅服务端点。我们在[第2章](58549a01-e3b9-4702-9326-692008cc32c2.xhtml)中已经详细介绍了`@RestController`，*设置开发环境*。以下是'
 - en: '`@RestController` is a class-level annotation that is used for resource classes.
     It is'
   id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: '`@RestController`是一个类级注解，用于资源类。它是'
 - en: a combination of the `@Controller` and `@ResponseBody` annotation. It returns
     the domain object.
   id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: '`@Controller`和`@ResponseBody`注解的组合。它返回领域对象。'
 - en: API versioning
   id: totrans-54
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: API版本控制
 - en: As we move forward, I would like to share with you that we are using the `v1`
     prefix on our REST endpoint. That represents the version of the API. I would also
     like to brief you on the importance of API versioning. Versioning APIs is important,
