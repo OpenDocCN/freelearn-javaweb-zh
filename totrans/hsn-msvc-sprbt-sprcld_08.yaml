@@ -2475,41 +2475,49 @@
   id: totrans-384
   prefs: []
   type: TYPE_NORMAL
+  zh: 当Spring Cloud Stream与RabbitMQ一起使用时，它将根据我们的配置为每个主题创建一个RabbitMQ交换和一个队列集。
 - en: Let's see what queues that Spring Cloud Stream has created for us!
   id: totrans-385
   prefs: []
   type: TYPE_NORMAL
+  zh: 看看Spring Cloud Stream为我们创建了哪些队列吧！
 - en: 'Open the following URL in a web browser: `http://localhost:15672/#/queues`.
     You should see the following queues:'
   id: totrans-386
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 在网页浏览器中打开以下URL：`http://localhost:15672/#/queues`。你应该看到以下队列：
 - en: '![](img/00372e65-3efd-4733-8c3a-773b383cde7e.png)'
   id: totrans-387
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/00372e65-3efd-4733-8c3a-773b383cde7e.png)'
 - en: For each topic, we can see one queue for auditGroup, one for the consumer group
     that's used by the corresponding core microservice, and one dead-letter queue.
     We can also see that the auditGroup queues contain messages, as expected!
   id: totrans-388
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于每个主题，我们可以看到一个auditGroup队列，一个由相应核心微服务使用的消费者组队列，以及一个死信队列。我们还可以看到auditGroup队列中包含消息，正如我们所期望的那样！
 - en: 'Click on the products.auditGroup queue and scroll down to Get Message(s), expand
     it, and click on the button named Get Message(s) to see the message in the queue:'
   id: totrans-389
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 点击`products.auditGroup`队列，向下滚动到Get Message(s)，展开它，然后点击名为Get Message(s)的按钮查看队列中的消息：
 - en: '![](img/1ce813e3-39eb-4b9a-a69e-b2d4f0a6be85.png)'
   id: totrans-390
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/1ce813e3-39eb-4b9a-a69e-b2d4f0a6be85.png)'
 - en: 'Next, try to get the product composite using the following code:'
   id: totrans-391
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 接下来，尝试使用以下代码获取产品组合：
 - en: '[PRE53]'
   id: totrans-392
   prefs: []
@@ -2520,6 +2528,7 @@
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 最后，像这样删除它：
 - en: '[PRE54]'
   id: totrans-394
   prefs: []
@@ -2530,17 +2539,20 @@
   id: totrans-395
   prefs: []
   type: TYPE_NORMAL
+  zh: 试图再次获取已删除的产品应该会导致一个`404 - "NotFound"`的响应！
 - en: If you look in the RabbitMQ audit queues again, you should be able to find new
     messages containing delete events.
   id: totrans-396
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你再次查看RabbitMQ审计队列，你应该能够找到包含删除事件的新消息。
 - en: 'Wrap up the test by bringing down the microservice landscape with the following
     command:'
   id: totrans-397
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 通过以下命令结束测试，关闭微服务架构：
 - en: '[PRE55]'
   id: totrans-398
   prefs: []
@@ -2551,15 +2563,18 @@
   id: totrans-399
   prefs: []
   type: TYPE_NORMAL
+  zh: 这样就完成了我们使用没有分区的RabbitMQ的测试。现在，让我们继续测试带有分区的RabbitMQ。
 - en: Using RabbitMQ with two partitions per topic
   id: totrans-400
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 使用每个主题两个分区的RabbitMQ
 - en: Now, let's try out the partitioning support in Spring Cloud Stream!
   id: totrans-401
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，让我们尝试一下Spring Cloud Stream中的分区支持！
 - en: 'We have a separate Docker Compose file prepared for using RabbitMQ with two
     partitions per topic: `docker-compose-partitions.yml`. It will also start two
     instances per core microservice, one for each partition. For example, a second
@@ -2567,6 +2582,7 @@
   id: totrans-402
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们为使用每个主题两个分区的RabbitMQ准备了一个单独的Docker Compose文件：`docker-compose-partitions.yml`。它还将为每个核心微服务启动两个实例，每个分区一个。例如，第二个`product`实例的配置如下：
 - en: '[PRE56]'
   id: totrans-403
   prefs: []
@@ -2576,24 +2592,28 @@
   id: totrans-404
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下是前述源代码的解释：
 - en: We use the same source code and Dockerfile that we did for the first `product`
     instance but configure them differently.
   id: totrans-405
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 我们使用与第一个`product`实例相同的源代码和Dockerfile，但它们进行了不同的配置。
 - en: Specifically, we assign the two `product` instances to different partitions
     using the `instance-index` property we described earlier in this chapter.
   id: totrans-406
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 具体来说，我们将两个`product`实例分配到不同的分区，使用的是我们本章前面描述的`instance-index`属性。
 - en: When using system environment variables to specify Spring properties, we must
     use an uppercase format where dots are replaced with underscores.
   id: totrans-407
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 当使用系统环境变量来指定Spring属性时，我们必须使用大写字母格式，其中点被下划线替换。
 - en: This `product` instance will only process asynchronous events; it will not respond
     to API calls. Since it has a different name, `product-p1` (also used as its DNS
     name), it will not respond to calls to a URL starting with `http://product:8080`.
@@ -2601,10 +2621,12 @@
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 这个`product`实例只处理异步事件；它不会响应API调用。由于它的名称不同，`product-p1`（也用作其DNS名称），所以它不会响应以`http://product:8080`开头的URL调用。
 - en: 'Start up the microservice landscape with the following command:'
   id: totrans-409
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用以下命令启动`microservice landscape`：
 - en: '[PRE57]'
   id: totrans-410
   prefs: []
@@ -2620,15 +2642,19 @@
   id: totrans-411
   prefs: []
   type: TYPE_NORMAL
+  zh: 重复前一部分的测试，但也要创建一个产品ID设置为`2`的产品。如果你查看Spring Cloud Stream设置的队列，你会看到每个分区有一个队列，并且产品审计队列现在每个都包含一个消息，即产品ID
+    `1`的事件放在一个分区的，而产品ID `2`的事件放在另一个分区的。如果你回到浏览器中的`http://localhost:15672/#/queues`，你应该会看到类似以下的内容：
 - en: '![](img/4d333160-75e8-4a56-87f6-aeee8765402e.png)'
   id: totrans-412
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/4d333160-75e8-4a56-87f6-aeee8765402e.png)'
 - en: 'To end the test with RabbitMQ using partitions, bring down the microservice
     landscape with the following command:'
   id: totrans-413
   prefs: []
   type: TYPE_NORMAL
+  zh: 要结束使用分区的RabbitMQ测试，请使用以下命令关闭微服务架构：
 - en: '[PRE58]'
   id: totrans-414
   prefs: []
@@ -2640,11 +2666,13 @@
   id: totrans-415
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们现在完成了使用RabbitMQ的测试，包括有分区和没有分区的情况。我们将尝试的最后一种测试配置是同时测试微服务与Kafka。
 - en: Using Netflix Eureka as a discovery service
   id: totrans-416
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 使用Netflix Eureka作为发现服务
 - en: A discovery service is probably the most important support function required
     to make a landscape of cooperating microservices production-ready. As we already
     described in [Chapter 1](282e7b49-42b8-4649-af81-b4b6830d391d.xhtml), *Introduction
@@ -2654,12 +2682,16 @@
   id: totrans-417
   prefs: []
   type: TYPE_NORMAL
+  zh: 发现服务可能是使一组合作的微服务生产就绪所需的最重要的支持功能。正如我们在[第1章](282e7b49-42b8-4649-af81-b4b6830d391d.xhtml)、*微服务介绍*中的*服务发现*部分已经描述的，服务发现服务可以用来跟踪现有的微服务和它们实例。Spring
+    Cloud支持的第一个发现服务是*Netflix Eureka*。
 - en: We will use this in [Chapter 9](9a514887-19f2-4962-9736-2c0d457bfd9e.xhtml),
     *Adding Service Discovery Using Netflix Eureka and Ribbon**,* along with aload
     balancer and the new Spring Cloud load balancer.
   id: totrans-418
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将在[第9章](9a514887-19f2-4962-9736-2c0d457bfd9e.xhtml)、*使用Netflix Eureka和Ribbon添加服务发现*中使用这个，以及负载均衡器和新的Spring
+    Cloud负载均衡器。
 - en: We will see how easy it is to register microservices with Netflix Eureka when
     using Spring Cloud, and as a client sends HTTP requests such as a call to a RESTful
     API to one of the instances registered in Netflix Eureka. We will also see how
@@ -2669,35 +2701,43 @@
   id: totrans-419
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将看到在使用Spring Cloud时注册微服务有多么简单，以及当客户端发送HTTP请求（例如对注册在Netflix Eureka中的一个实例的RESTful
+    API的调用）时会发生什么。我们还将了解如何扩展微服务的实例数量，以及如何将请求负载均衡到微服务的可用实例上（基于，默认情况下，轮询调度）。
 - en: 'The following screenshot demonstrates the web UI from Eureka, where we can
     see what microservices we have registered:'
   id: totrans-420
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下屏幕快照展示了Eureka的网页用户界面，我们可以看到我们已经注册了哪些微服务：
 - en: '![](img/9d6bf02d-f466-40cf-9bf1-140cbf7d1766.png)'
   id: totrans-421
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/9d6bf02d-f466-40cf-9bf1-140cbf7d1766.png)'
 - en: The review service has three instances available, while the other two services
     only have one instance each.
   id: totrans-422
   prefs: []
   type: TYPE_NORMAL
+  zh: 评论服务有三个实例可用，而其他两个服务只有一个实例。
 - en: With Netflix Eureka introduced, let's introduce how to use Spring Cloud Gateway
     as an edge server.
   id: totrans-423
   prefs: []
   type: TYPE_NORMAL
+  zh: 随着Netflix Eureka的引入，让我们介绍一下如何使用Spring Cloud Gateway作为边缘服务器。
 - en: Using Kafka with two partitions per topic
   id: totrans-424
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 使用每个主题两个分区的Kafka
 - en: 'Now, we shall try out a very cool feature of Spring Cloud Stream: changing
     the messaging system from RabbitMQ to Apache Kafka!'
   id: totrans-425
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，我们将尝试Spring Cloud Stream的一个非常酷的功能：将消息系统从RabbitMQ更改为Apache Kafka！
 - en: 'This can be done simply by changing the value of the `spring.cloud.stream.defaultBinder` property
     from `rabbit` to `kafka`. This is handled by the `docker-compose-kafka.yml` Docker
     Compose file that has also replaced RabbitMQ with Kafka and Zookeeper. The configuration
@@ -2705,6 +2745,8 @@
   id: totrans-426
   prefs: []
   type: TYPE_NORMAL
+  zh: 这可以通过将`spring.cloud.stream.defaultBinder`属性的值从`rabbit`更改为`kafka`来简单实现。这由`docker-compose-kafka.yml`Docker
+    Compose文件处理，该文件也将RabbitMQ替换为Kafka和Zookeeper。Kafka和Zookeeper的配置如下所示：
 - en: '[PRE59]'
   id: totrans-427
   prefs: []
@@ -2716,10 +2758,12 @@
   id: totrans-428
   prefs: []
   type: TYPE_NORMAL
+  zh: Kafka还配置为每个主题使用两个分区，像以前一样，我们为每个核心微服务启动两个实例，每个分区一个。详情请查看Docker Compose文件`docker-compose-kafka.yml`！
 - en: 'Start up the microservice landscape with the following command:'
   id: totrans-429
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用以下命令启动微服务架构：
 - en: '[PRE60]'
   id: totrans-430
   prefs: []
@@ -2730,16 +2774,19 @@
   id: totrans-431
   prefs: []
   type: TYPE_NORMAL
+  zh: 重复上一节的测试，例如，创建两个产品，一个产品ID设置为`1`，另一个产品ID设置为`2`。
 - en: Unfortunately, Kafka doesn't come with any graphical tools that can be used
     to inspect topics, partitions, and the messages that are placed within them. Instead,
     we can run CLI commands in the Kafka Docker container.
   id: totrans-432
   prefs: []
   type: TYPE_NORMAL
+  zh: 不幸的是，Kafka没有附带任何可以用来检查主题、分区以及其中的消息的图形工具。相反，我们可以在Kafka Docker容器中运行CLI命令。
 - en: 'To see a list of topics, run the following command:'
   id: totrans-433
   prefs: []
   type: TYPE_NORMAL
+  zh: 要查看主题列表，请运行以下命令：
 - en: '[PRE61]'
   id: totrans-434
   prefs: []
@@ -2749,31 +2796,37 @@
   id: totrans-435
   prefs: []
   type: TYPE_NORMAL
+  zh: 预期输出如下所示：
 - en: '![](img/824bee38-2547-4e15-9c1f-d4a7550eb6a0.png)'
   id: totrans-436
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/824bee38-2547-4e15-9c1f-d4a7550eb6a0.png)'
 - en: 'Here is an explanation of the preceding source code:'
   id: totrans-437
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下是对前面源代码的解释：
 - en: The topics prefixed with `error` are the topics corresponding to dead-letter
     queues.
   id: totrans-438
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 前缀为`error`的主题是对应于死信队列的主题。
 - en: You will not find any `auditGroup` in the case of RabbitMQ; instead, all messages
     the are available in the topics for any consumer to process.
   id: totrans-439
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 在RabbitMQ的情况下，你找不到`auditGroup`；相反，所有消息都可供任何消费者处理。
 - en: 'To see the partitions in a specific topic, for example, the `products` topic,
     run the following command:'
   id: totrans-440
   prefs: []
   type: TYPE_NORMAL
+  zh: 要查看特定主题的分区，例如`products`主题，请运行以下命令：
 - en: '[PRE62]'
   id: totrans-441
   prefs: []
@@ -2783,15 +2836,18 @@
   id: totrans-442
   prefs: []
   type: TYPE_NORMAL
+  zh: 预期输出如下所示：
 - en: '![](img/0ba3ea90-0eb6-49b9-94f2-71b377357e60.png)'
   id: totrans-443
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/0ba3ea90-0eb6-49b9-94f2-71b377357e60.png)'
 - en: 'To see all the messages in a specific topic, for example, the `products` topic, run
     the following command:'
   id: totrans-444
   prefs: []
   type: TYPE_NORMAL
+  zh: 要查看特定主题的所有消息，例如`products`主题，请运行以下命令：
 - en: '[PRE63]'
   id: totrans-445
   prefs: []
@@ -2801,15 +2857,18 @@
   id: totrans-446
   prefs: []
   type: TYPE_NORMAL
+  zh: 预期输出如下所示：
 - en: '![](img/7570391d-189e-4c89-b544-547f054cfc71.png)'
   id: totrans-447
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/7570391d-189e-4c89-b544-547f054cfc71.png)'
 - en: 'To see all the messages in a specific partition, for example, partition `1`
     in the `products` topic, run the following command:'
   id: totrans-448
   prefs: []
   type: TYPE_NORMAL
+  zh: 要查看特定分区的所有消息，例如`products`主题中的分区`1`，请运行以下命令：
 - en: '[PRE64]'
   id: totrans-449
   prefs: []
@@ -2819,19 +2878,23 @@
   id: totrans-450
   prefs: []
   type: TYPE_NORMAL
+  zh: 预期输出如下所示：
 - en: '![](img/9dd71100-be1f-4d1c-b3aa-06094d47fe58.png)'
   id: totrans-451
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/9dd71100-be1f-4d1c-b3aa-06094d47fe58.png)'
 - en: The output will end with a timeout exception since we stop the command by specifying
     a timeout for the command of `1000` ms.
   id: totrans-452
   prefs: []
   type: TYPE_NORMAL
+  zh: 输出将以超时异常结束，因为我们通过指定`1000`毫秒的命令超时来停止命令。
 - en: 'Bring down the microservice landscape with the following command:'
   id: totrans-453
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用以下命令关闭微服务架构：
 - en: '[PRE65]'
   id: totrans-454
   prefs: []
@@ -2843,23 +2906,28 @@
   id: totrans-455
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，我们已经了解到如何使用Spring Cloud Stream将消息代理从RabbitMQ切换到Kafka，而无需更改源代码。它只需要在Docker
+    Compose文件中进行一些更改。
 - en: Running automated tests of the reactive microservice landscape
   id: totrans-456
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 反应式微服务架构的自动化测试
 - en: 'To be able to run tests of the reactive microservice landscape automatically
     instead of manually, the automated `test-em-all.bash` test script has been enhanced.
     The most important changes are as follows:'
   id: totrans-457
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了能够自动运行反应式微服务架构的测试，而不是手动运行，自动`test-em-all.bash`测试脚本已经得到增强。最重要的变化如下：
 - en: 'The script uses the new `health` endpoint to know when the microservice landscape
     is operational, as shown here:'
   id: totrans-458
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 脚本使用新的`health`端点来了解微服务架构何时运行正常，如下所示：
 - en: '[PRE66]'
   id: totrans-459
   prefs: []
@@ -2872,17 +2940,20 @@
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 脚本有一个新的`waitForMessageProcessing()`函数，它在测试数据设置后调用。它的目的是简单地等待异步创建服务完成测试数据的创建。
 - en: 'To use the test script to automatically run the tests with RabbitMQ and Kafka,
     perform the following steps:'
   id: totrans-461
   prefs: []
   type: TYPE_NORMAL
+  zh: 要使用测试脚本自动运行与RabbitMQ和Kafka相关的测试，请执行以下步骤：
 - en: 'Run the tests using the default Docker Compose file, that is, with RabbitMQ
     without partitions, with the following commands:'
   id: totrans-462
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 使用默认的Docker Compose文件运行测试，即不使用RabbitMQ分区，使用以下命令：
 - en: '[PRE67]'
   id: totrans-463
   prefs: []
@@ -2894,6 +2965,7 @@
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 使用以下命令运行带有两个分区的RabbitMQ测试：
 - en: '[PRE68]'
   id: totrans-465
   prefs: []
@@ -2905,6 +2977,7 @@
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 最后，使用以下命令运行带有Kafka和每个主题两个分区的测试：
 - en: '[PRE69]'
   id: totrans-467
   prefs: []
@@ -2916,15 +2989,18 @@
   id: totrans-468
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本节中，我们学习了如何使用`test-em-all.bash`测试脚本自动运行使用RabbitMQ或Kafka作为消息代理配置的反应式微服务架构的测试。
 - en: Summary
   id: totrans-469
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 总结
 - en: In this chapter, we have seen how we can develop reactive microservices!
   id: totrans-470
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本章中，我们看到了我们如何可以开发反应式微服务！
 - en: Using Spring WebFlux and Spring WebClient, we can develop non-blocking synchronous
     APIs that can handle incoming HTTP requests and send outgoing HTTP requests without
     blocking any threads. Using Spring Data's reactive support for MongoDB, we can
@@ -2937,6 +3013,10 @@
   id: totrans-471
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用Spring WebFlux和Spring WebClient，我们可以开发非阻塞同步API，这些API可以处理传入的HTTP请求并发送非阻塞线程的出站HTTP请求。利用Spring
+    Data对MongoDB的反应式支持，我们还可以以非阻塞方式访问MongoDB数据库，即在等待数据库响应时不会阻塞任何线程。Spring WebFlux、Spring
+    WebClient和Spring Data依赖于Spring Reactor提供它们的反应式和非阻塞特性。当我们必须使用阻塞代码时，例如在使用Spring
+    Data for JPA时，我们可以通过在专用线程池中安排处理来封装阻塞代码的处理。
 - en: We have also seen how Spring Data Stream can be used to develop event-driven
     asynchronous services that work on both RabbitMQ and Kafka as messing systems
     without requiring any changes in the code. By doing some configuration, we can
@@ -2945,53 +3025,64 @@
   id: totrans-472
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们还看到了Spring Data Stream如何用于开发既适用于RabbitMQ又适用于Kafka作为消息系统的基于事件的异步服务，而无需更改代码。通过进行一些配置，我们可以使用Spring
+    Cloud Stream中的特性，如消费者组、重试、死信队列和分区，以处理异步消息的各种挑战。
 - en: We have also learned how to manually and automatically test a system landscape
     consisting of reactive microservices.
   id: totrans-473
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们还学习了如何手动和自动测试由反应式微服务组成的系统架构。
 - en: This was the final chapter on how to use fundamental features in Spring Boot
     and Spring Framework.
   id: totrans-474
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是关于如何在Spring Boot和Spring Framework中使用基本特性的最后一章。
 - en: Next up is an introduction to Spring Cloud and how it can be used to make our
     services production-ready, scalable, robust, configurable, secure, and resilient!
   id: totrans-475
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来将介绍Spring Cloud以及如何使用它来使我们的服务达到生产级、可扩展、健壮、可配置、安全和有弹性！
 - en: Questions
   id: totrans-476
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 问题
 - en: Why is it important to know how to develop reactive microservices?
   id: totrans-477
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 为什么知道如何开发反应式微服务很重要？
 - en: How do you choose between non-blocking synchronous APIs and event/message-driven
     asynchronous services?
   id: totrans-478
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 您如何选择非阻塞同步API和事件/消息驱动的异步服务？
 - en: What makes a message different from an event?
   id: totrans-479
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 消息与事件有什么不同？
 - en: Name some challenges with message-driven asynchronous services. How do we handle
     them?
   id: totrans-480
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 列出一些消息驱动异步服务的挑战。我们如何处理它们？
 - en: Why is the following test failing?
   id: totrans-481
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 为什么以下测试失败？
 - en: '[PRE70]'
   id: totrans-482
   prefs: []
@@ -3003,3 +3094,4 @@
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 使用JUnit编写反应式代码的测试时面临哪些挑战，我们该如何应对？
