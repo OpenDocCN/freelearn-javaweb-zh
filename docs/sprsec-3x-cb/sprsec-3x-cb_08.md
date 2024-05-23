@@ -1,4 +1,4 @@
-# 第八章。使用 ORM 和 NoSQL DB 的 Spring 安全
+# 第八章：使用 ORM 和 NoSQL DB 的 Spring 安全
 
 在本章中，我们将涵盖：
 

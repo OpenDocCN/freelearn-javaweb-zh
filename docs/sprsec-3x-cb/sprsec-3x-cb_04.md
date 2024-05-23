@@ -1,4 +1,4 @@
-# 第四章。Spring Security with Grails
+# 第四章：Spring Security with Grails
 
 在本章中，我们将涵盖：
 

@@ -1,4 +1,4 @@
-# 第一章。Instant Spring for Android Starter
+# 第一章：Instant Spring for Android Starter
 
 欢迎使用 Instant *Spring for Android Starter*。本书特别为您提供了所有您需要的信息，以便使用 Spring for Android 轻松开发 Android 应用程序。您将学习 Spring for Android 提供的不同功能，并开始使用这些功能构建您的第一个应用程序。
 

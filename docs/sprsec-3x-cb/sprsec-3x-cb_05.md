@@ -1,4 +1,4 @@
-# 第五章。使用 GWT 的 Spring Security
+# 第五章：使用 GWT 的 Spring Security
 
 在本章中，我们将涵盖：
 

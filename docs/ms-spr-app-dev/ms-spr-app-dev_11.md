@@ -1,4 +1,4 @@
-# 第十一章。Spring 与 Thymeleaf 集成
+# 第十一章：Spring 与 Thymeleaf 集成
 
 Thymeleaf 是一个完全用 Java 编写的模板引擎。它支持 XML/XHTML/HTML5，这意味着我们可以使用 Thymeleaf 模板引擎库使用 XML 或 XHTML 或 HTML5 开发模板。它提供了一个可选的模块，用于 Spring MVC 和 Spring Web Flow 集成。模板引擎帮助我们在 UI 中创建可重用的组件。模板通常按照约定包括标题、菜单、消息、正文、内容和页脚组件。内容部分动态加载消息。我们可以使用模板创建不同的布局。
 

@@ -1,4 +1,4 @@
-# 第十二章。Spring 与 Web 服务集成
+# 第十二章：Spring 与 Web 服务集成
 
 在本章中，我们将看到 Spring 如何支持`JAX_WS`网络服务，以及如何在**Spring Web Service** (**Spring-WS**)框架中创建网络服务。我们还将看到 Spring Web Service 如何被消费，演示一个客户端应用程序，以及 Spring 支持的 Web 服务的注解。
 

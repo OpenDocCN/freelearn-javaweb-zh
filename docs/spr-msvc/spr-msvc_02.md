@@ -1,4 +1,4 @@
-# 第二章。使用 Spring Boot 构建微服务
+# 第二章：使用 Spring Boot 构建微服务
 
 开发微服务不再那么乏味，这要归功于强大的 Spring Boot 框架。Spring Boot 是一个用于开发 Java 生产就绪微服务的框架。
 

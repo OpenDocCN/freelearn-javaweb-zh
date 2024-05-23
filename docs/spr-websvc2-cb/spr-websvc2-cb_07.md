@@ -1,4 +1,4 @@
-# 第七章。使用 XWSS 库保护 SOAP Web 服务
+# 第七章：使用 XWSS 库保护 SOAP Web 服务
 
 在本章中，我们将涵盖：
 

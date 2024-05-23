@@ -1,4 +1,4 @@
-# 第七章。使用 Wicket 的 Spring Security
+# 第七章：使用 Wicket 的 Spring Security
 
 在本章中，我们将涵盖：
 

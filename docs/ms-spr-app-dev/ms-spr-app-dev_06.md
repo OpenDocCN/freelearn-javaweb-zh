@@ -1,4 +1,4 @@
-# 第六章。Spring 集成与 HTTP
+# 第六章：Spring 集成与 HTTP
 
 在本章中，让我们看看 Spring 集成包如何支持 HTTP 协议。我们还将深入了解 HTTP 及其特性，以更好地理解如何使用 Spring 框架执行 HTTP 操作。
 

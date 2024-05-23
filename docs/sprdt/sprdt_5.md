@@ -1,4 +1,4 @@
-# 第五章. 使用 Spring Data Redis 入门
+# 第五章：使用 Spring Data Redis 入门
 
 在 Spring Data Redis 项目诞生之前，与 Redis 通信的常规方式是使用可以与关系数据库的 JDBC 驱动程序进行比较的客户端库。不同之处在于这些客户端没有实现使得从一个连接器切换到另一个连接器变得困难的标准 API。显然，百万美元的问题是，Spring Data Redis 如何使我们的生活更轻松？
 

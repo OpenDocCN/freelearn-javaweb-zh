@@ -1,4 +1,4 @@
-# 第九章。Spring Security 与 Spring Social
+# 第九章：Spring Security 与 Spring Social
 
 在本章中，我们将涵盖：
 

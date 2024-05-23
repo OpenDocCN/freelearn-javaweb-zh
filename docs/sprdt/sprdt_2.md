@@ -1,4 +1,4 @@
-# 第二章。开始使用 Spring Data JPA
+# 第二章：开始使用 Spring Data JPA
 
 本章为我们提供了设置 Web 应用程序项目并使用 Spring Data JPA 管理实体所需的基本知识。在本章的过程中，我们将学习：
 

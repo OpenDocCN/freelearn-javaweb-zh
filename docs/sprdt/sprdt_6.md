@@ -1,4 +1,4 @@
-# 第六章。使用 Spring Data Redis 构建应用程序
+# 第六章：使用 Spring Data Redis 构建应用程序
 
 我们已经学会了如何设置我们的项目并配置所使用的 Redis 连接。现在是扩展我们的知识并学习如何在应用程序中使用 Spring Data Redis 的时候了。我们还将证明可以将 Redis 用作 Web 应用程序的数据存储。
 

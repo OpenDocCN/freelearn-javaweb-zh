@@ -1,4 +1,4 @@
-# 第六章。使用 Vaadin 的 Spring Security
+# 第六章：使用 Vaadin 的 Spring Security
 
 在本章中，我们将涵盖：
 

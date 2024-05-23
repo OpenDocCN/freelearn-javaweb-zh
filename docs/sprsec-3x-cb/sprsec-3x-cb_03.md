@@ -1,4 +1,4 @@
-# 第三章。JSF 的 Spring Security
+# 第三章：JSF 的 Spring Security
 
 在本章中，我们将涵盖：
 

@@ -1,4 +1,4 @@
-# 第六章。使用 JSNI 和 JavaScript 库的浏览器效果
+# 第六章：使用 JSNI 和 JavaScript 库的浏览器效果
 
 在本章中，我们将学习如何创建用户界面，利用一些知名的第三方 JavaScript 库提供的酷炫浏览器效果。我们将利用 GWT 提供的 JavaScript Native Interface (JSNI)来包装这些现有的 JavaScript 库，并在我们的 GWT 应用程序中使用它们。
 

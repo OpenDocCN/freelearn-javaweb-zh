@@ -1,4 +1,4 @@
-# 第七章。与 Hadoop 一起使用 Spring
+# 第七章：与 Hadoop 一起使用 Spring
 
 在构建现代 Web 应用程序的架构中，处理大量数据一直是一个主要挑战。 Hadoop 是 Apache 的开源框架，提供了处理和存储大量数据的库。它提供了一种可扩展、成本效益和容错的解决方案，用于存储和处理大量数据。在本章中，让我们演示 Spring 框架如何支持 Hadoop。 Map 和 Reduce、Hive 和 HDFS 是与基于云的技术一起使用的一些 Hadoop 关键术语。除了 Apache Hadoop 之外，Google 还推出了自己的 Map 和 Reduce 以及分布式文件系统框架。
 

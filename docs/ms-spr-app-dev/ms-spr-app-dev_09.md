@@ -1,4 +1,4 @@
-# 第九章。使用 Spring Boot 引导应用程序
+# 第九章：使用 Spring Boot 引导应用程序
 
 在本章中，我们将看到另一个 Spring 包——Spring Boot，它允许用户快速开始使用 Spring 框架。使用**Spring Boot 抽象层**的应用程序称为**Spring Boot 应用程序**。Spring 推出了一个 Spring 初始化器 Web 应用程序，其中有一个 Web 界面，我们可以在其中选择需要启动的应用程序类型。
 

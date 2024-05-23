@@ -1,4 +1,4 @@
-# 第五章。使用 Spring Cloud 扩展微服务
+# 第五章：使用 Spring Cloud 扩展微服务
 
 为了管理互联网规模的微服务，需要比 Spring Boot 框架提供的能力更多。Spring Cloud 项目有一套专门构建的组件，可以轻松实现这些额外的能力。
 
