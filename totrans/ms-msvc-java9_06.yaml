@@ -3,6 +3,7 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 响应式微服务
 - en: In this chapter, we'll implement reactive microservices using Spring Boot, Spring
     Stream, Apache Kafka, and Apache Avro. We'll make use of the existing Booking
     microservice to implement the message producer, or in other words, generate the
@@ -13,30 +14,36 @@
   id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本章中，我们将使用Spring Boot、Spring Stream、Apache Kafka和Apache Avro来实现响应式微服务。我们将利用现有的Booking微服务来实现消息生产者，或者说，生成事件。我们还将创建一个新的微服务（Billing），用于消费由更新的Booking微服务产生的消息，或者说，用于消费由Booking微服务生成的事件。我们还将讨论REST-based微服务和事件-based微服务之间的权衡。
 - en: 'In this chapter, we will cover the following topics:'
   id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本章中，我们将涵盖以下主题：
 - en: An overview of the reactive microservice architecture
   id: totrans-3
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 响应式微服务架构概述
 - en: Producing an event
   id: totrans-4
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 生成事件
 - en: Consuming the event
   id: totrans-5
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 消费事件
 - en: An overview of the reactive microservice architecture
   id: totrans-6
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 响应式微服务架构概述
 - en: So far, the microservices we have developed are based on REST. We have used
     REST for both internal (inter-microservice, where one microservice communicates
     with another microservice in the same system) and external (through the public
@@ -47,6 +54,7 @@
   id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 到目前为止，我们所开发的微服务是基于REST的。我们使用REST进行内部（微服务之间的通信，其中一个微服务与同一系统中的另一个微服务进行通信）和外部（通过公共API）通信。目前，REST最适合公共API。对于微服务之间的通信，还有其他选择吗？实现REST用于微服务之间通信的最佳方法是什么？我们将在本节中讨论所有这些问题。
 - en: You can build microservices that are purely asynchronous. You can build microservice-based
     systems that would communicate based on events. There is a tradeoff between REST
     and event-based microservices. REST provides synchronous communication, whereas
@@ -55,6 +63,7 @@
   id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可以构建完全是异步的微服务。你可以构建基于微服务的系统，这种系统将基于事件进行通信。REST和基于事件 的微服务之间有一个权衡。REST提供同步通信，而响应式微服务则基于异步通信（异步消息传递）。
 - en: We can use asynchronous communication for inter-microservice communication.
     Based on the requirement and functionality, we can choose REST or asynchronous
     message passing. Consider the example case of a user placing an order, which makes
@@ -71,20 +80,24 @@
   id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以为微服务之间的通信使用异步通信。根据需求和功能，我们可以选择REST或异步消息传递。考虑一个用户下订单的示例案例，这对于实现响应式微服务来说是一个非常好的案例。在成功下单后，库存服务将重新计算可用商品；账户服务将维护交易；通信服务将向所有涉及的用户（如客户和供应商）发送消息（短信、电子邮件等）。在这种情况下，一个微服务可能会根据另一个微服务执行的操作（下单）执行不同的操作（库存、账户、消息传递等）。现在，想想如果所有的这些通信都是同步的。相反，通过异步消息传递实现的响应式通信，提供了硬件资源的高效利用、非阻塞、低延迟和高吞吐量操作。
 - en: We can primarily divide the microservice implementations into two groups—REST-based
     microservices and event-based/message-driven microservices. Reactive microservices
     are event-based.
   id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以将微服务实现主要分为两组——REST-based微服务和事件-based/消息驱动的微服务。响应式微服务是基于事件的。
 - en: '![](img/42dd3919-b165-4b8a-b0d2-ec2cf4aacd8b.png)'
   id: totrans-11
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/42dd3919-b165-4b8a-b0d2-ec2cf4aacd8b.png)'
 - en: Reactive manifesto
   id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 响应式宣言
 - en: Reactive microservices are based on the Reactive Manifesto ([https://www.reactivemanifesto.org/](https://www.reactivemanifesto.org/)).
     The Reactive Manifesto comprises of four principles, which we will now discuss.
   id: totrans-13
@@ -171,11 +184,14 @@
   id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 理想情况下，反应式编程语言是实现反应式微服务的最佳方式。反应式编程语言提供异步和非阻塞调用。Java也可以利用Java流功能来开发反应式微服务。Kafka将使用Kafka的Java库和插件进行消息传递。我们已经实现了服务发现和注册服务（Eureka
+    Server-监控），利用Eureka实现弹性代理服务器（Zuul），以及利用Eureka和Hystrix实现断路器（弹性响应）。在下一节中，我们将实现基于消息的微服务。
 - en: Implementing reactive microservices
   id: totrans-23
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 实现反应式微服务
 - en: Reactive microservice performs operations in response to events. We'll make
     changes in our code to produce and consume events for our sample implementation.
     Although we'll create a single event, a microservice can have multiple producers
@@ -190,11 +206,14 @@
   id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 反应式微服务响应事件执行操作。我们将修改我们的代码以产生和消费我们示例实现的事件。虽然我们将创建一个单一事件，但微服务可以有多个生产者或消费者事件。此外，微服务可以同时具有生产者和消费者事件。我们将利用Booking微服务中现有的功能来创建新预订（`POST
+    /v1/booking`）。这将作为我们的事件源，并使用Apache Kafka发送此事件。其他微服务可以通过监听此事件来消费该事件。在成功预订调用后，Booking微服务将产生Kafka主题（事件）`amp.bookingOrdered`。我们将创建一个与创建其他微服务（如Booking）相同方式的新微服务Billing，用于消费此事件（`amp.bookingOrdered`）。
 - en: Producing an event
   id: totrans-25
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 产生事件
 - en: An object would be sent to Kafka once an event is produced. Similarly, Kafka
     would send this produced object to all listeners (microservices). In short, the
     produced object travels over the network. Therefore, we need serialization support
@@ -206,6 +225,8 @@
   id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦产生事件，对象就会被发送到Kafka。同样，Kafka会将这个产生的对象发送给所有监听器（微服务）。简而言之，产生的对象通过网络传输。因此，我们需要为这些对象提供序列化支持。我们将使用Apache
+    Avro进行数据序列化。它定义了以JSON格式表示的数据结构（架构），并为Maven和Gradle提供了一个插件，使用JSON架构生成Java类。Avro与Kafka配合很好，因为Avro和Kafka都是Apache产品，彼此之间集成非常紧密。
 - en: Let's start with defining the schema that represents the object sent over the
     network when a new booking is created. As shared earlier for producing the event,
     we'll make use of the existing Booking microservice. We'll create the Avro schema
@@ -213,10 +234,12 @@
   id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们先定义一个代表创建新预订时通过网络发送的对象的架构。正如之前提到的用于产生事件的Booking微服务，我们将在Booking微服务的`src/main/resources/avro`目录中创建Avro架构文件`bookingOrder.avro`。
 - en: 'The `bookingOrder.avro` file will look something like this:'
   id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: '`bookingOrder.avro`文件看起来像这样：'
 - en: '[PRE0]'
   id: totrans-29
   prefs: []
@@ -230,6 +253,7 @@
   id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这里，`namespace`代表包`type`，`record`代表类，`name`代表类名，而`fields`代表类的属性。当我们使用此架构生成Java类时，它将在`com.packtpub.mmj.booking.domain.valueobject.avro`包中创建新的Java类`BookingOrder.java`，`fields`中定义的所有属性都将包含在这个类中。
 - en: In `fields` too, we have `name` and `type` that represent the name and type
     of the property. For all fields, we have used the input `type` as `string`. You
     could also use other primitive types such as `boolean`, `int`, and `double`. Also,
@@ -239,6 +263,7 @@
   id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 在`fields`中，也有`name`和`type`，它们表示属性的名称和类型。对于所有字段，我们都使用了输入`type`作为`string`。您还可以使用其他基本类型，如`boolean`、`int`和`double`。此外，您可以使用复杂类型，如`record`（在上面的代码片段中使用）、`enum`、`array`和`map`。`default`类型表示属性的默认值。
 - en: 'The preceding schema would be used to generate the Java code. We''ll make use
     of the `avro-maven-plugin` to generate the Java source files from the preceding
     Avro schema. We''ll add this plugin in the plugins section of the child `pom`
@@ -246,6 +271,7 @@
   id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 前面的模式将用于生成Java代码。我们将使用`avro-maven-plugin`从前面的Avro模式生成Java源文件。我们将在此插件的子`pom`文件（服务的`pom.xml`）的插件部分添加此插件：
 - en: '[PRE1]'
   id: totrans-33
   prefs: []
@@ -258,15 +284,19 @@
   id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 您可以看到，在`configuration`部分，已经配置了`sourceDirectory`和`outputDirectory`。因此，当我们运行`mvn
+    package`时，它将在配置的`outputDirectory`内部的`com.packtpub.mmj.booking.domain.valueobject.avro`包中创建`BookingOrder.java`文件。
 - en: Now that our Avro schema and the generated Java source is available to us, we'll
     add Maven dependencies that are required for producing the event.
   id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在既然我们的Avro模式和生成的Java源代码已经可用，我们将添加生成事件所需的Maven依赖项。
 - en: 'Adding dependency in the Booking microservice `pom.xml` file:'
   id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Booking微服务`pom.xml`文件中添加依赖项：
 - en: '[PRE2]'
   id: totrans-37
   prefs: []
@@ -278,6 +308,7 @@
   id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这里，我们添加了三个主要依赖项：`avro`、`spring-cloud-stream`和`kafka-clients`。此外，我们还添加了与Kafka的流集成（`spring-cloud-starter-stream-kafka`）和流支持模式（`spring-cloud-stream-schema`）。
 - en: Now, since our dependencies are in place, we can start writing producer implementation.
     Booking microservice would send the `amp.bookingOrdered` event to the Kafka stream.
     We'll declare the message channel for this purpose. It can be done either using
@@ -287,6 +318,7 @@
   id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，既然我们的依赖项已经就位，我们可以开始编写生产者实现。Booking微服务将发送`amp.bookingOrdered`事件到Kafka流。我们将声明为此目的的消息通道。可以通过使用`Source.OUTPUT`与`@InboundChannelAdapter`注解，或者通过声明Java接口来完成。我们将使用接口方法，因为这更容易理解且有关联。
 - en: We'll create the `BookingMessageChannels.java` message channel in the `com.packtpub.mmj.booking.domain.service.message`
     package. Here, we can add all the message channels that are required. Since we
     are using the single event for sample implementation, we have to just declare
@@ -294,10 +326,12 @@
   id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将在`com.packtpub.mmj.booking.domain.service.message`包中创建`BookingMessageChannels.java`消息通道。在这里，我们可以添加所有必需的消息通道。由于我们使用单事件样本实现，我们只需声明`bookingOrderOutput`。
 - en: 'The `BookingMessageChannels.java` file will look something like this:'
   id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: '`BookingMessageChannels.java`文件将看起来像这样：'
 - en: '[PRE3]'
   id: totrans-42
   prefs: []
@@ -310,6 +344,7 @@
   id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这里，我们只是使用`@Output`注解定义了消息通道的名称，`bookingOrderOutput`。我们还需要在`application.yaml`中配置此消息通道。我们将在`application.yaml`文件中使用此名称定义Kafka主题：
 - en: '[PRE4]'
   id: totrans-44
   prefs: []
@@ -322,12 +357,14 @@
   id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这里，给出了Kafka主题名称`amp.bookingOrdered`，它与`bookingOrderOutput`消息通道绑定。（Kafka主题名称可以是任何字符串。我们添加`amp`前缀以表示异步消息传递；您可以使用带或不带前缀的Kafka主题名称。）
 - en: We also need a message converter that would send the `BookingOrder` object to
     Kafka. For this purpose, we'll create an `@Bean` annotation that would return
     the Spring `MessageConverter` in the Booking service main class.
   id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们还需要一个消息转换器，用于将`BookingOrder`对象发送到Kafka。为此，我们将在Booking服务的主类中创建一个`@Bean`注解，以返回Spring的`MessageConverter`。
 - en: 'The `@Bean` annotation in `BookingApp.class` file will look something like
     this:'
   id: totrans-47
@@ -464,15 +501,18 @@
   id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将在账单微服务中以与预订微服务相同的方式添加Avro模式。由于账单微服务的模式命名空间（包名）将是相同的`booking`包，我们需要在`@SpringBootApplication`注解的`scanBasePackages`属性中添加值`com.packtpub.mmj.booking`。这将允许spring上下文也扫描预订包。
 - en: We'll add following dependencies in the Billing microservice `pom.xml`, which
     is the same as we have added in Booking microservice.
   id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将在账单微服务的`pom.xml`中添加以下依赖项，这与我们在预订微服务中添加的依赖项相同。
 - en: 'The `pom.xml` file for Billing microservice is as follows:'
   id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 账单微服务的`pom.xml`文件如下：
 - en: '[PRE12]'
   id: totrans-74
   prefs: []
@@ -483,11 +523,13 @@
   id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 您可以参考预订服务依赖段落，了解添加这些依赖的原因。
 - en: 'Next, we''ll add the message channel in the Billing microservice, as shown
     here:'
   id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，我们将向账单微服务中添加消息通道，如下所示：
 - en: '[PRE13]'
   id: totrans-77
   prefs: []
@@ -499,11 +541,13 @@
   id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里，我们正在为预订服务中的输出消息通道添加一个输入消息通道的对端。请注意`bookingOrderInput`是一个带有`@input`注解的输入消息通道。
 - en: 'Next, we want to configure the `bookingOrderInput` channel to the Kafka topic
     `amp.BookingOrdered`. We''ll modify the `application.yaml` for this purpose:'
   id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，我们想要将`bookingOrderInput`通道配置为Kafka主题`amp.BookingOrdered`。为此，我们将修改`application.yaml`：
 - en: '[PRE14]'
   id: totrans-80
   prefs: []
@@ -515,6 +559,7 @@
   id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里，通过目标属性将Kafka主题添加到`bookingOrderInput`通道。我们还将按照在预订微服务中配置的方式在账单微服务（`application.yaml`）中配置Kafka：
 - en: '[PRE15]'
   id: totrans-82
   prefs: []
@@ -526,10 +571,12 @@
   id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，我们将添加一个事件监听器，该监听器将监听与`bookingOrderInput`消息通道绑定的流，使用Spring Cloud Steam库中可用的`@StreamListener`注解。
 - en: 'The `EventListener.java` file is as follows:'
   id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: '`EventListener.java`文件如下：'
 - en: '[PRE16]'
   id: totrans-85
   prefs: []
@@ -543,6 +590,7 @@
   id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里，您还可以添加其他事件监听器。例如，我们只需记录接收到的对象。根据需求，您可以添加一个额外的功能；如果需要，您甚至可以再次产生一个新事件以进行进一步处理。例如，您可以将事件产生到一家餐厅，该餐厅有一个新的预订请求，等等，通过一个管理餐厅通信的服务。
 - en: 'Finally, we can enable the binding of the `bookingOrderInput` message channel
     to stream using the `@EnableBinding` annotation of the Spring Cloud Stream library
     and create the bean of the `EventListener` class created in `BillingApp.java`
@@ -550,10 +598,12 @@
   id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后，我们可以使用Spring Cloud Stream库的`@EnableBinding`注解启用`bookingOrderInput`消息通道与流的绑定，并在`BillingApp.java`（`billing-service`模块的主类）中创建`EventListener`类的bean，如下所示：
 - en: 'The `BillingApp.java` will look something like this:'
   id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: '`BillingApp.java`可能看起来像这样：'
 - en: '[PRE17]'
   id: totrans-89
   prefs: []
@@ -565,6 +615,7 @@
   id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，您可以启动账单微服务并发起一个新的`POST/v1/booking` REST调用。您可以在账单微服务的日志中找到接收到的对象，如下所示：
 - en: '[PRE18]'
   id: totrans-91
   prefs: []
@@ -575,25 +626,30 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 参考文献
 - en: 'The following links will give you more information:'
   id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下链接将为您提供更多信息：
 - en: '**Apache Kafka**: [https://kafka.apache.org/](https://kafka.apache.org/)'
   id: totrans-94
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**Apache Kafka**: [https://kafka.apache.org/](https://kafka.apache.org/)'
 - en: '**Apache Avro**: [https://avro.apache.org/](https://avro.apache.org/)'
   id: totrans-95
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**Apache Avro**: [https://avro.apache.org/](https://avro.apache.org/)'
 - en: '**Avro Specs**: [https://avro.apache.org/docs/current/spec.html](https://avro.apache.org/docs/current/spec.html)'
   id: totrans-96
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**Avro规范**: [https://avro.apache.org/docs/current/spec.html](https://avro.apache.org/docs/current/spec.html)'
 - en: '**Spring Cloud Stream**: [https://cloud.spring.io/spring-cloud-stream/](https://cloud.spring.io/spring-cloud-stream/)'
   id: totrans-97
   prefs:
