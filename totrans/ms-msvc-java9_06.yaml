@@ -370,6 +370,7 @@
   id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: '`BookingApp.class`文件中的`@Bean`注解看起来像这样：'
 - en: '[PRE5]'
   id: totrans-48
   prefs: []
@@ -381,10 +382,12 @@
   id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 您可以根据所需的模式添加更多的豆子。我们还没有在`application.yaml`中配置Kafka服务器，默认为`localhost`。让我们来做这件事。
 - en: 'Configuring the Kafka server in the `application.yaml` file:'
   id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 在`application.yaml`文件中配置Kafka服务器：
 - en: '[PRE6]'
   id: totrans-51
   prefs: []
@@ -395,6 +398,7 @@
   id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这里，我们为`zkNodes`和`brokers`都配置了`localhost`；您可以将其更改为托管Kafka的主机。
 - en: We are ready for sending the `amp.bookingOrdered` Kafka topic to the Kafka server.
     For simplicity, we'll directly add a `produceBookingOrderEvent` method that takes
     the `Booking` class as a parameter in the `BookingServiceImpl.java` class (you
@@ -403,10 +407,12 @@
   id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们已经准备好将`amp.bookingOrdered` Kafka主题发送到Kafka服务器。为了简单起见，我们将在`BookingServiceImpl.java`类中直接添加一个`produceBookingOrderEvent`方法，该方法接受`Booking`类作为参数（您需要在`BookingService.java`中添加相同的签名方法）。让我们先看看代码。
 - en: 'The `BookingServiceImpl.java` file is as follows:'
   id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: '`BookingServiceImpl.java`文件如下：'
 - en: '[PRE7]'
   id: totrans-55
   prefs: []
@@ -419,6 +425,7 @@
   id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这里，我们声明了`bookingMessageChannel`对象，该对象通过`setter`方法进行自动注入。Spring Cloud Stream注解`@EnableBinding`将`bookingOrderOutput`消息通道绑定在`BookingMessageChannels`类中声明的`bookingOrderOutput`消息通道。
 - en: The `produceBookingOrderEvent` method is added, which takes the `booking` object.
     Inside the `produceBookingOrderEvent` method, the `BookingOrder` object properties
     are set using the `booking` object. Then the message is built using the `bookingOrder`
@@ -426,16 +433,19 @@
   id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 添加了`produceBookingOrderEvent`方法，该方法接受`booking`对象。在`produceBookingOrderEvent`方法内部，使用`booking`对象设置`BookingOrder`对象属性。然后使用`bookingOrder`对象构建消息。最后，通过`bookingMessageChannels`将消息发送到Kafka。
 - en: The `produceBookingOrderEvent` method is called after the booking is successfully
     persisted in DB.
   id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: '`produceBookingOrderEvent`方法在预约成功保存在数据库后调用。'
 - en: 'To test this functionality, you can run the Booking microservice with the following
     command:'
   id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了测试这个功能，您可以使用以下命令运行Booking微服务：
 - en: '[PRE8]'
   id: totrans-60
   prefs: []
@@ -446,11 +456,13 @@
   id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 确保Kafka和Zookeeper应用程序在`application.yaml`文件中定义的主机和端口上正确运行，以进行成功的测试。
 - en: 'Then, fire a post request (`http://<host>:<port>/v1/booking`) for a booking
     through any REST client with the following payload:'
   id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 然后，通过任何REST客户端向`http://<host>:<port>/v1/booking`发送一个预约的POST请求，并带有以下载荷：
 - en: '[PRE9]'
   id: totrans-63
   prefs: []
@@ -461,6 +473,7 @@
   id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 它将产生`amp.bookingOrdered` Kafka主题（事件），如下所示，在Booking微服务控制台上发布日志：
 - en: '[PRE10]'
   id: totrans-65
   prefs: []
@@ -471,6 +484,7 @@
   id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 同样，Kafka控制台将显示以下消息，确认消息已成功由Kafka接收：
 - en: '[PRE11]'
   id: totrans-67
   prefs: []
@@ -480,11 +494,13 @@
   id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，我们可以移动到编写之前生成的事件的消费者代码。
 - en: Consuming the event
   id: totrans-69
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 消费事件
 - en: First, we'll add the new module `billing-service` in the parent `pom.xml` file
     and create the Billing microservice the way other microservices are created in
     [Chapter 5](b1f93b4e-3475-4d8a-8c9f-697b0fd4410c.xhtml), *Deployment and Testing*.
@@ -493,6 +509,7 @@
   id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，我们将在父级`pom.xml`文件中添加新模块`billing-service`，并以与其他微服务相同的方式创建Billing微服务[第5章](b1f93b4e-3475-4d8a-8c9f-697b0fd4410c.xhtml)，*部署和测试*。我们为Booking微服务编写的几乎所有反应式代码都将被Billing微服务重用，例如Avro模式和`pom.xml`条目。
 - en: We'll add the Avro schema in Billing microservice in same way we have added
     it in Booking microservice. Since schema namespace (package name) would be the
     same `booking` package in Billing microservice, we need to add value `com.packtpub.mmj.booking`
