@@ -1,0 +1,375 @@
+- en: Preface
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Welcome to the world of Spring Security 4.2! We're certainly pleased that you
+    have acquired the only published book fully devoted to Spring Security 4.2\. Before
+    we get started with the book, we would like to give you an overview of how the
+    book is organized and how you can get the most out of it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Once you have read this book, you should be familiar with key security concepts
+    and understand how to solve the majority of the real-world problems that you will
+    need to solve with Spring Security. Through this discovery, you will gain an in-depth
+    understanding of Spring Security's architecture, which will allow you to handle
+    any unexpected use cases the book does not cover.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The book is divided into the following four main sections:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The first section ([Chapter 1](01.html), *Anatomy of an Unsafe Application*
+    and [Chapter 2](02.html), *Getting Started with Spring Security*) provides an
+    introduction to Spring Security and allows you to get started with Spring Security
+    quickly
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The second section ([Chapter 3](03.html), *Custom Authentication*, [Chapter
+    4](04.html), *JDBC-Based Authentication*, [Chapter 5](05.html), Authentication
+    with Spring Data, [Chapter 6](07.html), *LDAP Directory Services*, [Chapter 7](08.html),
+    *Remember-Me Services*, [Chapter 8](09.html), *Client Certificate Authentication
+    with TLS*, and [Chapter 9](10.html), *Opening up to OAuth 2*) provides in-depth
+    instructions for integrating with a number of different authentication technologies
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The third section ([Chapter 10](11.html), *Single Sign-On with the Central Authentication
+    Service*, [Chapter 11](12.html), *Fine-Grained Access Control*, and [Chapter 12](12.html),
+    *Access Control Lists*) explains how Spring Security's authorization support works
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Finally, the last section ([Chapters 13](13.html), *Custom Authorization*, [Chapter
+    14](14.html), *Session Management*, [Chapter 15,](15.html) *Additional Spring
+    Security Features*, and [Chapter 16](16.html), *Migration to Spring Security 4.2,*
+    [Chapter 17](17.html), *Microservice Security with OAuth 2 and JSON Web Tokens*)
+    provides information specialized topics and guides that help you perform very
+    specific tasks
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Security is a very interwoven concept, and so are many of the topics in the
+    book. However, once you have read through the first three chapters, the rest of
+    the chapters are fairly independent. This means that you can easily skip chapters
+    and still understand what is happening. The goal is to provide a cookbook-style
+    guide that when read in its entirety still helps you develope a clear understanding
+    of Spring Security.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The book uses a simple Spring Web MVC-based application to illustrate how to
+    solve real-world problems. The application is intended to be very simple and straightforward,
+    and deliberately contains very little functionality-the goal of this application
+    is to encourage you to focus on Spring Security concepts and not get tied up in
+    the complexities of application development. You will have a much easier time
+    following the book if you take the time to review the sample application source
+    code and try to follow along with the exercises. Some tips on getting started
+    are found in the *Getting started with the JBCP calendar sample code* section
+    in Appendix, *Additional Reference Material*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: What this book covers
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '[Chapter 1](01.html), *Anatomy of an Unsafe Application*, covers a hypothetical
+    security audit of our calendar application, illustrating common issues that can
+    be resolved through the proper application of Spring Security. You will learn
+    about some basic security terminology and review some prerequisites for getting
+    the sample application up and running.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 2](02.html), *Getting Started with Spring Security*, demonstrates
+    the "Hello World" installation of Spring Security. After the chapter walks the
+    reader through some of the most common customizations of Spring Security.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 3](03.html), *Custom Authentication*, incrementally explains Spring
+    Security''s authentication architecture by customizing key pieces of the authentication
+    infrastructure to address real-world problems. Through these customizations, you
+    will gain an understanding of how Spring Security authentication works and how
+    you can integrate with existing and new authentication mechanisms.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 4](04.html), *JDBC-Based Authentication*, covers authenticating against
+    a database using Spring Security''s built-in JDBC support. We then discuss how
+    we can secure our passwords using Spring Security''s new cryptography module.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 5](05.html), *Authentication with Spring Data*, covers authenticating
+    against a database using Spring Security''s integration with Spring Data JPA and
+    Spring Data MongoDB.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 6](07.html), *LDAP Directory Services*, provides a guide to application
+    integration with an LDAP directory server.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 7](08.html), *Remember-Me Services*, demonstrates the use of the remember-me
+    feature in Spring Security and how to configure it. We also explore additional
+    considerations to bear in mind when using it.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 8](09.html), *Client Certificate Authentication with TLS*, makes X.509
+    certificate-based authentication a clear alternative for certain business scenarios,
+    where managed certificates can add an additional layer of security to our application.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 9](10.html), *Opening up to OAuth 2*, covers OAuth 2-enabled login
+    and user attribute exchange, as well as a high-level overview of the logical flow
+    of the OAuth 2 protocol, including Spring OAuth 2 and Spring social integration.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 10](11.html), *Single Sign-on with Central Authentication Service*,
+    shows how integrating with Central Authentication Service (CAS) can provide Single
+    Sign-On and single logout support to your Spring Security-enabled applications.
+    It also demonstrates how you can use CAS proxy ticket support with stateless services.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 11](12.html), *Fine-Grained Access Control*, covers in-page authorization
+    checking (partial page rendering) and business-layer security using Spring Security''s
+    method security capabilities.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 12](12.html), *Access Control Lists*, covers the concepts and basic
+    implementation of business object-level security using the Spring Security ACL
+    module-a powerful module with a very flexible applicability to challenging business
+    security problems.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 13](13.html), *Custom Authorization*, explains how Spring Security''s
+    authorization works by writing custom implementations of key parts of Spring Security''s
+    authorization infrastructure.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 14](14.html), *Session Management*, discusses how Spring Security
+    manages and secures user sessions. The chapter starts by explaining session fixation
+    attacks and how Spring Security defends against them. It then discusses how you
+    can manage logged-in users and restrict the number of concurrent sessions a single
+    user has. Finally, we describe how Spring Security associates a user to HttpSession
+    and how to customize this behavior.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 15](15.html), *Additional Spring Security Features*, covers other
+    Spring Security features, including common security vulnerabilities such as Cross-Site
+    Scripting (XSS), Cross-Site Request Forgery (CSRF), synchronizer tokens, and Clickjacking,
+    and how to protect against them.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 16](16.html), *Migration to Spring Security 4.2*, provides a migration
+    path from Spring Security 3, including notable configuration changes, class and
+    package migrations, and important new features. It also highlights the new features
+    that can be found in Spring Security 4.2 and provides references to examples of
+    the features in the book.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 17](17.html), *Microservice Security with OAuth 2 and JSON Web Tokens*,
+    looks at microservice-based architectures and how OAuth 2 with JWT play a role
+    in securing microservices in a Spring-based application.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Appendix, *Additional Reference Material*, contains some reference material
+    that is not directly related to Spring Security, but is still relevant to the
+    topics covered in this book. Most importantly, it contains a section that assists
+    in running the sample code included with the book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: What you need for this book
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The following list contains the software required in order to run the sample
+    applications included with the book. Some chapters have the following additional
+    requirements that are outlined in the respective chapters:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Java Development Kit 1.8 can be downloaded from Oracle's website at [http://www.oracle.com/technetwork/java/javase/downloads/index.html](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: IntelliJ IDEA 2017+ can be downloaded from [https://www.jetbrains.com/idea/](https://www.jetbrains.com/idea/)
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Spring Tool Suite 3.9.1.RELEASE+ can be downloaded from [https://spring.io/tools/sts](https://spring.io/tools/sts)
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Who this book is for
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: If you are a Java Web and/or RESTful web service developer and have a basic
+    understanding of creating Java 8, Java Web and/or RESTful web service applications,
+    XML, and the Spring Framework, this book is for you. You are not expected to have
+    any previous experience with Spring Security.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Conventions
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'In this book, you will find a number of text styles that distinguish between
+    different kinds of information. Here are some examples of these styles and an
+    explanation of their meaning. Code words in text, database table names, folder
+    names, filenames, file extensions, pathnames, dummy URLs, user input, and Twitter
+    handles are shown as follows: "The next steps involve a series of updates to the
+    `web.xml` file". A block of code is set as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'When we wish to draw your attention to a particular part of a code block, the
+    relevant lines or items are set in bold:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Any command-line input or output is written as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: '**New terms** and **important words** are shown in bold.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Words that you see on the screen, for example, in menus or dialog boxes, appear
+    in the text like this: "In Microsoft Windows, you can view some of the ACL capabilities
+    of a file by right-clicking on a file and examining its security properties (Properties
+    | Security), as shown in the following screenshot".'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Warnings or important notes appear like this.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tips and tricks appear like this.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Reader feedback
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Feedback from our readers is always welcome. Let us know what you think about
+    this book-what you liked or disliked. Reader feedback is important for us as it
+    helps us develop titles that you will really get the most out of.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To send us general feedback, simply email `feedback@packtpub.com`, and mention
+    the book's title in the subject of your message.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If there is a topic that you have expertise in and you are interested in either
+    writing or contributing to a book, see our author guide at [www.packtpub.com/authors](http://www.packtpub.com/authors).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Customer support
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Now that you are the proud owner of a Packt book, we have a number of things
+    to help you to get the most from your purchase.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Downloading the example code
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'You can download the example code files for this book from your account at
+    [http://www.packtpub.com](http://www.packtpub.com/). If you purchased this book
+    elsewhere, you can visit [http://www.packtpub.com/support](http://www.packtpub.com/support)
+    and register to have the files emailed directly to you. You can download the code
+    files by following these steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Log in or register to our website using your email address and password.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Hover the mouse pointer on the SUPPORT tab at the top.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Click on Code Downloads & Errata.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Enter the name of the book in the Search box.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Select the book for which you're looking to download the code files.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Choose from the drop-down menu where you purchased this book from.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Click on Code Download.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Once the file is downloaded, please make sure that you unzip or extract the
+    folder using the latest version of:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: WinRAR / 7-Zip for Windows
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Zipeg / iZip / UnRarX for Mac
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 7-Zip / PeaZip for Linux
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The code bundle for the book is also hosted on GitHub at [https://github.com/PacktPublishing/Spring-Security-Third-Edition](https://github.com/PacktPublishing/Spring-Security-Third-Edition/).
+    We also have other code bundles from our rich catalog of books and videos available
+    at [https://github.com/PacktPublishing/](https://github.com/PacktPublishing/).
+    Check them out!
+  prefs: []
+  type: TYPE_NORMAL
+- en: Errata
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Although we have taken every care to ensure the accuracy of our content, mistakes
+    do happen. If you find a mistake in one of our books-maybe a mistake in the text
+    or the code-we would be grateful if you could report this to us. By doing so,
+    you can save other readers from frustration and help us improve subsequent versions
+    of this book. If you find any errata, please report them by visiting [http://www.packtpub.com/submit-errata](http://www.packtpub.com/submit-errata),
+    selecting your book, clicking on the Errata Submission Form link, and entering
+    the details of your errata. Once your errata are verified, your submission will
+    be accepted and the errata will be uploaded to our website or added to any list
+    of existing errata under the Errata section of that title. To view the previously
+    submitted errata, go to [https://www.packtpub.com/books/content/support](https://www.packtpub.com/books/content/support)
+    and enter the name of the book in the search field. The required information will
+    appear under the Errata section.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Piracy
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Piracy of copyrighted material on the internet is an ongoing problem across
+    all media. At Packt, we take the protection of our copyright and licenses very
+    seriously. If you come across any illegal copies of our works in any form on the
+    internet, please provide us with the location address or website name immediately
+    so that we can pursue a remedy. Please contact us at `copyright@packtpub.com`
+    with a link to the suspected pirated material. We appreciate your help in protecting
+    our authors and our ability to bring you valuable content.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Questions
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: If you have a problem with any aspect of this book, you can contact us at `questions@packtpub.com`,
+    and we will do our best to address the problem.
+  prefs: []
+  type: TYPE_NORMAL

@@ -1,0 +1,605 @@
+- en: Anatomy of an Unsafe Application
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Security is arguably one of the most critical architectural components of any
+    web-based application written in the 21^(st) century. In an era where malware,
+    criminals, and rogue employees are always present and actively testing software
+    for exploits, smart and comprehensive use of security is a key element to any
+    project for which you'll be responsible.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This book is written to follow a pattern of development that, we feel, provides
+    a useful premise for tackling a complex subject-taking a web-based application
+    with a Spring 4.2 foundation, and understanding the core concepts and strategies
+    for securing it with Spring Security 4.2\. We complement this approach by providing
+    sample code for each chapter in the form of complete web applications.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Whether you''re already using Spring Security or are interested in taking your
+    basic use of the software to the next level of complexity, you''ll find something
+    to help you in this book. During the course of this chapter, we will cover the
+    following topics:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The results of a fictional security audit
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Some common security problems of web-based applications
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Several core software security terms and concepts
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: If you are already familiar with basic security terminology, you may skip to
+    [Chapter 2](02.html), *Getting Started with Spring Security*, where we start using
+    the basic functionality of the framework.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Security audit
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'It''s early in the morning at your job as a software developer for the **Jim
+    Bob Circle Pants Online Calendar** (JBCPCalendar.com), and you''re halfway through
+    your first cup of coffee when you get the following email from your supervisor:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/51413d3d-040c-4ddb-92d3-5675974fe30f.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: What? You didn't think about security when you designed the application? In
+    fact, at this point, you are not even sure what a security audit is. Sounds like
+    you'll have a lot to learn from the security auditors! Later in this chapter,
+    we will review what an audit is, along with the results of an audit. First, let's
+    spend a bit of time examining the application that's under review.
+  prefs: []
+  type: TYPE_NORMAL
+- en: About the sample application
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Although we''ll be working through a contrived scenario as we progress through
+    this book, the design of the application and the changes that we''ll make to it
+    are drawn from the real-world usage of Spring-based applications. The calendar
+    application allows users to create and view events:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/3dc74ed3-37c8-48c0-aac1-8659979d294e.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'After entering the details for a new event, you will be presented with the
+    following screenshot:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/e20fb523-9636-4b9d-bfc5-d136234b9bdc.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The application is designed to be simplistic, to allow us to focus on the important
+    aspects of security and not get tied up in the details of **object-relational
+    mapping** (**ORM**) and complex UI techniques. We expect you to refer to other
+    supplementary materials in the Appendix, *Additional Reference Material* (in the
+    *Supplementary Materials* section of this book) to cover some of the baseline
+    functionality that is provided as part of the sample code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The code is written in Spring and Spring Security 4.2, but it would be relatively
+    easy to adapt many of the examples to other versions of Spring Security. Refer
+    to the discussion about the detailed changes between Spring Security 3 and 4.2
+    in [Chapter 16](16.html), *Migration to Spring Security 4.2*, for assistance in
+    translating the examples to the Spring Security 4 syntax.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Please don't use this application as a baseline to build a real online calendar
+    application. It has been purposely structured to be simple and to focus on the
+    concepts and configuration that we illustrate in this book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The JBCP calendar application architecture
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The web application follows a standard three-tier architecture consisting of
+    a web, service, and data access layer, as indicated in the following diagram:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/c82c2b5d-2303-47fd-aa94-14d7a8bc4ca5.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: You can find additional material about MVC architectures in the *Supplementary
+    Materials* section of the Appendix, *Additional Reference Material*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The web layer encapsulates MVC code and functionality. In this sample application,
+    we will use the Spring MVC framework, but we could just as easily use **Spring
+    Web Flow** (**SWF**), **Apache Struts**, or even a Spring-friendly web stack,
+    such as **Apache Wicket**.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In a typical web application, leveraging Spring Security, the web layer is where
+    much of the configuration and augmentation of code takes place. For example, the
+    `EventsController` class is used to transform an HTTP request into persisting
+    an event into the database. If you haven't had a lot of experience with web applications
+    and Spring MVC specifically, it would be wise to review the baseline code closely
+    and make sure you understand it before we move on to more complex subjects. Again,
+    we've tried to make the website as simple as possible, and the construct of a
+    calendar application is used just to provide a sensible title and light structure
+    to the site.
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can find detailed instructions on setting up the sample application within
+    the *Appendix*, *Additional Reference Material*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The service layer encapsulates the business logic for the application. In our
+    sample application, we use `DefaultCalendarService` as a very light facade over
+    the data access layer, to illustrate particular points about securing application
+    service methods. The service layer is also used to operate on both Spring Security
+    APIs and our Calendar APIs within a single method call. We will discuss this in
+    greater detail in [Chapter 3](03.html), *Custom Authentication*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In a typical web application, this layer would incorporate business rule validation,
+    composition and decomposition of business objects, and cross-cutting concerns
+    such as auditing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The data access layer encapsulates the code responsible for manipulating the
+    contents of database tables. In many Spring applications, this is where you would
+    see the use of ORM, such as Hibernate or JPA. It exposes an object-based API to
+    the service layer. In our sample application, we use basic JDBC functionality
+    to achieve persistence to the in-memory H2 database. For example, `JdbcEventDao`
+    is used to save event objects to the database.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In a typical web application, a more comprehensive data access solution would
+    be utilized. As ORM, and more generally data access, tends to be confusing for
+    some developers, this is an area we have chosen to simplify as much as possible
+    for the purposes of clarity.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Application technology
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: We have endeavored to make the application as easy to run as possible by focusing
+    on some basic tools and technologies that almost every Spring developer would
+    have on their development machine. Nevertheless, we have provided the *Getting
+    started* section as supplementary information in the Append, *Getting Started
+    with JBCP Calendar Sample Code*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The primary method for integrating with the sample code is providing Gradle--compatible
+    projects. Since many IDEs have rich integration with Gradle, users should be able
+    to import the code into any IDE that supports Gradle. As many developers use Gradle,
+    we felt this was the most straightforward method of packaging the examples. Whatever
+    development environment you are familiar with, hopefully, you will find a way
+    to work through the examples in this book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Many IDEs provide Gradle tooling that can automatically download the Spring
+    and Spring Security 4.2 Javadoc and source code for you. However, there may be
+    times when this is not possible. In such cases, you'll want to download the full
+    releases of both Spring 4.2 and Spring Security 4.2\. The Javadoc and source code
+    are top-notch. If you get confused or want more information, the samples can provide
+    an additional level of support or reassurance for your learning. Visit the *Supplementary
+    Materials* section, in Appendix, *Additional Reference Material* to find additional
+    information about Gradle, including running the samples, obtaining the source
+    code and Javadoc, and the alternatives for building your projects without Gradle.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Reviewing the audit results
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Let''s return to our email and see how the audit is progressing. Uh-oh, the
+    results don''t look good:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/403f0d84-959f-4e01-bfc9-68d113c2e554.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**APPLICATION AUDIT RESULTS**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This application exhibits the following insecure behavior:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Inadvertent privilege escalation due to lack of URL protection and general authentication
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Inappropriate or non-existent use of authorization
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Missing database credential security
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Personally-identifiable or sensitive information is easily accessible or unencrypted
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Insecure transport-level protection due to lack of SSL encryption
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Risk level is high
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: We recommend that this application should be taken offline until these issues
+    can be resolved.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Ouch! This result looks bad for our company. We'd better work to resolve these
+    issues as quickly as possible.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Third-party security specialists are often hired by companies (or their partners
+    or customers) to audit the effectiveness of their software security, through a
+    combination of white hat hacking, source code review, and formal or informal conversations
+    with application developers and architects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**White hat hacking** or **ethical hacking** is done by professionals who are
+    hired to instruct companies on how to protect themselves better, rather than with
+    the intent to be malicious.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Typically, the goal of security audits is to provide management or clients with
+    the assurance that basic secure development practices have been followed, to ensure
+    the integrity and safety of the customer's data and system functions. Depending
+    on the industry the software is targeted at, the auditor may also test it using
+    industry-specific standards or compliance metrics.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Two specific security standards that you're likely to run into at some point
+    in your career are the **Payment Card Industry Data Security Standard** (**PCI**
+    **DSS**) and the **Health Insurance Privacy and Accountability Act** (**HIPAA**)
+    privacy rules. Both these standards are intended to ensure the safety of specific
+    sensitive information (such as credit card and medical information) through a
+    combination of process and software controls. Many other industries and countries
+    have similar rules about sensitive or **Personally Identifiable Information**
+    (**PII**). Failure to follow these standards is not only bad practice but also
+    something that could expose you or your company to significant liability (not
+    to mention bad press) in the event of a security breach.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Receiving the results of a security audit can be an eye-opening experience.
+    Following through with the required software improvements can be the perfect opportunity
+    for self-education and software improvement, and can allow you to implement practices
+    and policies that lead to secure software.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let's review the auditor's findings, and come up with a plan to address them
+    in detail.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Authentication
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Authentication is one of two key security concepts that you must internalize
+    when developing secure applications (the other being authorization). **Authentication**
+    identifies who is attempting to request a resource. You may be familiar with authentication
+    in your daily online and offline life, in very different contexts, as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Credential-based authentication**: When you log in to your web-based email
+    account, you most likely provide your username and password. The email provider
+    matches your username with a known user in its database and verifies that your
+    password matches what they have on record. These credentials are what the email
+    system uses to validate that you are a valid user of the system. First, we''ll
+    use this type of authentication to secure sensitive areas of the JBCP calendar
+    application. Technically speaking, the email system can check credentials not
+    only in the database but anywhere, for example, a corporate directory server such
+    as **Microsoft Active Directory**. A number of these types of integrations are
+    covered throughout this book.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Two-factor authentication**: When you withdraw money from your bank''s automated
+    teller machine, you swipe your ID card and enter your personal identification
+    number before you are allowed to retrieve cash or conduct other transactions.
+    This type of authentication is similar to the username and password authentication,
+    except that the username is encoded on the card''s magnetic strip. The combination
+    of the physical card and user-entered PIN allows the bank to ensure that you should
+    have access to the account. The combination of a password and a physical device
+    (your plastic ATM card) is a ubiquitous form of two-factor authentication. In
+    a professional, security-conscious environment, it''s common to see these types
+    of devices in regular use for access to highly secure systems, especially dealing
+    with finance or personally identifiable information. A hardware device, such as
+    **RSA SecurID**, combines a time-based hardware device with server-based authentication
+    software, making the environment extremely difficult to compromise.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Hardware authentication**: When you start your car in the morning, you slip
+    your metal key into the ignition and turn it to get the car started. Although
+    it may not feel similar to the other two examples, the correct match of the bumps
+    on the key and the tumblers in the ignition switch function as a form of hardware
+    authentication.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: There are literally dozens of forms of authentication that can be applied to
+    the problem of software and hardware security, each with their own pros and cons.
+    We'll review some of these methods as they apply to Spring Security throughout
+    the first half of this book. Our application lacks any type of authentication,
+    which is why the audit included the risk of inadvertent privilege escalation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Typically, a software system will be divided into two high-level realms, such
+    as unauthenticated (or anonymous) and authenticated, as shown in the following
+    screenshot:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/08cae274-5a44-48c3-8c1e-9878fa0b607f.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Application functionality in the anonymous realm is the functionality that is
+    independent of a user's identity (think of a welcome page for an online application).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Anonymous areas do not do the following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Require a user to log in to the system or otherwise identify themselves to be
+    usable
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Display sensitive information, such as names, addresses, credit cards, and orders
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Provide functionality to manipulate the overall state of the system or its data
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Unauthenticated areas of the system are intended for use by everyone, even by
+    users who we haven't specifically identified yet. However, it may be that additional
+    functionality appears to identified users in these areas (for example, the ubiquitous
+    `Welcome {First Name}` text). The selective displaying of content to authenticated
+    users is fully supported through the use of the Spring Security tag library and
+    is covered in [Chapter 11](12.html), *Fine-Grained Access Control*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We'll resolve this finding and implement form-based authentication using the
+    automatic configuration capability of Spring Security in [Chapter 2](02.html),
+    *Getting Started with Spring Security*. Afterwards, we will explore various other
+    means of performing authentication (which usually revolves around system integration
+    with enterprise or other external authentication stores).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Authorization
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Inappropriate or non-existent use of authorization
+  prefs: []
+  type: TYPE_NORMAL
+- en: Authorization is the second of two core security concepts that are crucial in
+    implementing and understanding application security. **Authorization** uses the
+    information that was validated during authentication to determine whether access
+    should be granted to a particular resource. Built around the authorization model
+    for the application, authorization partitions the application functionality and
+    data so that the availability of these items can be controlled by matching the
+    combination of privileges, functionality, and data to users. Our application's
+    failure at this point of the audit indicates that the application's functionality
+    isn't restricted by the user role. Imagine if you were running an e-commerce site
+    and the ability to view, cancel, or modify orders and customer information was
+    available to any user of the site!
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Authorization typically involves the following two separate aspects that combine
+    to describe the accessibility of the secured system:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The first is the mapping of an authenticated principal to one or more authorities
+    (often called **roles**). For example, a casual user of your website might be
+    viewed as having visitor authority, while a site administrator might be assigned
+    administrative authority.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The second is the assignment of authority checks to secured resources of the
+    system. This is typically done at the time a system is developed, either through
+    an explicit declaration in code or through configuration parameters. For example,
+    the screen that allows for the viewing of other users' events should be made available
+    only to those users with administrative authority.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: A secured resource may be any aspect of the system that should be conditionally
+    available based on the authority of the user.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Secured resources of a web-based application could be individual web pages,
+    entire portions of the website, or portions of individual pages. Conversely, secured
+    business resources might be method calls on classes or individual business objects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: You might imagine an authority check that would examine the principal, look
+    up its user account, and determine whether the principal is, in fact, an administrator.
+    If this authority check determines that the principal who is attempting to access
+    the secured area is, in fact, an administrator, then the request will succeed.
+    If, however, the principal does not have the sufficient authority, the request
+    should be denied.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let's take a closer look at an example of a particular secured resource, the
+    All Events page. The All Events page requires administrative access (after all,
+    we don't want regular users viewing other users' events), and as such, looks for
+    a certain level of authority in the principal accessing it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'If we think about how a decision might be made when a site administrator attempts
+    to access the protected resource, we''d imagine that the examination of the actual
+    authority versus the required authority might be expressed concisely in terms
+    of the set theory. We might then choose to represent this decision as a **Venn**
+    diagram for the administrative user:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/d707087e-ad79-4d75-8be8-a96cc9e19536.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: There is an intersection between **User Authorities** (users and administrators)
+    and **Required Authorities** (administrators) for the page, so the user is provided
+    with access.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Contrast this with an unauthorized user, as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/096a10f5-387e-4b85-b339-49ee85fe483a.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The sets of authorities are disjointed and have no common elements. So, the
+    user is denied access to the page. Thus, we have demonstrated the basic principle
+    of the authorization of access to resources.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In reality, there's real code making this decision, with the consequence that
+    the user is granted or denied access to the requested protected resource. We'll
+    address the basic authorization problem with the authorization infrastructure
+    of Spring Security in [Chapter 2](02.html), *Getting Started with Spring Security*,
+    followed by more advanced authorization in [Chapter 12](12.html), *Access Control
+    Lists*, and [Chapter 13](13.html), *Custom Authorization*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Database credential security
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Database credentials are not secure or easily accessible. Through the examination
+    of the application source code and configuration files, the auditors noted that
+    user passwords were stored in plain text in the configuration files, making it
+    very easy for a malicious user with access to the server to gain access to the
+    application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As the application contains personal and financial data, a rogue user being
+    able to access any data could expose the company to identity theft or tampering.
+    Protecting access to the credentials used to access the application should be
+    a top priority for us, and an important first step is ensuring that one point
+    of failure in security does not compromise the entire system.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We'll examine the configuration of database access layers in Spring Security
+    for credential storage, which requires JDBC connectivity, in [Chapter 4](04.html),
+    *JDBC-Based Authentication*. In the same chapter, we'll also look at built-in
+    techniques to increase the security of passwords stored in the database.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Sensitive information
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Personally identifiable or sensitive information is easily accessible or unencrypted.
+    The auditors noted that some significant and sensitive pieces of data were completely
+    unencrypted or masked anywhere in the system. Fortunately, there are some simple
+    design patterns and tools that allow us to protect this information securely,
+    with annotation-based AOP support in Spring Security.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Transport-level protection
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: There is insecure transport-level protection due to lack of SSL encryption.
+  prefs: []
+  type: TYPE_NORMAL
+- en: While, in the real world, it's unthinkable that an online application containing
+    private information would operate without SSL protection, unfortunately, the JBCP
+    calendar is in just this situation. SSL protection ensures that communication
+    between the browser client and the web application server are secure against many
+    kinds of tampering and snooping.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the *HTTPS Setup in Tomcat* section, in Appendix, *Additional Reference Material*,
+    we'll review the basic options for using transport-level security as part of the
+    definition of the secured structure of the application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using Spring Security 4.2 to address security concerns
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Spring Security 4.2 provides a wealth of resources that allow for many common
+    security practices to be declared or configured in a straightforward manner. In
+    the coming chapters, we'll apply a combination of source code and application
+    configuration changes to address all of the concerns raised by the security auditors
+    (and more), to give ourselves the confidence that our calendar application is
+    secure.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'With Spring Security 4.2, we''ll be able to make the following changes to increase
+    our application''s security:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Segment users of the system into user classes
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Assign levels of authorization to user roles
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Assign user roles to user classes
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Apply authentication rules globally across application resources
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Apply authorization rules at all levels of the application architecture
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Prevent common types of attacks intended to manipulate or steal a user's session
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Why Spring Security?
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Spring Security exists to fill a gap in the universe of Java third-party libraries,
+    much as the Spring Framework originally did when it was first introduced. Standards
+    such as **Java Authentication and Authorization Service** (**JAAS**) or **Java
+    EE Security** do offer some ways of performing some of the same authentication
+    and authorization functions, but Spring Security is a winner because it includes
+    everything you need to implement a top-to-bottom application security solution
+    in a concise and sensible way.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Additionally, Spring Security appeals to many, because it offers out-of-the-box
+    integration with many common enterprise authentication systems; so it's adaptable
+    to most situations with little effort (beyond configuration) on the part of the
+    developer.
+  prefs: []
+  type: TYPE_NORMAL
+- en: It's in wide use because there's really no other mainstream framework quite
+    like it!
+  prefs: []
+  type: TYPE_NORMAL
+- en: Summary
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In this chapter, we have reviewed the common points of risk in an unsecured
+    web application and the basic architecture of the sample application. We have
+    also discussed the strategies for securing the application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the next chapter, we'll explore how to get Spring Security set up quickly
+    and get a basic understanding of how it works.
+  prefs: []
+  type: TYPE_NORMAL

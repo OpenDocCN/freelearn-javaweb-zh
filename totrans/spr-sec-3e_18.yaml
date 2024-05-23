@@ -1,0 +1,601 @@
+- en: Additional Reference Material
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In this appendix, we will cover some reference material that we feel is helpful
+    (and largely undocumented) but too comprehensive to insert in the chapters.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Getting started with the JBCP calendar sample code
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: As we described in [Chapter 1](01.html), *Anatomy of an Unsafe Application*,
+    we have assumed, that you have installed a JDK. You can download a JDK from Oracle's
+    website [http://www.oracle.com/technetwork/java/javase/downloads/index.html](http://www.oracle.com/technetwork/java/javase/downloads/index.html).
+    You will need to have JDK 8 installed in order run the code samples. The codebase
+    uses many JDK 8 features that are not compatible with JDK 7, and there has not
+    been an attempt to sort out various JDK 9 issues with the IDEs as well as project
+    dependencies.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Gradle Build Tool
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: All of the code in this book has been built using the Gradle Build Tool and
+    is organized in a chapter-by-chapter multimodule build. You can find instructions
+    and options for getting Gradle locally at [https://gradle.org/install/](https://gradle.org/install/).
+  prefs: []
+  type: TYPE_NORMAL
+- en: A local installation of Gradle is not required as the root of the source code
+    already has the Gradle wrapper installed. The Gradle wrapper can be installed
+    in any submodule. You can find additional information about the Gradle wrapper
+    at [https://docs.gradle.org/current/userguide/gradle_wrapper.html](https://docs.gradle.org/current/userguide/gradle_wrapper.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Downloading the example code
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can download the example code files for all Packt books you have purchased
+    from your account at [http://www.packtpub.com](http://www.packtpub.com/). If you
+    purchased this book from elsewhere, you can visit [http://www.packtpub.com/support](http://www.packtpub.com/support)
+    and register to have the files emailed directly to you.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Gradle IDE plugins
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: The codebase has been configured with the IntelliJ and Eclipse IDE plugin. This
+    means Gradle can create all of the necessary IDE project files instead of manually
+    importing the codebase, although you are not forced to use these plugins.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To use these plugins, open a Terminal or Command Prompt window to the root
+    of the codebase. To execute the plugin, issue the following command on OSX or
+    Linux:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'After running this task, there will be several IDEA project files in each directory,
+    as shown in the following screenshot:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/21149c84-cf8c-4540-9b8d-954683eb6745.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'If you are on a Windows machine, you will issue the following command:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: The previous examples execute the `gradlew` script, which is the Gradle wrapper,
+    and then give the command for the IDE files to create. IntelliJ project files
+    are created with the `idea` task, and STS or any Eclipse-based IDE's project files
+    are created with the eclipse task.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'After running the Eclipse task, there will be several Eclipse project files
+    and directories in each directory:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/7321c2a6-98e6-46da-9ffc-45576ad0d922.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: IntelliJ IDEA
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Most of the diagrams used in this book were taken from IntelliJ IDEA from Jet
+    Brains ([https://www.jetbrains.com/idea/](https://www.jetbrains.com/idea/)). IDEA
+    has a wonderful support for multimodule Gradle builds.
+  prefs: []
+  type: TYPE_NORMAL
+- en: IDEA will allow you to import an existing project, or you can simply open the
+    `build.gradle` file from the root of the source code base and IDEA will create
+    the necessary project files for you.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Once you have created the IDEA project files with the Gradle `idea` task, you
+    can import the entire project using the Import Project option, as shown in the
+    following screenshot:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/16312474-b7e2-489c-bd09-428995160621.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Then, you will be prompted to select various options for how IDEA will execute
+    this Gradle build, as shown in the following screenshot:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/6d274443-1449-4919-a5cb-8b1b498d56e2.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: A special note for IDEA importing of Gradle projects
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the previous listing, you will notice that there is an option to use Gradle
+    wrapper task configuration, versus the option that was selected, which is to use
+    the default Gradle wrapper (recommended) option. The only difference is the use
+    of the Gradle wrapper task configuration option, which will create a Gradle wrapper
+    instance in each and every project directory. This will be helpful if you want
+    to execute build commands on a Terminal or command line and not have to install
+    a local version of Gradle. Otherwise, IDEA handles the Gradle wrapper calls for
+    all projects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Once the project is imported, you will be able to work with any of the chapters,
+    and the layout will look as shown in the following screenshot:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/013498d2-9ff9-44db-a8f7-6d0e3986f23f.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Spring Tool Suite or Eclipse
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: If using STS, we assume that you have access to **Spring Tool Suite** (**STS**)
+    3.9.1\. You can download STS from [https://spring.io/tools/sts](https://spring.io/tools/sts).
+    STS version 3.9.1 is based on Eclipse Oxygen 1a (4.7.1a) and you can find more
+    information about the Oxygen release at [https://www.eclipse.org/ide/](https://www.eclipse.org/ide/).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Creating a new workspace
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'It is best to create a fresh workspace in order to minimize discrepancies with
+    your environment, which can be done by performing the following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'When you first open STS, it will prompt you for the workspace location. If
+    you were previously using STS, you may need to go to File | Switch Workspace |
+    Other to create a new workspace. We recommend entering a workspace location that
+    does not contain any spaces. For example, take a look at the following screenshot:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/ad4963ae-7169-497d-8750-8e53316c152f.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Once you have created a new workspace, you will want to exit the welcome screen
+    by clicking on the close button on the Welcome tab, as shown in the following
+    screenshot:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/160e24f4-4bd1-4d7d-bd2c-6459c034a6ab.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: A sample code structure
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: The sample code is structured in a `.zip` file and contains folders of a multimodule
+    Gradle project. Each folder is named `chapterNN`, where `NN` is the chapter number.
+    Each `chapterNN` folder has additional folders containing each milestone project
+    with the format `chapterNN.mm-calendar`, where `NN` is the chapter number and
+    `mm` is the milestone within that chapter. For simplicity, we recommend that you
+    extract the source to a path that does not contain any spaces. Each milestone
+    is a checkpoint within the chapter and allows you to easily compare your code
+    with the book's code. For example, `chapter02.03-calendar` contains the milestone
+    number `03` within [Chapter 2](02.html), *Getting Started with Spring Security*,
+    of the calendar application. The location of the preceding project would be `~/jbcpcalendar/chapter02/chapter02.03-calendar`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 1](01.html), *Anatomy of an Unsafe Application*, and [Chapter 2](02.html),
+    *Getting Started with Spring Security*, have been created as Spring IO projects,
+    not using Spring Boot as a project base. [Chapter 3](03.html), *Custom Authentication*,
+    converted the calendar project to a Spring Boot codebase, and in [Chapter 5](05.html),
+    *Authentication with Spring Data*, JDBC was replaced with Spring Data as the persistence
+    mechanism.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In order to keep each chapter as independent as possible, most chapters in the
+    book are built off of [Chapter 9](10.html), *Opening up to OpenID*, or [Chapter
+    15](10.html), *Additional Spring Security Features*. This means that, in most
+    cases, you can read through [Chapter 9](10.html), *Opening up to OpenID*, and
+    then skip around to the other parts of the book. However, this also means that
+    it is important to start each chapter with the chapter's milestone `00` source
+    code rather than continuing to work on the code from the previous chapter. This
+    ensures that your code starts in the same place that the chapter does.
+  prefs: []
+  type: TYPE_NORMAL
+- en: While you can get through the entire book without performing any of the steps,
+    we recommend starting each chapter with milestone `00` and implementing the steps
+    in the book. This will ensure that you get the most out of the book. You can use
+    the milestone versions to copy large portions of code or to compare your code
+    if you run into problems.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Importing the samples
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Before we can import this Gradle project into Eclipse, you must install a Gradle
+    plugin from the Eclipse marketplace. There are only two options at the time of
+    writing this book. One is the Gradle IDE pack ([http://marketplace.eclipse.org/content/gradle-ide-pack](http://marketplace.eclipse.org/content/gradle-ide-pack)),
+    but this project is not being maintained, and if you do install this plugin, Eclipse
+    will warn you and suggest that you migrate to the **Buildship Gradle Integration**
+    plugin ([http://marketplace.eclipse.org/content/buildship-gradle-integration](http://marketplace.eclipse.org/content/buildship-gradle-integration)).
+    Once installed, you will have an option to import an existing Gradle project.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Starting with our fresh workspace, perform the following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Go to File | Import and select Existing Gradle Project, as shown in the following
+    screenshot:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/4834d188-b45c-4fd4-889c-2e3095d8882e.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Click on Next >, as shown in the following screenshot:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/7beefcf3-de67-4614-8435-7ee917b2c9e6.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Click on Next > as shown in the following screenshot:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/8473e740-aae3-4bfd-81ef-d0598572fcf5.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Make sure that you keep the defaults unless you want to use a local installation
+    of Gradle.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Browse to the location you exported the code to and select the parent folder
+    of the code. You will see all of the projects listed. You can select the projects
+    you are interested in or leave all of the projects selected. If you decide to
+    import all of the projects, you can easily focus on the current chapter since
+    the naming conventions will ensure that the projects are sorted in the order that
+    they are presented in the book:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/e2aaec89-9f73-4d01-9e6c-c66f2611b161.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Click on Finish. All of the selected projects will be imported. If you have
+    not used Gradle frequently, it will take a while to download your dependencies.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: An internet connection is required to download the dependencies.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Updated instructions for running the projects will be found in the `README.md`
+    files in each section. This ensures that, as updates are made to STS, the code
+    can still be built and run with the latest tools.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Running the samples
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: There are a few things that are necessary in order to run the sample applications
+    within IDEA or STS. In all of the projects, a Tomcat plugin has been configured
+    in Gradle to run the embedded instance to help you get started faster.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Starting the samples within IDEA
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Running milestone projects can be done by creating a `Run/Debug Configuration`
+    entry for each project.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Starting with our fresh workspace, perform the following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Go to File | Run and select Edit Configurations..., as shown in the following
+    screenshot:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/136e0bb4-4691-44dc-9da6-1c1827e08007.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'You will be presented with options to add new configurations. Select the plus
+    (+) sign in the upper-left corner to choose a new Gradle configuration, as shown
+    in the following screenshot:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/d3ec0e44-00e3-4504-b832-9b033bbe5c95.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Now, you can give it a name like `chapter15.00 (bootRun)` and select the actual
+    milestone directory for this configuration. Finally, enter `bootRun` under the
+    Tasks option to execute, as shown in the following screenshot:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/737ddcdd-54b1-4257-a48f-63f0ae3bfa6d.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Select the configuration you want to execute; click on the green run button
+    or use the *Shift* + *F10* key, as shown in the following screenshot:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/bbcba971-ad6f-4526-b522-1727abb57da1.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Gradle tasks
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In [Chapter 1](01.html), *Anatomy of an Unsafe Application*, and [Chapter 2](02.html),
+    *Getting Started with Spring Security*, the Gradle task to run the project will
+    be *tomcatRun*. For the rest of the chapters in the book, Spring Boot has been
+    used, and the Gradle task to start the project will be `bootRun`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Starting the samples within STS
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'In STS, a run configuration is also created and the same information needs
+    to be included for each milestone project to run, as depicted in the following
+    screenshot:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/8a02174d-f990-49ee-bb58-8773adacd329.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Using HTTPS within STS
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Some of the chapters' sample code (that is, [Chapter 8](09.html), *Client Certificate
+    Authentication with TLS*, [Chapter 9](10.html), *Opening up to OAuth2*, and [Chapter
+    10](11.html), *Single Sign-On with the Central Authentication Service*) requires
+    the use of HTTPS in order for the sample code to work.
+  prefs: []
+  type: TYPE_NORMAL
+- en: All of the projects have been configured to run HTTPS; most of the configuration
+    is managed in properties or YAM files.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Now, when you run the sample code on the embedded Tomcat server from Gradle,
+    you can connect to `http://localhost:8080 or to https://localhost:8443`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: HTTPS setup in Tomcat
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In this section, we outline how to set up HTTPS in Tomcat to provide TLS to
+    our application. All of the included projects are running in an embedded Tomcat
+    instance, but we will cover the certificate creation process as well as some tips
+    for running these applications in a standalone Tomcat instance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Generating a server certificate
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'If you do not already have a certificate, you must first generate one. If you
+    wish, you can skip this step and use the `tomcat.keystore` file, which contains
+    a certificate that is located in the `etc` directory in the book''s sample source.
+    Enter the following command lines at the Command Prompt:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Most of the values are self-explanatory, but you will want to ensure that the
+    answer to "What is your first and last name?" is the host that you will be accessing
+    your web application from. This is necessary to ensure that the SSL handshake
+    will succeed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'You should now have a file in the current directory named `tomcat.keystore`.
+    You can view its contents using the following command from within the same directory:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: As you may have guessed, it is insecure to use `changeit` as a password, as
+    this is the default password used with many JDK implementations. In a production
+    environment, you should use a secure password rather than something as simple
+    as `changeit`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For additional information about the `keytool` command, refer to the documentation
+    found on Oracle's website at [https://docs.oracle.com/javase/9/tools/keytool.htm](https://docs.oracle.com/javase/9/tools/keytool.htm).
+    If you are having issues, you might also find the *CAS SSL Troubleshooting and
+    Reference Guide* helpful ([https://apereo.github.io/cas/5.1.x/installation/Troubleshooting-Guide.html](https://apereo.github.io/cas/5.1.x/installation/Troubleshooting-Guide.html)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Configuring Tomcat connector to use SSL
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'In this section, we will discuss how to configure a Tomcat 8.5 connector to
+    SSL by performing the following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Open the `server.xml` file that was included with the download of
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Tomcat 8.5\. You can find this in the `conf` directory of your Tomcat server''s
+    home directory. Find the following entry in your `server.xml` file:'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Uncomment the connector and modify the value of the `keystoreFile` attribute
+    to be the location of the keystore from the previous section. Also, ensure that
+    you update the value of the `keystorePass` attribute to be the password used when
+    generating the keystore. An example is shown in the following code snippet, but
+    ensure that you update the values of both `keystoreFile` and `keystorePass`:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: You should now be able to start Tomcat and access it at `https://locahost:8443/`.
+    For more information on configuring SSL on Tomcat, refer to the *SSL Configuration
+    How-To* at [http://tomcat.apache.org/tomcat-8.5-doc/ssl-howto.html](http://tomcat.apache.org/tomcat-8.5-doc/ssl-howto.html).
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Basic Tomcat SSL termination guide
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: This section is intended to help set up Tomcat to use SSL when using an SSL
+    termination. The idea is that an external entity, such as a load balancer, manages
+    the SSL connection instead of Tomcat. This means that the connection from the
+    client (that is, the web browser) to the load balancer is over HTTPS and is secured.
+    The connection from the load balancer to Tomcat is over HTTP and insecure. For
+    this sort of setup to provide any layer of security, the connection from the load
+    balancer to Tomcat should be over a private network.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The problem this setup causes is that Tomcat will now believe that the client
+    is using HTTP and thus redirects will be sent as though there is an HTTP connection.
+    To get around this, you can modify the configuration to instruct Tomcat that it
+    is behind a proxy server.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The following example is a complete connector that will be used for Tomcat
+    deployments that employ client certificate authentication:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `server.xml` file can be found at `TOMCAT_HOME/conf/server.xml`. If you
+    are interacting with Tomcat using Eclipse or Spring Tool Suite, you will find
+    a project named `Servers` that contains the `server.xml` file. For example, if
+    you are using Tomcat 8.5, the path in your Eclipse workspace might look similar
+    to `/Servers/Tomcat v8.5 Server` at `localhost-config/server.xml`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note that there is no reference to a `keystore` because Tomcat does not manage
+    the SSL connection. This setup will override the `HttpServletRequest` object to
+    believe that the connection is HTTPS so that redirects are performed correctly.
+    However, it will continue to accept HTTP connections. If the client can make an
+    HTTP connection as well, a separate connector can be created-one that does not
+    include the HTTPS setup. The proxy server can then send requests to the appropriate
+    connector depending on whether the original request was HTTP or HTTPS.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For more information, refer to the *Tomcat Proxy How To* documentation at
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[http://tomcat.apache.org/tomcat-8.5-doc/proxy-howto.html](http://tomcat.apache.org/tomcat-8.5-doc/proxy-howto.html).
+    If you are working with a different application, you can refer to their documentation
+    for working with proxy servers.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This section contains a listing of additional resources to technologies and
+    concepts that are used throughout the book:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Java Development Kit Downloads** : Refer to [http://www.oracle.com/technetwork/java/javase/downloads/index.html](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+    for downloading the JDK.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**MVC Architecture** : Refer to [https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller)
+    .'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Spring Security site** : Refer to [https://projects.spring.io/spring-security/](https://projects.spring.io/spring-security/)
+    . You can find links to the Spring Security Javadoc, downloads, source code, and
+    reference from at this link.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Spring Framework:** Refer to [https://projects.spring.io/spring-framework/](https://projects.spring.io/spring-framework/)
+    . You can find links to the Spring Framework Javadoc, downloads, source code,
+    and reference from this link.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Spring Boot:** Refer to [https://projects.spring.io/spring-boot/](https://projects.spring.io/spring-boot/)
+    . You can find links to the Spring Boot Javadoc, downloads, source code, and reference
+    from this link.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Spring Data:** Refer to [https://projects.spring.io/spring-data/](https://projects.spring.io/spring-data/)
+    . You can find links to the Spring Data Javadoc, downloads, source code, and reference
+    from this link. In this book, we covered three of the sub-projects of Spring-Data,
+    including Spring Data Rest ( [https://projects.spring.io/spring-data-rest/](https://projects.spring.io/spring-data-rest/)
+    ), Spring Data JPA ( [https://projects.spring.io/spring-data-jpa/](https://projects.spring.io/spring-data-jpa/)
+    ), and Spring Data MongoDB ( [https://projects.spring.io/spring-data-mongodb/](https://projects.spring.io/spring-data-mongodb/)
+    ).'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Maven:** For more information about Maven, visit their site at [https://maven.apache.org](https://maven.apache.org)
+    . For more information about Maven Transitive dependencies, refer to the *Introduction
+    to the Dependency Mechanism* documentation at [https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Transitive_Dependencies](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Transitive_Dependencies)
+    .'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Building with Gradle:** Spring Security builds with Gradle ( [https://gradle.org](https://gradle.org)
+    ) instead of using Maven. You can refer to the samples, for examples of how to
+    build with Gradle at [https://docs.spring.io/spring-security/site/docs/4.2.x/reference/html/sample-apps.html](https://docs.spring.io/spring-security/site/docs/4.2.x/reference/html/sample-apps.html)
+    .'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Object-relational mapping (ORM):** You can find more general information
+    on Wikipedia at [https://en.wikipedia.org/wiki/Object-relational_mapping](https://en.wikipedia.org/wiki/Object-relational_mapping)
+    . If you want more hands-on instruction, you may also be interested in the Hibernate
+    (a common Java ORM Framework) documentation at [http://www.hibernate.org/](http://www.hibernate.org/)
+    .'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Undertow:** Undertow is a lightweight flexible performant web server written
+    in Java, providing both blocking and non-blocking APIs based on NIO. There has
+    been some work in the chapters to offer Undertow as an alternative to Tomcat.
+    You can find more general information at [http://undertow.io/](http://undertow.io/)
+    .'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'The following are UI technologies:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**JSP:** You can find more information about JSPs on Oracle''s site at [https://javaee.github.io/tutorial/overview008.html#BNACM](https://javaee.github.io/tutorial/overview008.html#BNACM)
+    .'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Thymeleaf:** It is a modern, tempting framework that provides an excellent
+    alternative to JSPs. An additional benefit is that it provides support for both
+    Spring and Spring Security out of the box. You can find more information about
+    Thymeleaf at [http://www.thymeleaf.org](http://www.thymeleaf.org) .'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL

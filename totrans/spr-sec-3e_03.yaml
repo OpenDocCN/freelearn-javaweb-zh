@@ -1,0 +1,928 @@
+- en: Custom Authentication
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In [Chapter 2](02.html), *Getting Started with Spring Security*, we demonstrated
+    how to use an in-memory datastore to authenticate the user. In this chapter, we'll
+    explore how to solve some common, real-world problems by extending Spring Security's
+    authentication support to use our existing set of APIs. Through this exploration,
+    we'll get an understanding of each of the building blocks that Spring Security
+    uses in order to authenticate users.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'During the course of this chapter, we will cover the following topics:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Leverage Spring Security's annotations and Java-based configuration
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Discovering how to obtain the details of the currently logged-in user
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Adding the ability to log in after creating a new account
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Learning the simplest method for indicating to Spring Security, that a user
+    is authenticated
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Creating custom `UserDetailsService` and `AuthenticationProvider` implementations
+    that properly decouple the rest of the application from Spring Security
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Adding domain-based authentication to demonstrate how to authenticate with more
+    than just a username and password
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: JBCP calendar architecture
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In Appendix, *Additional Reference Material*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Since this chapter is about integrating Spring Security with custom users and
+    APIs, we will start with a quick introduction to the domain model within the JBCP
+    calendar application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The CalendarUser object
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Our calendar application uses a domain object named `CalendarUser`, which contains
+    information about our users, as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: The Event object
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Our application has an `Event` object that contains information about each
+    event, as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: The CalendarService interface
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Our application contains a `CalendarService` interface that can be used to
+    access and store our domain objects. The code for `CalendarService` is as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: We won't go over the methods used in `CalendarService`, but they should be fairly
+    straightforward. If you would like details about what each method does, please
+    consult the Javadoc in the sample code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The UserContext interface
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Like most applications, our application requires us to interact with the currently
+    logged-in user. We have created a very simple interface called `UserContext` to
+    manage the currently logged-in user as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: This means that our application can call `UserContext.getCurrentUser()` to obtain
+    the details of the currently logged-in user. It can also call `UserContext.setCurrentUser(CalendarUser)`
+    to specify which user is logged in. Later in this chapter, we will explore how
+    we can write an implementation of this interface that uses Spring Security to
+    access our current user and obtain their details using `SecurityContextHolder`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Spring Security provides quite a few different methods for authenticating a
+    user. However, the net result is that Spring Security will populate `o.s.s.core.context.SecurityContext`
+    with `o.s.s.core.Authentication`. The `Authentication` object represents all the
+    information we gathered at the time of authentication (username, password, roles,
+    and so on). The `SecurityContext` interface is then set on the `o.s.s.core.context.SecurityContextHolder`
+    interface. This means that Spring Security and developers can use `SecurityContextHolder`
+    to obtain information about the currently logged-in user. An example of obtaining
+    the current username is illustrated as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: It should be noted that `null` checks should always be done on the `Authentication`
+    object, as this could be `null` if the user is not logged in.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The SpringSecurityUserContext interface
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: The current `UserContext` implementation, `UserContextStub`, is a stub that
+    always returns the same user. This means that the My Events page will always display
+    the same user no matter who is logged in. Let's update our application to utilize
+    the current Spring Security user's username, to determine which events to display
+    on the My Events page.
+  prefs: []
+  type: TYPE_NORMAL
+- en: You should be starting with the sample code in `chapter03.00-calendar`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Take a look at the following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The first step is to comment out the `@Component` attribute on `UserContextStub`,
+    so that our application no longer uses our scanned results.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The `@Component` annotation is used in conjunction with the `@ComponentScan`
+    annotation found in `com/packtpub/springsecurity/web/configuration/WebMvcConfig.java`,
+    to automatically create a Spring bean rather than creating an explicit XML or
+    Java configuration for each bean. You can learn more about the classpath of Spring
+    scanning in the Spring Reference link at [http://static.springsource.org/spring/docs/current/spring-framework-reference/html/](http://static.springsource.org/spring/docs/current/spring-framework-reference/html/).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Take a look at the following code snippet:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: The next step is to utilize `SecurityContext` to obtain the currently logged-in
+    user. We have included `SpringSecurityUserContext` within this chapter's code,
+    which is wired up with the necessary dependencies but contains no actual functionality.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Open the `SpringSecurityUserContext.java` file and add the `@Component` annotation.
+    Next, replace the `getCurrentUser` implementation, as illustrated in the following
+    code snippet:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: Our code obtains the username from the current Spring Security `Authentication`
+    object and utilizes that to look up the current `CalendarUser` object by email
+    address. Since our Spring Security username is an email address, we are able to
+    use the email address to link `CalendarUser` with the Spring Security user. Note
+    that if we were to link accounts, we would normally want to do this with a key
+    that we generated rather than something that may change (that is, an email address).
+    We follow the good practice of returning only our domain object to the application.
+    This ensures that our application is only aware of our `CalendarUser` object and
+    thus is not coupled to Spring Security.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This code may seem eerily similar to when we used the `sec:authorize="isAuthenticated()"`
+  prefs: []
+  type: TYPE_NORMAL
+- en: tag attribute in [Chapter 2](02.html), *Getting Started with Spring Security,*
+    to display the current user's username. In fact, the Spring Security tag library
+    uses `SecurityContextHolder` in the same manner as we have done here. We could
+    use our `UserContext` interface to place the current user on `HttpServletRequest`
+    and thus remove our dependency on the Spring Security tag library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Start up the application, visit `http://localhost:8080/`, and log in with `admin1@example.com`
+    as the username and `admin1` as the password.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Visit the My Events page, and you will see that only the events for that current
+    user, who is the owner or the attendee, are displayed.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Try creating a new event; you will observe that the owner of the event is now
+    associated with the logged-in user.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Log out of the application and repeat these steps with `user1@example.com` as
+    the username and `user1` as the password.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Your code should now look like `chapter03.01-calendar`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Logging in new users using SecurityContextHolder
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: A common requirement is to allow users to create a new account and then automatically
+    log them in to the application. In this section, we'll describe the simplest method
+    for indicating that a user is authenticated, by utilizing `SecurityContextHolder`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Managing users in Spring Security
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: The application provided in [Chapter 1](01.html), *Anatomy of an Unsafe Application*,
+    provides a mechanism for creating a new `CalendarUser` object, so it should be
+    fairly trivial to create our `CalendarUser` object after a user signs up. However,
+    Spring Security has no knowledge of `CalendarUser`. This means that we will need
+    to add a new user in Spring Security too. Don't worry, we will remove the need
+    for the dual maintenance of users later in this chapter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring Security provides an `o.s.s.provisioning.UserDetailsManager` interface
+    for managing users. Remember our in-memory Spring Security configuration?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `.inMemoryAuthentication()` method creates an in-memory implementation of
+    `UserDetailsManager`, named `o.s.s.provisioning.InMemoryUserDetailsManager`, which
+    can be used to create a new Spring Security user.
+  prefs: []
+  type: TYPE_NORMAL
+- en: While converting from an XML configuration to a Java-based configuration in
+    Spring Security, there is currently a limitation with the Spring Security DSL
+    where exposing multiple beans is not currently supported. There is a JIRA opened
+    for this issue at [https://jira.spring.io/browse/SPR-13779.](https://jira.spring.io/browse/SPR-13779)
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s see how we can manage users in Spring Security by performing the following
+    steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In order to expose `UserDetailsManager` using a Java-based configuration, we
+    need to create `InMemoryUserDetailsManager` outside of the `WebSecurityConfigurerAdapter`
+    DSL:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Once we have an exposed `UserDetailsManager` interface in our Spring configuration,
+    all we need to do is update our existing `CalendarService` implementation, `DefaultCalendarService`,
+    to add a user in Spring Security. Make the following updates to the `DefaultCalendarService.java`
+    file:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: In order to leverage `UserDetailsManager`, we first convert `CalendarUser` into
+    the `UserDetails` object of Spring Security.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Later, we use `UserDetailsManager` to save the `UserDetails` object. The conversion
+    is necessary because Spring Security has no understanding of how to save our custom
+    `CalendarUser` object, so we must map `CalendarUser` to an object Spring Security
+    understands. You will notice that the `GrantedAuthority` object corresponds to
+    the `authorities` attribute of our `SecurityConfig` file. We hardcode this for
+    simplicity and due to the fact that there is no concept of roles in our existing
+    system.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Logging in a new user to an application
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Now that we are able to add new users to the system, we need to indicate that
+    the user is authenticated. Update `SpringSecurityUserContext` to set the current
+    user on the `SecurityContextHolder` object of Spring Security, as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: The first step we perform is to convert our `CalendarUser` object into the `UserDetails`
+    object of Spring Security. This is necessary because, just as Spring Security
+    didn't know how to save our custom `CalendarUser` object, Spring Security also
+    does not understand how to make security decisions with our custom `CalendarUser`
+    object. We use Spring Security's `o.s.s.core.userdetails.UserDetailsService` interface
+    to obtain the same `UserDetails` object we saved with `UserDetailsManager`. The
+    `UserDetailsService` interface provides a subset, lookup by username, of the functionality
+    provided by Spring Security's `UserDetailsManager` object that we have already
+    seen.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Next, we create a `UsernamePasswordAuthenticationToken` object and place `UserDetails`,
+    the password, and `GrantedAuthority` in it. Lastly, we set the authentication
+    on `SecurityContextHolder`. In a web application, Spring Security will automatically
+    associate the `SecurityContext` object in `SecurityContextHolder` to our HTTP
+    session for us.
+  prefs: []
+  type: TYPE_NORMAL
+- en: It is important that Spring Security must not be instructed to ignore a URL
+    (that is, using the `permitAll()` method), as discussed in [Chapter 2](02.html),
+    *Getting Started with Spring Security*, in which `SecurityContextHolder` is accessed
+    or set. This is because Spring Security will ignore the request and thus not persist
+    `SecurityContext` for subsequent requests. The proper method to allow access to
+    the URL in which `SecurityContextHolder` is used is to specify the `access` attribute
+    of the `antMatchers()` method (that is, `antMatchers(¦).permitAll()`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'It is worth mentioning that we could have converted `CalendarUser` by creating
+    a new `o.s.s.core.userdetails.User` object directly, instead of looking it up
+    in `UserDetailsService`. For example, the following code would also authenticate
+    the user:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: The advantage of this approach is that there is no need to hit the datastore
+    again. In our case, the datastore is an in-memory datastore, but this could be
+    backed by a database, which could have some security implications. The disadvantage
+    of this approach is that we do not get to reuse the code much. Since this method
+    is invoked infrequently, we opt for reusing the code. In general, it is best to
+    evaluate each situation separately to determine which approach makes the most
+    sense.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Updating SignupController
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The application has a `SignupController` object, which is what processes the
+    HTTP request to create a new `CalendarUser` object. The last step is to update
+    `SignupController` to create our user and then indicate that they are logged in.
+    Make the following updates to `SignupController`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: If you have not done so already, restart the application, visit `http://localhost:8080/`,
+    create a new user, and see that the new user is automatically logged in.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Your code should now look like `chapter03.02-calendar`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Creating a custom UserDetailsService object
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: While we are able to link our domain model (`CalendarUser`) with Spring Security's
+    domain model (`UserDetails`), we have to maintain multiple representations of
+    the user. To resolve this dual maintenance, we can implement a custom `UserDetailsService`
+    object to translate our existing `CalendarUser` domain model into an implementation
+    of Spring Security's `UserDetails` interface. By translating our `CalendarUser`
+    object into `UserDetails`, Spring Security can make security decisions using our
+    custom domain model. This means that we will no longer need to manage two different
+    representations of a user.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The CalendarUserDetailsService class
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Up to this point, we have needed two different representations of users: one
+    for Spring Security to make security decisions, and one for our application to
+    associate our domain objects to. Create a new class named `CalendarUserDetailsService`
+    that will make Spring Security aware of our `CalendarUser` object. This will ensure
+    that Spring Security can make decisions based upon our domain model. Create a
+    new file named `CalendarUserDetailsService.java`, as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: Within Spring Tool Suite, you can use *Shift*+*Ctrl*+*O* to easily add the missing
+    imports. Alternatively, you can copy the code from the next checkpoint (`chapter03.03-calendar`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Here, we utilize `CalendarUserDao` to obtain `CalendarUser` by using the email
+    address. We take care not to return a `null` value; instead, a `UsernameNotFoundException`
+    exception should be thrown, as returning `null` breaks the `UserDetailsService`
+    interface.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We then convert `CalendarUser` into `UserDetails`, implemented by the user,
+    as we did in the previous sections.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We now utilize a utility class named `CalendarUserAuthorityUtils` that we provided
+    in the sample code. This will create `GrantedAuthority` based on the email address
+    so that we can support users and administrators. If the email starts with `admin`,
+    the user is treated as `ROLE_ADMIN, ROLE_USER`. Otherwise, the user is treated
+    as `ROLE_USER`. Of course, we would not do this in a real application, but it's
+    this simplicity that allows us to focus on this lesson.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Configuring UserDetailsService
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Now that we have a new `UserDetailsService` object, let''s update the Spring
+    Security configuration to utilize it. Our `CalendarUserDetailsService` class is
+    added to our Spring configuration automatically, since we leverage classpath scanning
+    and the `@Component` annotation. This means we only need to update Spring Security
+    to refer to the `CalendarUserDetailsService` class we just created. We are also
+    able to remove the `configure()` and `userDetailsService()` methods, Spring Security''s
+    in-memory implementation of `UserDetailsService`, since we are now providing our
+    own `UserDetailsService` implementation. Update the `SecurityConfig.java` file,
+    as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: Removing references to UserDetailsManager
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'We need to remove the code we added in `DefaultCalendarService` that used `UserDetailsManager`
+    to synchronize the Spring Security `o.s.s.core.userdetails.User` interface and
+    `CalendarUser`. First, the code is not necessary, since Spring Security now refers
+    to `CalendarUserDetailsService`. Second, since we removed the `inMemoryAuthentication()`
+    method, there is no `UserDetailsManager` object defined in our Spring configuration.
+    Go ahead and remove all references to `UserDetailsManager` found in `DefaultCalendarService`.
+    The updates will look similar to the following sample snippets:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: Start up the application and see that Spring Security's in-memory `UserDetailsManager`
+    object is no longer necessary (we removed it from our `SecurityConfig.java` file).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Your code should now look like `chapter03.03-calendar`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The CalendarUserDetails object
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'We have successfully eliminated the need to manage both Spring Security users
+    and our `CalendarUser` objects. However, it is still cumbersome for us to continually
+    need to translate between the two objects. Instead, we will create a `CalendarUserDetails`
+    object, which can be referred to as both `UserDetails` and `CalendarUser`. Update
+    `CalendarUserDetailsService` to use `CalendarUserDetails`, as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: In the next section, we will see that our application can now refer to the principal
+    authentication on the current `CalendarUser` object. However, Spring Security
+    can continue to treat `CalendarUserDetails` as a `UserDetails` object.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The SpringSecurityUserContext simplifications
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'We have updated `CalendarUserDetailsService` to return a `UserDetails` object
+    that extends `CalendarUser` and implements `UserDetails`. This means that, rather
+    than having to translate between the two objects, we can simply refer to a `CalendarUser`
+    object. Update `SpringSecurityUserContext` as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: The updates no longer require the use of `CalendarUserDao` or Spring Security's
+    `UserDetailsService` interface. Remember our `loadUserByUsername` method from
+    the previous section? The result of this method call becomes the principal of
+    the authentication. Since our updated `loadUserByUsername` method returns an object
+    that extends `CalendarUser`, we can safely cast the principal of the `Authentication`
+    object to `CalendarUser`. We can pass a `CalendarUser` object as the principal
+    into the constructor for `UsernamePasswordAuthenticationToken` when invoking the
+    `setCurrentUser` method. This allows us to still cast the principal to a `CalendarUser`
+    object when invoking the `getCurrentUser` method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Displaying custom user attributes
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Now that `CalendarUser` is populated into Spring Security''s authentication,
+    we can update our UI to display the name of the current user rather than the email
+    address. Update the `header.html` file with the following code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Internally, the `"${#authentication.getPrincipal().getName()}"` tag attribute
+    executes the following code. Observe that the highlighted values correlate to
+    the `property` attribute of the authentication tag we specified in the `header.html`
+    file:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: Restart the application, visit `http://localhost:8080/`, and log in to view
+    the updates. Instead of seeing the current user's email, you should now see their
+    first and last names.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Your code should now look like `chapter03.04-calendar`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Creating a custom AuthenticationProvider object
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Spring Security delegates to an `AuthenticationProvider` object to determine
+    whether a user is authenticated or not. This means we can write custom `AuthenticationProvider`
+    implementations to inform Spring Security how to authenticate in different ways.
+    The good news is that Spring Security provides quite a few `AuthenticationProvider`
+    objects, so more often than not you will not need to create one. In fact, up until
+    this point, we have been utilizing Spring Security's `o.s.s.authentication.dao.DaoAuthenticationProvider`
+    object, which compares the username and password returned by `UserDetailsService`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: CalendarUserAuthenticationProvider
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Throughout the rest of this section, we are going to create a custom `AuthenticationProvider`
+    object named `CalendarUserAuthenticationProvider` that will replace `CalendarUserDetailsService`.
+    Then, we will use `CalendarUserAuthenticationProvider` to consider an additional
+    parameter to support authenticating users from multiple domains.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We must use an `AuthenticationProvider` object rather than `UserDetailsService`,
+    because the `UserDetails` interface has no concept of a domain parameter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Create a new class named `CalendarUserAuthenticationProvider`, as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: Remember that you can use *Shift*+*Ctrl*+*O* within Eclipse to easily add the
+    missing imports. Alternatively, you can copy the implementation from `chapter03.05-calendar`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Before Spring Security can invoke the `authenticate` method, the `supports`
+    method must return `true` for the `Authentication` class that will be passed in.
+    In this case, `AuthenticationProvider` can authenticate a username and password.
+    We do not accept subclasses of `UsernamePasswordAuthenticationToken`, since there
+    may be additional fields that we do not know how to validate.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `authenticate` method accepts an `Authentication` object as an argument
+    that represents an authentication request. In practical terms, it is the input
+    from the user that we need to attempt to validate. If authentication fails, the
+    method should throw an `o.s.s.core.AuthenticationException` exception. If authentication
+    succeeds, it should return an `Authentication` object that contains the proper
+    `GrantedAuthority` objects for the user. The returned `Authentication` object
+    will be set on `SecurityContextHolder`. If authentication cannot be determined,
+    the method should return `null`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The first step in authenticating the request is to extract the information from
+    the `Authentication` object that we need to authenticate the user. In our case,
+    we extract the username and look up `CalendarUser` by email address, just as `CalendarUserDetailsService`
+    did. If the provided username and password match `CalendarUser`, we will return
+    a `UsernamePasswordAuthenticationToken` object with proper `GrantedAuthority`.
+    Otherwise, we will throw an `AuthenticationException` exception.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Remember how the login page leveraged `SPRING_SECURITY_LAST_EXCEPTION` to explain
+    why login failed? The message for the `AuthenticationException` exception thrown
+    in `AuthenticationProvider` is the last `AuthenticationException` exception and
+    will be displayed on our login page in the event of a failed login.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Configuring the CalendarUserAuthenticationProvider object
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Let''s perform the following steps to configure `CalendarUserAuthenticationProvider`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Update the `SecurityConfig.java` file to refer to our newly created `CalendarUserAuthenticationProvider`
+    object, and remove the reference to `CalendarUserDetailsService`, as shown in
+    the following code snippet:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: Restart the application and ensure everything is still working. As a user, we
+    do not notice anything different. However, as a developer, we know that `CalendarUserDetails`
+    is no longer required; we are still able to display the current user's first and
+    last names, and Spring Security is still able to leverage `CalendarUser` for authentication.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Your code should now look like `chapter03.05-calendar`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Authenticating with different parameters
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: One of the strengths of `AuthenticationProvider` is that it can authenticate
+    with any parameters you wish. For example, maybe your application uses a random
+    identifier for authentication, or perhaps it is a multitenant application and
+    requires a username, password, and domain. In the following section, we will update
+    `CalendarUserAuthenticationProvider` to support multiple domains.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A domain is a way to scope our users. For example, if we deploy our application
+    once but have multiple clients using the same deployment, each client may want
+    a user with the username `admin`. By adding a domain to our user object, we can
+    ensure that each user is distinct and still supports this requirement.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The DomainUsernamePasswordAuthenticationToken class
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'When a user authenticates, Spring Security submits an `Authentication` object
+    to `AuthenticationProvider` with the information provided by the user. The current
+    `UsernamePasswordAuthentication` object only contains a username and password
+    field. Create a `DomainUsernamePasswordAuthenticationToken` object that contains
+    a `domain` field, as shown in the following code snippet:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE22]'
+  prefs: []
+  type: TYPE_PRE
+- en: Updating CalendarUserAuthenticationProvider
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Let''s take a look at the following steps for updating the `CalendarUserAuthenticationProvider.java`
+    file:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Now, we need to update `CalendarUserAuthenticationProvider` to utilize the
+    domain field as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE23]'
+  prefs: []
+  type: TYPE_PRE
+- en: We first update the `supports` method so that Spring Security will pass `DomainUsernamePasswordAuthenticationToken`
+    into our `authenticate` method.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: We then use the domain information to create our email address and authenticate,
+    as we had previously done. Admittedly, this example is contrived. However, the
+    example is able to illustrate how to authenticate with an additional parameter.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The `CalendarUserAuthenticationProvider` interface can now use the new domain
+    field. However, there is no way for a user to specify the domain. For this, we
+    must update our `login.html` file.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Adding domain to the login page
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Open up the `login.html` file and add a new input named `domain`, as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE24]'
+  prefs: []
+  type: TYPE_PRE
+- en: Now, a domain will be submitted when users attempt to log in. However, Spring
+    Security is unaware of how to use that domain to create a `DomainUsernamePasswordAuthenticationToken`
+    object and pass it into `AuthenticationProvider`. To fix this, we will need to
+    create `DomainUsernamePasswordAuthenticationFilter`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The DomainUsernamePasswordAuthenticationFilter class
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Spring Security provides a number of servlet filters that act as controllers
+    for authenticating users. The filters are invoked as one of the delegates of the
+    `FilterChainProxy` object that we discussed in [Chapter 2](02.html), *Getting
+    Started with Spring Security*. Previously, the `formLogin()` method instructed
+    Spring Security to use `o.s.s.web.authentication.UsernamePasswordAuthenticationFilter`
+    to act as a login controller. The filter''s job is to perform the following tasks:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Obtain a username and password from the HTTP request.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Create a `UsernamePasswordAuthenticationToken` object with the information obtained
+    from the HTTP request.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Request that Spring Security validates `UsernamePasswordAuthenticationToken`.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: If the token is validated, it will set the authentication returned to it on
+    `SecurityContextHolder`, just as we did when a new user signed up for an account.
+    We will need to extend `UsernamePasswordAuthenticationFilter` to leverage our
+    newly created `DoainUsernamePasswordAuthenticationToken` object.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Create a `DomainUsernamePasswordAuthenticationFilter` object, as follows:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE25]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The new `DomainUsernamePasswordAuthenticationFilter` object will perform the
+    following tasks:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Obtain a username, password, and domain from the `HttpServletRequest` method.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Create our `DomainUsernamePasswordAuthenticationToken` object with information
+    obtained from the HTTP request.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Request that Spring Security validates `DomainUsernamePasswordAuthenticationToken`.
+    The work is delegated to `CalendarUserAuthenticationProvider`.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: If the token is validated, its superclass will set the authentication returned
+    by `CalendarUserAuthenticationProvider` on `SecurityContextHolder`, just as we
+    did to authenticate a user after they created a new account.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Updating our configuration
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Now that we have created all the code required for an additional parameter,
+    we need to configure Spring Security to be aware of it. The following code snippet
+    includes the required updates to our `SecurityConfig.java` file to support our
+    additional parameter:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE26]'
+  prefs: []
+  type: TYPE_PRE
+- en: The preceding code snippet configures standard beans in our Spring Security
+    configuration. We have shown this to demonstrate that it can be done. However,
+    throughout much of the rest of the book, we include standard bean configuration
+    in its own file, as this makes the configuration less verbose. If you are having
+    trouble, or prefer not to type all of this, you may copy it from `chapter03.06-calendar`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The following are a few highlights from the configuration updates:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We overrode `defaultAuthenticationEntryPoint` and added a reference to `o.s.s.web.authentication.LoginUrlAuthenticationEntryPoint`,
+    which determines what happens when a request for a protected resource occurs and
+    the user is not authenticated. In our case, we are redirected to a login page.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: We removed the `formLogin()` method and used a `.addFilterAt()` method to insert
+    our custom filter into `FilterChainProxy`. The position indicates the order in
+    which the delegates of `FilterChain` are considered and cannot overlap with another
+    filter, but can replace the filter at the current position. We replaced `UsernamePasswordAuthenticationFilter`
+    with our custom filter.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: We added the configuration for our custom filter, which refers to the authentication
+    manager created by the `configure(AuthenticationManagerBuilder)` method.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Take a look at the following diagram for your reference:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/7dcf22b3-a3c3-465c-981e-eadbf92a70c2.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'You can now restart the application and try the following steps, depicted in
+    the preceding diagram, to understand how all the pieces fit together:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Visit `http://localhost:8080/events`.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Spring Security will intercept the secured URL and use the `LoginUrlAuthenticationEntryPoint`
+    object to process it.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The `LoginUrlAuthenticationEntryPoint` object will send the user to the login
+    page. Enter `admin1` as the username, `example.com` as the domain, and `admin1`
+    as the password.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The `DomainUsernamePasswordAuthenticationFilter` object will intercept the process
+    of the login request. It will then obtain the username, domain, and password from
+    the HTTP request and create a `DomainUsernamePasswordAuthenticationToken` object.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The `DomainUsernamePasswordAuthenticationFilter` object submits `DomainUsernamePasswordAuthenticationToken`
+    to `CalendarUserAuthenticationProvider`.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The `CalendarUserAuthenticationProvider` interface validates `DomainUsernamePasswordAuthenticationToken`
+    and then returns an authenticated `DomainUsernamePasswordAuthenticationToken`
+    object (that is, `isAuthenticated()` returns `true`).
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The `DomainUserPasswordAuthenticationFilter` object updates `SecurityContext`
+    with `DomainUsernamePasswordAuthenticationToken` and places it on `SecurityContextHolder`.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Your code should look like `chapter03.06-calendar`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Which authentication method to use?
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'We have covered the three main methods of authenticating, so which one is the
+    best? Like all solutions, each comes with its pros and cons. You can find a summary
+    of when to use a specific type of authentication by referring to the following
+    list:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`SecurityContextHolder`: Interacting directly with `SecurityContextHolder`
+    is certainly the easiest way of authenticating a user. It works well when you
+    are authenticating a newly created user or authenticating in an unconventional
+    way. By using `SecurityContextHolder` directly, we do not have to interact with
+    so many Spring Security layers. The downside is that we do not get some of the
+    more advanced features that Spring Security provides automatically. For example,
+    if we want to send the user to the previously requested page after logging in,
+    we would have to manually integrate that into our controller.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`UserDetailsService`: Creating a custom `UserDetailsService` object is an easy
+    mechanism that allows for Spring Security to make security decisions based on
+    our custom domain model. It also provides a mechanism to hook into other Spring
+    Security features. For example, Spring Security requires `UserDetailsService`
+    in order to use the built-in remember-me support covered in [Chapter 7](08.html),
+    *Remember-Me Services*. The `UserDetailsService` object does not work when authentication
+    is not based on a username and password.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`AuthenticationProvider`: This is the most flexible method for extending Spring
+    Security. It allows a user to authenticate with any parameters that we wish. However,
+    if we wish to leverage features such as Spring Security''s remember-me, we will
+    still need `UserDetailsService`.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Summary
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: This chapter has used real-world problems to introduce the basic building blocks
+    used in Spring Security. It also demonstrates to us how we can make Spring Security
+    authenticate against our custom domain objects by extending those basic building
+    blocks. In short, we have learned that the `SecurityContextHolder` interface is
+    the central location for determining the current user. Not only can it be used
+    by developers to access the current user, but also to set the currently logged-in
+    user.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We also explored how to create custom `UserDetailsService` and `AuthenticationProvider`
+    objects and how to perform authentication with more than just a username and password.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the next chapter, we will explore some of the built-in support for JDBC-based
+    authentication.
+  prefs: []
+  type: TYPE_NORMAL

@@ -1,0 +1,787 @@
+- en: Custom Authorization
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In this chapter, we will write some custom implementations for Spring Security's
+    key authorization APIs. Once we have done this, we will use the understanding
+    of the custom implementations to understand how Spring Security's authorization
+    architecture works.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Throughout this chapter, we will cover the following topics:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Gaining an understanding of how authorization works
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Writing a custom `SecurityMetaDataSource` backed by a database instead of `antMatchers()`
+    methods
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Creating a custom SpEL expression
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Implementing a custom `PermissionEvaluator` object that allows our permissions
+    to be encapsulated
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Authorizing the requests
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: As in the authentication process, Spring Security provides an `o.s.s.web.access.intercept.FilterSecurityInterceptor`
+    servlet filter, which is responsible for coming up with a decision as to whether
+    a particular request will be accepted or denied. At the point the filter is invoked,
+    the principal has already been authenticated, so the system knows that a valid
+    user has logged in; remember that we implemented the `List<GrantedAuthority> getAuthorities()`
+    method, which returns a list of authorities for the principal, in [Chapter 3](03.html),
+    Custom Authentication. In general, the authorization process will use the information
+    from this method (defined by the `Authentication` interface) to determine, for
+    a particular request, whether or not the request should be allowed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Remember that authorization is a binary decision-a user either has access to
+    a secured resource or he does not. There is no ambiguity when it comes to authorization.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A Smart object-oriented design is pervasive within the Spring Security framework,
+    and authorization decision management is no exception.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In Spring Security, the `o.s.s.access.AccessDecisionManager` interface specifies
+    two simple and logical methods that fit sensibly into the processing decision
+    flow of requests, as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`Supports`: This logical operation actually comprises two methods that allow
+    the `AccessDecisionManager` implementation to report whether or not it supports
+    the current request.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`Decide`: This allows the `AccessDecisionManager` implementation to verify,
+    based on the request context and security configuration, whether or not access
+    should be allowed and the request accepted. The `Decide` method actually has no
+    return value, and instead reports the denial of a request by throwing an exception
+    to indicate rejection.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Specific types of exceptions can further dictate the action to be taken by the
+    application to resolve authorization decisions. The `o.s.s.access.AccessDeniedException`
+    interface is the most common exception thrown in the area of authorization and
+    merits special handling by the filter chain.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The implementation of `AccessDecisionManager` is completely configurable using
+    standard Spring bean binding and references. The default `AccessDecisionManager`
+    implementation provides an access granting mechanism based on `AccessDecisionVoter`
+    and votes aggregation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A voter is an actor in the authorization sequence whose job is to evaluate
+    any or all of the following things:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The context of the request for a secured resource (such as a URL requesting
+    an IP address)
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The credentials (if any) presented by the user
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The secured resource being accessed
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The configuration parameters of the system, and the resource itself
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'The `AccessDecisionManager` implementation is also responsible for passing
+    the access declaration (referred to in the code as implementations of the `o.s.s.access.ConfigAttribute`
+    interface) of the resource being requested to the voter. In the case of web URLs,
+    the voter will have information about the access declaration of the resource.
+    If we look at our very basic configuration file''s URL intercept declaration,
+    we''ll see `ROLE_USER` being declared as the access configuration for the resource
+    the user is trying to access, as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Based on the voter''s knowledge, it will decide whether the user should have
+    access to the resource or not. Spring Security allows the voter to make one of
+    three decisions, whose logical definition is mapped to constants in the interface,
+    as shown in the following table:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| **Decision type** | **Description** |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `Grant (ACCESS_GRANTED)` | The voter recommends giving access to the resource.
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `Deny (ACCESS_DENIED)` | The voter recommends denying access to the resource.
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `Abstain (ACCESS_ABSTAIN)` | The voter abstains (does not make a decision)
+    on access to the resource. This may happen for a number of reasons, such as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The voter doesn't have conclusive information
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The voter can't decide on a request of this type
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '|'
+  prefs: []
+  type: TYPE_NORMAL
+- en: As you may have guessed from the design of access decision-related objects and
+    interfaces, this portion of Spring Security has been designed so that it can be
+    applied to authentication and access control scenarios that aren't exclusively
+    in the web domain. We'll encounter voters and access decision managers when we
+    look at method-level security later in this chapter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'When we put this all together, the overall flow of the default authorization
+    check for web requests is similar to the following diagram:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/af1ee98e-6dd7-4e44-b87a-9a06588d2e3b.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: We can see that the abstraction of `ConfigAttribute` allows for data to be passed
+    from the configuration declarations (retained in the `o.s.s.web.access.intercept.DefaultFilterinvocationSecurityMetadataSource`
+    interface) to the voter responsible for acting on `ConfigAttribute` without any
+    intervening classes needing to understand the contents of `ConfigAttribute`. This
+    separation of concerns provides a solid foundation for building new types of security
+    declarations (such as the declarations we will see within method security) while
+    utilizing the same access decision pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Configuration of access decision aggregation
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Spring Security does actually allow for the configuration of `AccessDecisionManager`
+    in the security namespace. The `access-decision-manager-ref` attribute on the
+    `<http>` element allows you to specify a Spring bean reference to an implementation
+    of `AccessDecisionManager`. Spring Security ships with three implementations of
+    this interface, all in the `o.s.s.access.vote` package as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| **Class name** | **Description** |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `AffirmativeBased` | If any voter grants access, access is immediately granted,
+    regardless of previous denials. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `ConsensusBased` | The majority vote (grant or deny) governs the decision
+    of `AccessDecisionManager`. Tie-breaking and the handling of empty votes (containing
+    only abstentions) is configurable. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `UnanimousBased` | All voters must grant access, otherwise, access is denied.
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: Configuring a UnanimousBased access decision manager
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'If we want to modify our application to use the access decision manager, we
+    require two modifications. In order to do this, we add the `accessDecisionManager`
+    entry to the `http` element in our `SecurityConfig.java` file, as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This is a standard Spring bean reference, so this should correspond to the
+    `id` attribute of a bean. We could then define the `UnanimousBased` bean, as shown
+    in the following code snippet. Note that we will not actually utilize this configuration
+    in our exercises:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: You may be wondering what the `decisionVoters` property is about. This property
+    is auto-configured until we declare our own `AccessDecisionManager`. The default
+    `AccessDecisionManager` class requires us to declare the list of voters who are
+    consulted to make authentication decisions. The two voters listed here are the
+    defaults supplied by the security namespace configuration.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring Security doesn't come with a wide variety of voters, but it would be
+    trivial to implement a new one. As we will see later in the chapter, in most situations,
+    creating a custom voter is not necessary, since this can typically be implemented
+    using custom expressions or even a custom `o.s.s.access.PermissionEvaluator`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The two voter implementations that we reference here are the following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| **Class name** | **Description** | **Example** |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `o.s.s.access.vote.RoleVoter` | Checks that the user has the matching declared
+    role. Expects the attribute to define a comma-delimited list of names. The prefix
+    is expected, but optionally configurable. | `access="ROLE_USER,ROLE_ADMIN"` |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `o.s.s.access.vote.AuthenticatedVoter` | Supports special declarations allowing
+    wildcard matches:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`IS_AUTHENTICATED_FULLY` allows access if a fresh username and password are
+    supplied.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`IS_AUTHENTICATED_REMEMBERED` allows access if the user has authenticated with
+    the remember-me functionality.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`IS_AUTHENTICATED_ANONYMOUSLY` allows access if the user is anonymous'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '| `access="IS_AUTHENTICATED_ANONYMOUSLY"` |'
+  prefs: []
+  type: TYPE_TB
+- en: Expression-based request authorization
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: As you might expect, SpEL handling is supplied by a different `Voter` implementation,
+    `o.s.s.web.access.expression.WebExpressionVoter`, which understands how to evaluate
+    the SpEL expressions. The `WebExpressionVoter` class relies on an implementation
+    of the `SecurityExpressionHandler` interface for this purpose. The `SecurityExpressionHandler`
+    interface is responsible both for evaluating the expressions and for supplying
+    the security-specific methods that are referenced in the expressions. The default
+    implementation of this interface exposes methods defined in the `o.s.s.web.access.expression.WebSecurityExpressionRoot`
+    class.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The flow and relationship between these classes are shown in the following
+    diagram:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/5f3cd41d-c323-4764-a9c2-897f26c87f8c.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Now that we know how to request authorization works, let's solidify our understanding
+    by making a few custom implementations of some key interfaces.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Customizing request authorization
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: The real power of Spring Security's authorization is demonstrated by how adaptable
+    it is to custom requirements. Let's explore a few scenarios that will help reinforce
+    our understanding of the overall architecture.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Dynamically defining access control to URLs
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Spring Security provides several methods for mapping `ConfigAttribute` objects
+    to a resource. For example, the `antMatchers()` method ensures it is simple for
+    developers to restrict access to specific HTTP requests in their web application.
+    Behind the scenes, an implementation of `o.s.s.acess.SecurityMetadataSource` is
+    populated with these mappings and queried to determine what is required in order
+    to be authorized to make any given HTTP request.
+  prefs: []
+  type: TYPE_NORMAL
+- en: While the `antMatchers()` method is very simple, there may be times that it
+    would be desirable to provide a custom mechanism for determining the URL mappings.
+    An example of this might be if an application needs to be able to dynamically
+    provide the access control rules. Let's demonstrate what it would take to move
+    our URL authorization configuration into a database.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Configuring the RequestConfigMappingService
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The first step is to be able to obtain the necessary information from the database.
+    This will replace the logic that reads in the `antMatchers()` methods from our
+    security bean configuration. In order to do this, the chapter''s sample code contains
+    `JpaRequestConfigMappingService`, which will obtain a mapping of an ant pattern
+    and an expression from the database represented as `RequestConfigMapping`. The
+    rather simple implementation is as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: It is important to notice that, just as with the `antMatchers()` methods, order
+    matters. Therefore, we ensure the results are sorted by the `sort_order` column.
+    The service creates an `AntRequestMatcher` and associates it to `SecurityConfig`,
+    an instance of `ConfigAttribute`. This will provide a mapping of the HTTP request
+    to `ConfigAttribute` objects that can be used by Spring Security to secure our
+    URLs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We need to create a domain object to use for JPA to map to as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Finally, we need to create a Spring Data repository object as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'In order for the new service to work, we will need to initialize our database
+    with the schema and the access control mappings. Just as with the service implementation,
+    our schema is rather straightforward:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We can then use the same `antMatchers()` mappings from our `SecurityConfig.java`
+    file to produce the `schema.sql` file:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: At this point, your code should be starting with `chapter13.00-calendar`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Custom SecurityMetadataSource implementation
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'In order for Spring Security to be aware of our URL mappings, we need to provide
+    a custom `FilterInvocationSecurityMetadataSource` implementation. The `FilterInvocationSecurityMetadataSource`
+    package extends the `SecurityMetadataSource` interface which, given a particular
+    HTTP request, is what provides Spring Security with the information necessary
+    for determining if access should be granted. Let''s take a look at how we can
+    utilize our `RequestConfigMappingService` interface to implement a `SecurityMetadataSource`
+    interface:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: We are able to use our `RequestConfigMappingService` interface to create a map
+    of `RequestMatcher` objects that map to `ConfigAttribute` objects. We then delegate
+    to an instance of `ExpressionBasedFilterInvocationSecurityMetadataSource` to do
+    all the work. For simplicity, the current implementation would require restarting
+    the application to pick up changes. However, with a few minor changes, we could
+    avoid this inconvenience.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Registering a custom SecurityMetadataSource
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Now, all that is left is for us to configure `FilterInvocationServiceSecurityMetadataSource.`
+    The only problem is that Spring Security does not support configuring a custom
+    `FilterInvocationServiceSecurityMetadataSource` interface directly. This is not
+    too difficult, so we will register this `SecurityMetadataSource` with our `FilterSecurityInterceptor`
+    in our `SecurityConfig` file:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: This sets up our custom `SecurityMetadataSource` interface with the `FilterSecurityInterceptor`
+    object as the default metadata source.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Removing our antMatchers() method
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Now that the database is being used to map our security configuration, we can
+    remove the `antMatchers()` method from our `SecurityConfig.java` file. Go ahead
+    and remove them, so that the configuration looks similar to the following code
+    snippet:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: If you use even one `http antMatchers` expression, then the custom expression
+    handler will not be invoked.
+  prefs: []
+  type: TYPE_NORMAL
+- en: You should now be able to start the application and test to ensure that our
+    URLs are secured as they should be. Our users will not notice a difference, but
+    we know that our URL mappings are persisted in a database now.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Your code should now look like `chapter13.01-calendar`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Creating a custom expression
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: The `o.s.s.access.expression.SecurityExpresssionHandler` interface is how Spring
+    Security abstracts how the Spring expressions are created and initialized. Just
+    as with the `SecurityMetadataSource` interface, there is an implementation for
+    creating expressions for web requests and creating expressions for securing methods.
+    In this section, we will explore how we can easily add new expressions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Configuring a custom SecurityExpressionRoot
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Let's assume that we want to support a custom web expression named `isLocal`
+    that will return `true` if the host is localhost and false otherwise. This new
+    method could be used to provide additional security for our SQL console by ensuring
+    that it is only accessed from the same machine that the web application is deployed
+    from.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This is an artificial example that does not add any security benefits since
+    the host comes from the headers of the HTTP request. This means a malicious user
+    could inject a header stating the host is localhost even if they are requesting
+    to an external domain.
+  prefs: []
+  type: TYPE_NORMAL
+- en: All of the expressions that we have seen are available because the `SecurityExpressionHandler`
+    interface makes them available via an instance of `o.s.s.access.expression.SecurityExpressionRoot`.
+    If you open this object, you will find the methods and properties we use in Spring
+    expressions (that is, `hasRole`, `hasPermission`, and so on), which are common
+    in both web and method security. A subclass provides the methods that are specific
+    to web and method expressions. For example, `o.s.s.web.access.expression.WebSecurityExpressionRoot`
+    provides the `hasIpAddress` method for web requests.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To create a custom web `SecurityExpressionhandler`, we will first need to create
+    a subclass of `WebSecurityExpressionRoot` that defines our `isLocal` method as
+    follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: It is important to note that `getServerName()` returns the value that is provided
+    in the `Host` header value. This means that a malicious user can inject a different
+    value into the header to bypass constraints. However, most application servers
+    and proxies can enforce the value of the `Host` header. Please read the appropriate
+    documentation before leveraging such an approach to ensure that malicious users
+    do not inject a `Host` header value to bypass such a constraint.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Configuring a custom SecurityExpressionHandler
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'In order for our new method to become available, we need to create a custom
+    `SecurityExpressionHandler` interface that utilizes our new root object. This
+    is as simple as extending `WebSecurityExpressionHandler`, as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: We perform the same steps that the superclass does, except that we use `CustomWebSecurityExpressionRoot,`
+    which contains the new method. The `CustomWebSecurityExpressionRoot` becomes the
+    root of our SpEL expression.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For further details, refer to the SpEL documentation within the Spring Reference
+    at [http://static.springsource.org/spring/docs/current/spring-framework-reference/html/expressions.html](http://static.springsource.org/spring/docs/current/spring-framework-reference/html/expressions.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Configuring and using CustomWebSecurityExpressionHandler
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Let''s take a look at the following steps to configure `CustomWebSecurityExpressionHandler`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We now need to configure `CustomWebSecurityExpressionHandler`. Fortunately,
+    this can be done easily using the Spring Security namespace configuration support.
+    Add the following configuration to the `SecurityConfig.java` file:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Now, let''s update our initialization SQL query to use the new expression.
+    Update the `data.sql` file so that it requires the user to be `ROLE_ADMIN` and
+    requested from the local machine. You will notice that we are able to write local
+    instead of `isLocal`, since SpEL supports Java Bean conventions:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: Restart the application and access the H2 console using `localhost:8443/admin/h2`
+    and `admin1@example.com/admin1` to see the admin console. If the H2 console is
+    accessed using `127.0.0.1:8443/admin/h2` and `admin1@example.com admin1`, the
+    access denied page will be displayed.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Your code should look like `chapter13.02-calendar`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Alternative to a CustomWebSecurityExpressionHandler
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Another way to use a custom expression instead of using a `CustomWebSecurityExpressionHandler`
+    interface is to add a `@Component` web, as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Now, let''s update our initialization SQL query to use the new expression.
+    You will notice that we are able to reference the `@Component` directly since
+    SpEL supports Java Bean conventions:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: How does method security work?
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: The access decision mechanism for method security-whether or not a given request
+    is allowed-is conceptually the same as the access decision logic for web request
+    access. `AccessDecisionManager` polls a set of `AccessDecisionVoters`, each of
+    which can provide a decision to grant or deny access, or abstain from voting.
+    The specific implementation of `AccessDecisionManager` aggregates the voter decisions
+    and arrives at an overall decision to allow for the method invocation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Web request access decision making is less complicated, due to the fact that
+    the availability of servlet filters makes interception (and summary rejection)
+    of securable requests relatively straightforward. As method invocation can happen
+    from anywhere, including areas of code that are not directly configured by Spring
+    Security, Spring Security designers chose to use a Spring-managed AOP approach
+    to recognize, evaluate, and secure method invocations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The following high-level flow illustrates the main players involved in authorization
+    decisions for method invocation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/85d9b059-2b83-4f34-9dda-ecf1a5132c04.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: We can see that Spring Security's `o.s.s.access.intercept.aopalliance.MethodSecurityInterceptor`
+    is invoked by the standard Spring AOP runtime to intercept method calls of interest.
+    From here, the logic of whether or not to allow a method call is relatively straightforward,
+    as per the previous flow diagram.
+  prefs: []
+  type: TYPE_NORMAL
+- en: At this point, we might wonder about the performance of the method security
+    feature. Obviously, `MethodSecurityInterceptor` can't be invoked for every method
+    call in the application-so how do annotations on methods or classes result in
+    AOP interception?
+  prefs: []
+  type: TYPE_NORMAL
+- en: First of all, AOP proxying isn't invoked for all Spring-managed beans by default.
+    Instead, if `@EnableGlobalMethodSecurity` is defined in the Spring Security configuration,
+    a standard Spring AOP `o.s.beans.factory.config.BeanPostProcessor` will be registered
+    that will introspect the AOP configuration to see if any AOP advisors indicate
+    that proxying (and the interception) is required. This workflow is standard Spring
+    AOP handling (known as AOP auto-proxying), and doesn't inherently have any functionality
+    specific to Spring Security. All registered `BeanPostProcessor` run upon initialization
+    of the spring `ApplicationContext`, after all, Spring bean configurations have
+    occurred.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The AOP auto-proxy functionality queries all registered `PointcutAdvisor` to
+    see if there are AOP pointcuts that resolve method invocations that should have
+    AOP advice applied. Spring Security implements the `o.s.s.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor`
+    class, which examines any and all configured method security and sets up appropriate
+    AOP interception. Take note that only interfaces or classes with declared method
+    security rules will be proxied for AOP!
+  prefs: []
+  type: TYPE_NORMAL
+- en: Be aware that it is strongly encouraged to declare AOP rules (and other security
+    annotations) on interfaces, and not on implementation classes. The use of classes,
+    while available using CGLIB proxying with Spring, may unexpectedly change the
+    behavior of your application, and is generally less semantically correct than
+    security declarations (through AOP) on interfaces. `MethodSecurityMetadataSourceAdvisor`
+    delegates the decision to affect methods with the AOP advice to an `o.s.s.access.method.MethodSecurityMetadataSource`
+    instance. The different forms of method security annotation each have their own
+    `MethodSecurityMetadataSource` implementation, which is used to introspect each
+    method and class in turn and add AOP advice to be executed at runtime.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The following diagram illustrates how this process occurs:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/0b685c5d-f978-4220-8c0b-87e4cc716f07.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Depending on the number of Spring beans configured in your application, and
+    the number of secured method annotations you have, adding method security proxying
+    may increase the time required to initialize your ApplicationContext. Once your
+    Spring context is initialized, however, there is a negligible performance impact
+    on individual proxied beans.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Now that we have an understanding of how we can use AOP to apply Spring Security,
+    let's strengthen our grasp of Spring Security authorization by creating a custom
+    `PermissionEvaluator`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Creating a custom PermissionEvaluator
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In the previous chapter, we demonstrated that we could use Spring Security's
+    built-in `PermissionEvaluator` implementation, `AclPermissionEvaluator`, to restrict
+    access to our application. While powerful, this can often be more complicated
+    than necessary. We have also discovered how SpEL can formulate complex expressions
+    that are able to secure our application. While simple, one of the downsides of
+    using complex expressions is that the logic is not centralized. Fortunately, we
+    can easily create a custom `PermissionEvaluator` that is able to centralize our
+    authorization logic and still avoid the complexity of using ACLs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: CalendarPermissionEvaluator
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'A simplified version of our custom `PermissionEvaluator` that does not contain
+    any validation can be seen as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: The logic is fairly similar to the Spring expressions that we have already used,
+    except that it differentiates read and write access. If the current user's username
+    matches the owner's email of the `Event` object, then both read and write access
+    is granted. If the current user's email matches the attendee's email, then read
+    access is granted. Otherwise, access is denied.
+  prefs: []
+  type: TYPE_NORMAL
+- en: It should be noted that a single `PermissionEvaluator` is used for every domain
+    object. So, in a real-world situation, we must perform `instanceof` checks first.
+    For example, if we were also securing our `CalendarUser` objects, these could
+    be passed into this same instance. For a full example of these minor changes,
+    refer to the sample code included in the book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Configuring CalendarPermissionEvaluator
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'We can then leverage the `CustomAuthorizationConfig.java` configuration that
+    is provided with this chapter to provide an `ExpressionHandler` that uses our
+    `CalendarPermissionEvaluator`, like so:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: The configuration should look similar to the configuration from [Chapter 12](12.html),
+    *Access Control Lists*, except that we now use our `CalendarPermissionEvalulator`
+    class instead of `AclPermissionEvaluator`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Next, we inform Spring Security to use our customized `ExpressionHandler` by
+    adding the following configuration to `SecurityConfig.java`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: In the configuration, we ensure that `prePostEnabled` is enabled and point the
+    configuration to our `ExpressionHandler` definition. Once again, the configuration
+    should look very similar to our configuration from [Chapter 11](https://cdp.packtpub.com/spring_security__third_edition/wp-admin/post.php?post=169&action=edit),
+    *Fine-Grained Access Control*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Securing our CalendarService
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Lastly, we can secure our `CalendarService getEvent(int eventId)` method with
+    a `@PostAuthorize` annotation. You will notice that this step is exactly the same
+    as what we did in [Chapter 1](01.html), *Anatomy of an Unsafe Application*, and
+    we have only changed the implementation of `PermissionEvaluator`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: If you have not done so already, restart the application, log in as username/password
+    `admin1@example.com/admin1`, and visit the Conference Call event (`events/101`)
+    using the link on the Welcome page. The access denied page will be displayed.
+    However, we would, like `ROLE_ADMIN` users, to be able to access all events.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Benefits of a custom PermissionEvaluator
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'With only a single method being protected, it would be trivial to update the
+    annotation to check if the user has the role of `ROLE_ADMIN` or has permission.
+    However, if we had protected all of our service methods that use an event, it
+    would have become quite cumbersome. Instead, we could just update our `CalendarPermissionEvaluator`.
+    Make the following changes:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: Now, restart the application and repeat the previous exercise. This time, the
+    Conference Call event will display successfully. You can see that the ability
+    to encapsulate our authorization logic can be extremely beneficial. However, sometimes
+    it may be useful to extend the expressions themselves.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Your code should look like `chapter13.03-calendar`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Summary
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: After reading this chapter, you should have a firm understanding of how Spring
+    Security authorization works for HTTP requests and methods. With this knowledge,
+    and the provided concrete examples, you should also know how to extend authorization
+    to meet your needs. Specifically, in this chapter, we covered the Spring Security
+    authorization architecture for both HTTP requests and methods. We also demonstrated
+    how to configure secured URLs from a database.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We also saw how to create a custom `PermissionEvaluator` object and custom Spring
+    Security expression.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the next chapter, we will explore how Spring Security performs session management.
+    We will also gain an understanding of how it can be used to restrict access to
+    our application.
+  prefs: []
+  type: TYPE_NORMAL

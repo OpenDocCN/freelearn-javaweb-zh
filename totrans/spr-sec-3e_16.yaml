@@ -1,0 +1,925 @@
+- en: Migration to Spring Security 4.2
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In this final chapter, we will review information relating to common migration
+    issues when moving from Spring Security 3 to Spring Security 4.2\. We'll spend
+    much more time discussing the differences between Spring Security 3 and Spring
+    Security 4, because this is what most users will struggle with. This is due to
+    the fact that the updates from Spring Security 3 to Spring Security 4.2 contain
+    a lot of non-passive refactoring.
+  prefs: []
+  type: TYPE_NORMAL
+- en: At the end of the chapter, we will also highlight some of the new features that
+    can be found in Spring Security 4.2\. However, we do not explicitly cover changes
+    from Spring Security 3 to Spring Security 4.2\. This is because by explaining
+    the differences between Spring Security 3 and Spring Security 4, users should
+    be able to update to Spring Security 4.2 with ease since the changes to Spring
+    Security 4.2 are passive.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'During the course of this chapter, we will cover the following topics:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Reviewing important enhancements in Spring Security 4.2.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Understanding configuration changes required in your existing Spring version.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Reviewing Security 3 applications when moving them to Spring Security 4.2.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Illustrating the overall movement of important classes and packages in Spring
+    Security 4.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Highlighting some of the new features found in Spring Security 4.2\. Once you
+    have completed the review of this chapter, you will be in a good position to migrate
+    an existing application from Spring Security 3 to Spring Security 4.2.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Migrating from Spring Security 3.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: You may be planning to migrate an existing application to Spring Security 4.2,
+    or you may be trying to add functionality to a Spring Security 3 application and
+    are looking for guidance in the pages of this book. We'll try to address both
+    of your concerns in this chapter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: First, we'll run through the important differences between Spring Security 3
+    and 4.2-both in terms of features and configuration. Second, we'll provide some
+    guidance on mapping configuration or class name changes. This will better enable
+    you to translate the examples in the book from Spring Security 4.2 back to Spring
+    Security 3 (where applicable).
+  prefs: []
+  type: TYPE_NORMAL
+- en: A very important migration note is that Spring Security 3+ mandates a migration
+    to Spring Framework 4 and Java 5 (1.5) or greater. Be aware that in many cases,
+    migrating these other components may have a greater impact on your application
+    than the upgrade of Spring Security!
+  prefs: []
+  type: TYPE_NORMAL
+- en: Introduction
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'As exploits against applications evolve, so must Spring Security. In a major
+    release version, the Spring Security team took the opportunity to make some non-passive
+    changes that focused on the following things:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Ensuring Spring Security is more secure by default ([https://www.owasp.org/index.php/Establish_secure_defaults](https://www.owasp.org/index.php/Establish_secure_defaults))
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Minimizing information leakage ([https://www.owasp.org/index.php/Information_Leakage](https://www.owasp.org/index.php/Information_Leakage))
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Removing deprecated APIs
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: A complete list of non-passive changes between 3.x and 4.x can be found in JIRA
+    at [https://jira.spring.io/browse/SEC-2916?jql=project%20%3D%20SEC%20AND%20fixVersion%20in%20(4.0.0%2C%204.0.0.M1%2C%204.0.0.M2%2C%204.0.0.RC1%2C%204.0.0.RC2)%20AND%20labels%20%3D%20passivity](https://jira.spring.io/browse/SEC-2916?jql=project%20%3D%20SEC%20AND%20fixVersion%20in%20(4.0.0%2C%204.0.0.M1%2C%204.0.0.M2%2C%204.0.0.RC1%2C%204.0.0.RC2)%20AND%20labels%20%3D%20passivity).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Sample migration
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: The Spring Security team has created a sample project illustrating all of the
+    changes when migrating from 3.x to 4.x and has made the project available on GitHub.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The sample includes both XML and JavaConfig examples and can be found at [https://github.com/spring-projects/spring-security-migrate-3-to-4/](https://github.com/spring-projects/spring-security-migrate-3-to-4/).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Enhancements in Spring Security 4.2
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: There are quite a few notable changes in Spring Security 4.2, and this release
+    also brings early support for Spring Framework 5\. You can find the changelogs
+    for 4.2.0.M1, 4.2.0.RC1, and 4.2.0.RELEASE, which covers over 80 issues. The community
+    contributed the overwhelming majority of these features.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Significant enhancements in Spring Security 4.2, improved since Spring Security
+    3 include the following features and their support numbers:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Web improvements:'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The following items are related to Spring Security''s interaction with Web-based
+    applications:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**#3812**: Jackson support'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**#4116**: Referrer policy'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**#3938**: Added HTTP response splitting prevention'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**#3949**: Added bean reference support to `@AuthenticationPrincipal`'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**#3978**: Support for Standford WebAuth and Shibboleth using the newly added
+    `RequestAttributeAuthenticationFilter`'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**#4076**: Document proxy server configuration'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**#3795**: `ConcurrentSessionFilter` supports `InvalidSessionStrategy`'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**#3904**: Added `CompositeLogoutHandler`'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Spring Security Configuration improvements:'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The following items are related to the configuration of Spring Security:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**#3956**: Central configuration of the default role prefix. See the issue
+    for details'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**#4102**: Custom default configuration in `WebSecurityConfigurerAdapter`'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**#3899**: `concurrency-control@max-sessions` supports unlimited sessions.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**#4097**: `intercept-url@request-matcher-ref` adds more powerful request matching
+    support to the XML namespace'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**#3990**: Support for constructing `RoleHierarchy` from Map (such as YML).'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**#4062**: Custom `cookiePath` to `CookieCsrfTokenRepository`.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**#3794**: Allowing the configuration of `InvalidSessionStrategy` on `SessionManagementConfigurer`'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**#4020**: Fixing exposed beans for `defaultMethodExpressionHandler` can prevent
+    Method Security'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Miscellaneous changes in Spring Security 4.x
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The following items are miscellaneous changes that are worth noting as many
+    of them might impact upgrading to Spring Security 4.x:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**#4080**: Spring 5 support'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '#4095 - Added `UserBuilder`'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**#4018**: Fixes after `csrf()` is invoked, future `MockMvc` invocations use
+    original `CsrfTokenRepository`'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: General dependency version updates
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Note that the listed numbers refer to the GitHub pull requests or issues.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Other, more innocuous changes, encompassed a general restructuring and cleaning
+    up of the code base and the configuration of the framework so that the overall
+    structure and usage makes much more sense. The authors of Spring Security have
+    added extensibility where none previously existed, especially in the areas of
+    login and URL redirection.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you are already working in a Spring Security 3 environment, you may not find
+    compelling reasons to upgrade if you aren't pushing the boundaries of the framework.
+    However, if you have found limitations in the available extension points, code
+    structure, or configurability of Spring Security 3, you'll welcome many of the
+    minor changes that we discuss in detail in the remainder of this chapter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Changes to configuration in Spring Security 4
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Many of the changes in Spring Security 4 will be visible in the namespace style
+    of configuration in XML-based configuration. We will be covering mostly Java-based
+    configuration in this chapter, but will also note some notable XML-based changes.
+    Although this chapter cannot cover all of the minor changes in detail, we'll try
+    to cover those changes that will be most likely to affect you as you move to Spring
+    Security 4.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Deprecations
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: A number of deprecations were removed in Spring Security 4 to clean up clutter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The following is the final commit for the XML and JavaConfig deprecations,
+    which contained 177 changed files with 537 additions and 5,023 deletions: [https://github.com/spring-projects/spring-security/commit/6e204fff72b80196a83245cbc3bd0cd401feda00](https://github.com/spring-projects/spring-security/commit/6e204fff72b80196a83245cbc3bd0cd401feda00).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you are using the XML namespace or Java-based configuration, there are many
+    instances where you will be shielded from deprecation. If you (or a non-spring
+    library you use) do not use an API directly, then you will not be impacted. You
+    can easily search your workspace to find these listed deprecations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The spring-security-core deprecations
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: This section described all of the deprecated APIs within the `spring-security-core`
+    module.
+  prefs: []
+  type: TYPE_NORMAL
+- en: org.springframework.security.access.SecurityConfig
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The `SecurityConfig.createSingleAttributeList(String)` interface was removed
+    in favor of using `SecurityConfig.createList(String¦ )`. This means that if you
+    have something like as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It will need to be replaced with the following code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: UserDetailsServiceWrapper
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '`UserDetailsServiceWrapper` was deprecated in favor of using `RoleHierarchyAuthoritiesMapper`.
+    For example, you may have something like as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It will need to be replaced to something like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: UserDetailsWrapper
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '`UserDetailsWrapper` was deprecated in favor of using `RoleHierarchyAuthoritiesMapper`.
+    Typically it users would not use the `UserDetailsWrapper` class directly. However,
+    if they are, they can use `RoleHierarchyAuthoritiesMapper`, for example, the following
+    code may be present:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'If so, then it needs to be replaced by the following code snippet:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: AbstractAccessDecisionManager
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The default constructor for `AbstractAccessDecisionManager` has been deprecated
+    along with the `setDecisionVoters` method. Naturally, this impacts the `AffirmativeBased`,
+    `ConsensusBased`, and `UnanimousBased` subclasses. For example, you may be using
+    the following code snippet:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'If so, it needs to be migrated to the following code snippet:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: AuthenticationException
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The constructor that accepts `extraInformation` within `AuthenticationException`
+    was removed to prevent the accidental leaking of the `UserDetails` object. Specifically,
+    we removed the following code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This impacts the subclasses `AccountStatusException`, `AccountExpiredException`,
+    `BadCredentialsException`, `CredentialsExpiredException`, `DisabledException`,
+    `LockedException`, and `UsernameNotFoundException`. If you are using any of these
+    constructors, simply remove the additional argument. For example, the following
+    code snippet is changed:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The preceding code snippet should be changed to the following code snippet:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: AnonymousAuthenticationProvider
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The `AnonymousAuthenticationProvider` default constructor and the `setKey`
+    method were deprecated in favor of using the constructor injection. For example,
+    you may have the following code snippet:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The preceding code snippet should be changed to the following code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: AuthenticationDetailsSourceImpl
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The `AuthenticationDetailsSourceImpl` class was deprecated in favor of writing
+    a custom `AuthenticationDetailsSource`. For example, you may have the following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'You should implement the `AuthenticationDetailsSource` class directly to return
+    the `CustomSource` object:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: ProviderManager
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: The `ProviderManager` class has removed the deprecated default constructor and
+    the corresponding setter methods in favor of using constructor injection. It has
+    also removed the `clearExtraInformation` property, since the `AuthenticationException`
+    exception had the extra information property removed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'For example, you may have something like the following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'If so, the preceding code should be changed to the following code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `clearExtraInformation` property was removed since the `AuthenticationException`
+    exception had the extra information property removed. There is no replacement
+    for this.
+  prefs: []
+  type: TYPE_NORMAL
+- en: RememberMeAuthenticationProvider
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The `RememberMeAuthenticationProvider` class had the default constructor and
+    the `setKey` method removed in favor of the constructor injection. For example,
+    take a look at the following code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The preceding code snippet should be migrated to the following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: GrantedAuthorityImpl
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '`GrantedAuthorityImpl` was removed in favor of `SimpleGrantedAuthority`, or
+    implementing your own `GrantAuthority` object. For example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This should be replaced with the following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: InMemoryDaoImpl
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '`InMemoryDaoImpl` was replaced in favor of `InMemoryUserDetailsManager`. For
+    example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This should be replaced with:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE22]'
+  prefs: []
+  type: TYPE_PRE
+- en: The spring-security-web deprecations
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: This section described all of the deprecated APIs within the `spring-security-web`
+    module.
+  prefs: []
+  type: TYPE_NORMAL
+- en: FilterChainProxy
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '`FilterChainProxy` removed the `setFilterChainMap` method in favor of constructor
+    injection. For example, you may have the following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE23]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It should be replaced with:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE24]'
+  prefs: []
+  type: TYPE_PRE
+- en: '`FilterChainProxy` also removed `getFilterChainMap` in favor of using `getFilterChains`,
+    for example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE25]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This should be replaced with the following code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE26]'
+  prefs: []
+  type: TYPE_PRE
+- en: ExceptionTranslationFilter
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The default constructor for `ExceptionTranslationFilter` and the `setAuthenticationEntryPoint`
+    method was removed in favor of using the constructor injection:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE27]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This can be replaced with the following code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE28]'
+  prefs: []
+  type: TYPE_PRE
+- en: AbstractAuthenticationProcessingFilter
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The `AbstractAuthenticationProcessingFilter` class had its `successfulAuthentication(HttpServletRequest,HttpServletResponse,Authentication)`
+    method removed. So, your application may override the following method:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE29]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It should be replaced with the following code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE30]'
+  prefs: []
+  type: TYPE_PRE
+- en: AnonymousAuthenticationFilter
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The `AnonymousAuthenticationFilter` class had the default constructor and the
+    `setKey` and `setPrincipal` methods removed in favor of the constructor injection.
+    For example, take a look at the following code snippet:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE31]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This should be replaced with the following code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE32]'
+  prefs: []
+  type: TYPE_PRE
+- en: LoginUrlAuthenticationEntryPoint
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The `LoginUrlAuthenticationEntryPoint` default constructor and the `setLoginFormUrl`
+    method was removed in favor of the constructor injection. For example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE33]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This should be replaced with the following code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE34]'
+  prefs: []
+  type: TYPE_PRE
+- en: PreAuthenticatedGrantedAuthoritiesUserDetailsService
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: The `PreAuthenticatedGrantedAuthoritiesUserDetailsService` interface removed
+    `createuserDetails` in favor of `createUserDetails`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The new method has a correction in the case (`U` instead of `u`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: This means that if you have a subclass of the `PreAuthenticatedGrantedAuthoritiesUserDetailsService`
+    class that overrides the `createuserDetails`, `SubclassPreAuthenticatedGrantedAuthoritiesUserDetailsService`
+    extends `PreAuthenticatedGrantedAuthoritiesUserDetailsService`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE35]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It should be changed to override `createUserDetails`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE36]'
+  prefs: []
+  type: TYPE_PRE
+- en: AbstractRememberMeServices
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '`AbstractRememberMeServices` and its subclasses `PersistentTokenBasedRememberMeServices`
+    and `TokenBasedRememberMeServices` removed the default constructor, the `setKey`,
+    and the `setUserDetailsService` methods in favor of constructor injection.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: PersistentTokenBasedRememberMeServices
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The changes to the `AbstractRememberMeServices` and its subclasses had a usage
+    similar to the following example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE37]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'But the implementation usage should now be replaced with:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE38]'
+  prefs: []
+  type: TYPE_PRE
+- en: RememberMeAuthenticationFilter
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The `RememberMeAuthenticationFilter` default constructor, the `setAuthenticationManager`,
+    and `setRememberMeServices` methods were removed in favor of the constructor injection,
+    like so:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE39]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This should be replaced with:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE40]'
+  prefs: []
+  type: TYPE_PRE
+- en: TokenBasedRememberMeServices
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '`AbstractRememberMeServices` and its subclasses `PersistentTokenBasedRememberMeServices`
+    and `TokenBasedRememberMeServices` removed the default constructor, the `setKey`,
+    and the `setUserDetailsService` methods in favor of the constructor injection.
+    For example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE41]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This should be replaced with:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE42]'
+  prefs: []
+  type: TYPE_PRE
+- en: ConcurrentSessionControlStrategy
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '`ConcurrentSessionControlStrategy` was replaced with `ConcurrentSessionControlAuthenticationStrategy`.
+    Previously, `ConcurrentSessionControlStrategy` could not be decoupled from `SessionFixationProtectionStrategy`.
+    Now it is completely decoupled. For example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE43]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This can be replaced with:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE44]'
+  prefs: []
+  type: TYPE_PRE
+- en: SessionFixationProtectionStrategy
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '`SessionFixationProtectionStrategy` removed the `setRetainedAttributes` method
+    in favor of users subclassing `SessionFixationProtectionStrategy` and overriding
+    the `extractAttributes` method. Look at the following code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE45]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It should be replaced with:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE46]'
+  prefs: []
+  type: TYPE_PRE
+- en: BasicAuthenticationFilter
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The `BasicAuthenticationFilter` default constructor, the `setAuthenticationManager`,
+    and the `setRememberMeServices` methods were removed in favor of the constructor
+    injection:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE47]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This should be replaced with:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE48]'
+  prefs: []
+  type: TYPE_PRE
+- en: Using this constructor automatically sets `ignoreFalure` to `true`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: SecurityContextPersistenceFilter
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '`SecurityContextPersistenceFilter` removed the `setSecurityContextRepository`
+    in favor of the constructor injection. For example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE49]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This should be replaced with:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE50]'
+  prefs: []
+  type: TYPE_PRE
+- en: RequestCacheAwareFilter
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '`RequestCacheAwareFilter` removed the `setRequestCache` in favor of the constructor
+    injection. For example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE51]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This should be replaced with:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE52]'
+  prefs: []
+  type: TYPE_PRE
+- en: ConcurrentSessionFilter
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '`ConcurrentSessionFilter` removed the default constructor, the `setExpiredUrl`,
+    and the `setSessionRegistry` methods in favor of the constructor injection. For
+    example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE53]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This should be replaced with:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE54]'
+  prefs: []
+  type: TYPE_PRE
+- en: SessionManagementFilter
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '`SessionManagementFilter` removed the `setSessionAuthenticationStrategy` method
+    in favor of the constructor injection. For example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE55]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This should be replaced with:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE56]'
+  prefs: []
+  type: TYPE_PRE
+- en: RequestMatcher
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The `RequestMatcher` and its implementations have moved from the `org.springframework.security.web.util`
+    package to `org.springframework.security.web.util.matcher`. Specifically:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE57]'
+  prefs: []
+  type: TYPE_PRE
+- en: WebSecurityExpressionHandler
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '`WebSecurityExpressionHandler` was removed in favor of using `SecurityExpressionHandler<FilterInvocation>`.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This means you may have the following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE58]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This needs to be updated to:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE59]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'You can implement `WebSecurityExpressionHandler` like so:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE60]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Then it must be updated to:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE61]'
+  prefs: []
+  type: TYPE_PRE
+- en: '@AuthenticationPrincipal'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '`org.springframework.security.web.bind.annotation.AuthenticationPrincipal`
+    has been deprecated in favor of `org.springframework.security.core.annotation.AuthenticationPrincipal`.
+    For example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE62]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This should be replaced with:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE63]'
+  prefs: []
+  type: TYPE_PRE
+- en: Migrating default filter URLs
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: A number of servlet filters had their default URLs switched to help guard against
+    information leakage.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'There were many URLs that were changed and the following commit contains 125
+    changed files with 8,122 additions and 395 deletions: [https://github.com/spring-projects/spring-security/commit/c67ff42b8abe124b7956896c78e9aac896fd79d9](https://github.com/spring-projects/spring-security/commit/c67ff42b8abe124b7956896c78e9aac896fd79d9).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: JAAS
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Unfortunately, we did not have space to discuss Spring Security's JAAS integration.
+    However, there is a JAAS sample application included in the Spring Security samples
+    at [https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#jaas-sample](https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#jaas-sample).
+    In fact, there is also excellent documentation about JAAS integration, available
+    in the Spring Security reference at [https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#jaas](https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#jaas).
+    When looking at the JAAS reference documentation, you will notice that, from Spring
+    Security 4.2 onwards, support was added for using JAAS login modules with arbitrary
+    JAAS configuration implementations. Spring Security 4.2 also added the `jaas-api-provision`
+    attribute to the `<http>` element, which ensures that the JAAS Subject is populated
+    for applications that may also rely on the JAAS Subject.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Summary
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: This chapter reviewed the major and minor changes that you will find when upgrading
+    an existing Spring Security 3 project to Spring Security 4.2\. In this chapter,
+    we have reviewed the significant enhancements to the framework that are likely
+    to motivate an upgrade. We also examined upgrade requirements, dependencies and
+    common types of code, and configuration changes that will prevent applications
+    from working post-upgrade. We also covered investigation (at a high level) of
+    the overall code-reorganization changes that the Spring Security authors made
+    as part of codebase restructuring.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If this is the first chapter you've read, we hope that you return to the rest
+    of the book and use this chapter as a guide to allow your upgrade to Spring Security
+    4.2 to proceed as smoothly as possible!
+  prefs: []
+  type: TYPE_NORMAL
