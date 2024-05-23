@@ -3,6 +3,7 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第10章。端到端的示例
 - en: We have covered enough to get up to speed using Spring Integration in real projects.
     Let's build a real application, which will exercise different types of components
     exposed by the Spring Integration module. This will also act as a refresher chapter
@@ -10,6 +11,7 @@
   id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们已经涵盖了足够的内容，可以让我们在实际项目中使用Spring Integration。让我们构建一个真正的应用程序，这将练习Spring Integration模块暴露的不同类型的组件。这还将作为一个刷新章节，因为我们将访问到目前为止讨论的所有概念。
 - en: 'Let''s take an example of the feeds aggregator application; it will aggregate
     feeds based on the configured parameters and then relay it to interested parties.
     Here is the outline of problems we will try to solve. These are just for the sake
@@ -18,28 +20,33 @@
   id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们以Feeds聚合器应用程序为例；它将根据配置参数聚合Feed，然后将其传达给感兴趣的各方。以下是我们要尝试解决的问题的大纲。这些只是为了示例，在实际场景中，我们可能不需要聚合器或分割器，或者处理序列本身可能会有所不同：
 - en: 'Ingesting data can be done by:'
   id: totrans-3
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 数据摄取可以通过：
 - en: Reading RSS feeds
   id: totrans-4
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 阅读RSS源
 - en: Reading questions from files on an FTP server
   id: totrans-5
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 从FTP服务器上的文件中读取问题
 - en: 'Filtering data:'
   id: totrans-6
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 过滤数据：
 - en: Filtering the valid/invalid messages based on completion criteria; for simplicity,
     we will filter out `java` questions
   id: totrans-7
@@ -47,35 +54,41 @@
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 根据完成标准过滤有效/无效消息；为了简单起见，我们将过滤掉`java`问题
 - en: 'Aggregating messages: Just to showcase the example, we will aggregate and release
     messages in a group of five'
   id: totrans-8
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 聚合消息：只是为了展示示例，我们将聚合并发布五组消息
 - en: 'Splitting a message: The list of aggregated messages will be split and sent
     down the line for further processing'
   id: totrans-9
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 分割消息：聚合消息列表将被分割并沿线发送以进行进一步处理
 - en: 'Transformation:'
   id: totrans-10
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 转换：
 - en: Converting a message to a format that can be written in DB
   id: totrans-11
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 将消息转换为可以写入数据库的格式
 - en: Converting a message in a JMS format that can be put on a messaging queue
   id: totrans-12
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 将JMS格式的消息转换为可以放入消息队列的消息
 - en: Converting a message in an e-mail format so that it can be sent to a subscribed
     recipient
   id: totrans-13
@@ -83,91 +96,108 @@
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 将邮件格式的消息转换，以便可以发送给订阅的收件人
 - en: Routing a message based on the message type; entity type to database consumer,
     message type to JMS consumer, and e-mail message to e-mail sender
   id: totrans-14
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 根据消息类型路由消息；实体类型到数据库消费者，消息类型到JMS消费者，电子邮件消息到电子邮件发送者
 - en: 'Integrating with external systems:'
   id: totrans-15
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 与外部系统集成：
 - en: Writing to DB
   id: totrans-16
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 写入数据库
 - en: Putting on JMS
   id: totrans-17
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 放置在JMS上
 - en: Using an e-mail adapter to send across mails
   id: totrans-18
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 使用电子邮件适配器发送邮件
 - en: 'JMX: Exposing Spring endpoints for management and monitoring'
   id: totrans-19
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: JMX：暴露Spring管理监控端点
 - en: Prerequisites
   id: totrans-20
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 先决条件
 - en: 'Before we can get started with an example, we will need the following software
     in order to import and run the project:'
   id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 在我们可以开始示例之前，我们需要以下软件来导入并运行项目：
 - en: A Java IDE (preferably STS, but any other IDE such as Eclipse or NetBeans will
     also do)
   id: totrans-22
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 一个Java IDE（最好是STS，但任何其他IDE，如Eclipse或NetBeans也行）
 - en: JDK 1.6 and above
   id: totrans-23
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: JDK 1.6及以上
 - en: Maven
   id: totrans-24
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Maven
 - en: FTP server (this is optional and will only be needed if enabled)
   id: totrans-25
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: FTP服务器（这是可选的，只有在启用时才需要）
 - en: Setting up
   id: totrans-26
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 设置
 - en: 'Once we have all the prerequisites, follow these steps to launch the program:'
   id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦我们有了所有先决条件，按照以下步骤启动程序：
 - en: Check out the project that you've downloaded with the code bundle. It is a Maven
     project, so using the IDE of your choice, import it as a Maven project.
   id: totrans-28
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 检查你下载的代码包中的项目。这是一个Maven项目，所以使用你选择的IDE，将其作为Maven项目导入。
 - en: 'Add settings for the e-mail, JMS, and FTP accounts in `settings.properties`:'
   id: totrans-29
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 在`settings.properties`中为电子邮件、JMS和FTP账户添加设置：
 - en: '[PRE0]'
   id: totrans-30
   prefs:
@@ -179,26 +209,31 @@
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 准备好一个FTP账户和一个电子邮件账户。
 - en: Run from the main class, that is, `FeedsExample`.
   id: totrans-32
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 从主类运行，即`FeedsExample`。
 - en: Ingesting data
   id: totrans-33
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 数据摄取：
 - en: 'Let''s start with the first step, ingestion of data. We have configured two
     data sources: RSS feeds and an FTP server, let''s take a look at these.'
   id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们从第一步开始，数据摄取。我们配置了两个数据源：RSS源和一个FTP服务器，让我们来看看这些。
 - en: Ingesting data from the RSS feed
   id: totrans-35
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 从RSS源摄取数据
 - en: '[PRE1]'
   id: totrans-36
   prefs: []
@@ -214,22 +249,26 @@
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 提示
 - en: I will show the code and explain what it does, but will not cover each and every
     tag in detail as they have already been covered in the respective chapters.
   id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 我将展示代码并解释它做什么，但不会详细介绍每个和每个标签，因为它们已经在相应的章节中涵盖了。
 - en: Ingesting data from an FTP server
   id: totrans-40
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 从FTP服务器摄取数据
 - en: 'Now, for this to work, you need an FTP server configured. For testing, you
     can always set up an FTP server locally. Depending on your FTP server location
     and configuration parameters, set up a session factory:'
   id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了让这一切工作，你需要一个配置好的FTP服务器。为了测试，你总是可以在本地设置一个FTP服务器。根据你的FTP服务器位置和配置参数，设置一个会话工厂：
 - en: '[PRE3]'
   id: totrans-42
   prefs: []
@@ -241,6 +280,7 @@
   id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 设置会话工厂后，它可以用来与FTP服务器建立连接。以下代码将从FTP的配置`远程目录`下载新文件，并将其放在`本地目录`中：
 - en: '[PRE4]'
   id: totrans-44
   prefs: []
@@ -251,6 +291,7 @@
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 过滤数据
 - en: 'The feed and FTP adapter fetch the feed and put it on to `fetchedFeedChannel`.
     Let''s configure a filter, which will allow only Java-related questions, while
     reading the feeds. It will read feeds from the channel `fetchedFeedChannel` and
@@ -259,6 +300,7 @@
   id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 馈送和FTP适配器获取馈送并将其放入`获取馈送通道`。让我们配置一个过滤器，在读取馈送时只允许Java相关的问题。它将从一个通道`获取馈送通道`读取馈送，并将过滤后的馈送传递给通道`获取馈送通道用于聚合器`。以下代码片段是Spring配置：
 - en: '[PRE5]'
   id: totrans-47
   prefs: []
@@ -268,6 +310,7 @@
   id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下是包含过滤逻辑的JavaBean类：
 - en: '[PRE6]'
   id: totrans-49
   prefs: []
@@ -278,6 +321,7 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 聚合器
 - en: 'The aggregator is for showcasing the aggregator usage. An aggregator is plugged
     on the output channel of the filter, that is, `fetchedFeedChannelForAggregatior`.
     We will use all the three components of aggregator: correlation, completion, and
@@ -285,6 +329,7 @@
   id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 聚合器用于展示聚合器的使用。聚合器被插在过滤器的输出通道上，即`获取馈送通道用于聚合器`。我们将使用聚合器的所有三个组件：关联、完成和聚合器。让我们声明bean：
 - en: '[PRE7]'
   id: totrans-52
   prefs: []
@@ -296,6 +341,7 @@
   id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 在我们定义了聚合器的三个关键组件之后，让我们定义一个组件，它将一组五个馈送进行聚合，然后仅在下一个通道发布：
 - en: '[PRE8]'
   id: totrans-54
   prefs: []
@@ -306,11 +352,13 @@
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 关联bean
 - en: 'If you remember, the correlation bean holds the strategy to group "related"
     items. We will simply use the category of feeds to group messages:'
   id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你记得，关联bean持有分组“相关”项的策略。我们将简单地使用馈送的类别来分组消息：
 - en: '[PRE9]'
   id: totrans-57
   prefs: []
@@ -321,6 +369,7 @@
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 完成bean
 - en: 'We have correlated the messages, but for how long will we hold on to the list?
     This will will be decided by the completion criteria. Let''s put a very simple
     criteria that if there are five feeds from the same category, then release it
@@ -328,6 +377,7 @@
   id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们已经关联了消息，但我们将会持有列表多久？这将由完成标准来决定。让我们设定一个简单的标准，如果有五个同一类别的馈送，那么释放它进行进一步处理。以下是实现这个标准的类：
 - en: '[PRE10]'
   id: totrans-60
   prefs: []
@@ -338,6 +388,7 @@
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 聚合器bean
 - en: 'Feeds will be correlated and, after the completion criteria is satisfied, the
     aggregator will return the list on the next endpoint. We have already defined
     the correlation strategy and completion criteria earlier, let''s see the code
@@ -345,6 +396,7 @@
   id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 馈送将会被关联，在满足完成标准后，聚合器将在下一个端点返回列表。我们之前已经定义了关联策略和完成标准，让我们看看聚合器的代码：
 - en: '[PRE11]'
   id: totrans-63
   prefs: []
@@ -355,6 +407,7 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 分割器
 - en: '[PRE12]'
   id: totrans-65
   prefs: []
@@ -364,6 +417,7 @@
   id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 包含分割逻辑的JavaBean：
 - en: '[PRE13]'
   id: totrans-67
   prefs: []
@@ -374,6 +428,7 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 转换
 - en: 'Now that we have feeds in the RSS format, let''s transform it to appropriate
     formats so that the endpoints responsible for persisting in the database, putting
     it on the JMS channel, and sending it as a mail, can understand that. The splitter
@@ -383,6 +438,7 @@
   id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们有了RSS格式的馈送，让我们将其转换为适当的格式，以便负责将馈送持久化到数据库、将其放入JMS通道和发送邮件的端点可以理解。分割器将一次在通道`分割馈送通道`上放置一个消息。让我们将其声明为发布-订阅通道，并附加三个端点，这些将是我们的转换器。如下配置发布-订阅通道：
 - en: '[PRE14]'
   id: totrans-70
   prefs: []
@@ -392,6 +448,7 @@
   id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们使用的三个转换器的配置如下：
 - en: '[PRE15]'
   id: totrans-72
   prefs: []
@@ -402,11 +459,13 @@
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 数据库转换器
 - en: 'Let''s write the transformer component from the Spring Integration and Java
     class that have the transformation logic:'
   id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们从Spring Integration和包含转换逻辑的Java类编写转换器组件：
 - en: '[PRE16]'
   id: totrans-75
   prefs: []
@@ -417,11 +476,13 @@
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: JMS转换器
 - en: 'Here is the code for the JMS transformer component declaration and the corresponding
     JavaBean:'
   id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下是JMS转换器组件声明的代码以及相应的JavaBean：
 - en: '[PRE17]'
   id: totrans-78
   prefs: []
@@ -432,10 +493,12 @@
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 邮件转换器
 - en: 'Finally, let''s write the configuration and code for the mail transformer:'
   id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后，让我们编写邮件转换器的配置和代码：
 - en: '[PRE18]'
   id: totrans-81
   prefs: []
@@ -446,6 +509,7 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 路由器
 - en: 'After transforming the messages to appropriate formats, the transformers put
     the message on to the channel `transformedChannel`. We have three type of messages
     that will be processed by different endpoints. We can use the payload router that
@@ -453,6 +517,7 @@
   id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 在将消息转换为适当格式后，转换器将消息放入`transformedChannel`通道。我们将处理三种不同类型的消息，这些消息将由不同的端点处理。我们可以使用载荷路由器，根据载荷类型将其路由到不同的组件：
 - en: '[PRE19]'
   id: totrans-84
   prefs: []
@@ -463,6 +528,7 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 集成
 - en: Now is the time for actual integration! Once the router has routed the message
     to the appropriate endpoints, it should be processed by them. For example, it
     can be persisted to a database, sent on a JMS channel, or sent as an e-mail. Depending
@@ -473,32 +539,38 @@
   id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在是实际集成的时刻！一旦路由器将消息路由到适当的端点，它应该被这些端点处理。例如，它可以被持久化到数据库，通过JMS通道发送，或者作为电子邮件发送。根据载荷类型，路由器将消息放入`jdbcChannel`、`jmsChannel`或`mailChannel`中的一个通道。如果它无法理解载荷，它将把消息路由到`logChannel`。让我们从与`jdbcChannel`通道关联的端点开始，该通道用于数据库集成。
 - en: Database integration
   id: totrans-87
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 数据库集成
 - en: In this section, we will write code to add and query data from a database. Before
     we write adapters from Spring Integration, let's do the basic setup.
   id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本节中，我们将编写代码以从数据库添加和查询数据。在我们将Spring Integration的适配器编写之前，让我们先完成基本设置。
 - en: Prerequisites
   id: totrans-89
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 先决条件
 - en: 'As obvious as it can be, we need a database where we can dump the data. For
     simplicity, we will use the in-memory database. Let''s also configure the ORM
     provider, transaction, and other aspects to be used with the database:'
   id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 显而易见，我们需要一个数据库来存储数据。为了简化，我们将使用内存数据库。我们还需要配置ORM提供者、事务以及其他与数据库一起使用的方面：
 - en: 'Declaration of the embedded database:'
   id: totrans-91
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 嵌入式数据库的声明：
 - en: '[PRE20]'
   id: totrans-92
   prefs:
@@ -510,6 +582,7 @@
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 事务管理器的声明：
 - en: '[PRE21]'
   id: totrans-94
   prefs:
@@ -521,6 +594,7 @@
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 实体管理工厂的声明：
 - en: '[PRE22]'
   id: totrans-96
   prefs:
@@ -532,6 +606,7 @@
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 实体管理器的声明：
 - en: '[PRE23]'
   id: totrans-98
   prefs:
@@ -543,6 +618,7 @@
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 抽象供应商适配器的声明：
 - en: '[PRE24]'
   id: totrans-100
   prefs:
@@ -554,6 +630,7 @@
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 实际供应商适配器的声明，在我们的案例中，它是hibernate：
 - en: '[PRE25]'
   id: totrans-102
   prefs:
@@ -565,11 +642,13 @@
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 网关
 - en: 'Let''s define a gateway, which will insert invoke methods to insert feeds and
     then read them back from the database:'
   id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们定义一个网关，它将插入调用方法来插入数据流，然后从数据库中读取它们：
 - en: '[PRE26]'
   id: totrans-105
   prefs: []
@@ -579,6 +658,7 @@
   id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 网关的Bean定义如下：
 - en: '[PRE27]'
   id: totrans-107
   prefs: []
@@ -589,12 +669,14 @@
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 服务激活器
 - en: 'This service activator is plugged in to the `jdbcChannel` channel. When a message
     arrives, its `persistFeedToDb` method is invoked, which uses the preceding gateway
     to persist the feeds:'
   id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 此服务激活器被连接到`jdbcChannel`通道。当消息到达时，它的`persistFeedToDb`方法被调用，该方法使用前面的网关将数据流持久化：
 - en: '[PRE28]'
   id: totrans-110
   prefs: []
@@ -605,11 +687,13 @@
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 用于更新和读取数据流的网关：
 - en: 'Finally, we plug in the Spring Integration updating and retrieving outbound
     gateways to persist and read back the feed:'
   id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后，我们将Spring Integration更新和检索出站网关的功能集成进来，以持久化和从数据库中读取数据流：
 - en: '[PRE29]'
   id: totrans-113
   prefs: []
@@ -620,17 +704,20 @@
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 发送邮件
 - en: 'We can use the Spring Integration mail outbound channel adapter to send out
     mails. It needs a reference to the mail sender class, which has been configured
     as follows:'
   id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以使用Spring Integration邮件出站通道适配器来发送邮件。它需要对邮件发送者类的引用，该类已按照以下方式配置：
 - en: 'Spring Integration component for sending mail:'
   id: totrans-116
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Spring Integration发送邮件的组件：
 - en: '[PRE30]'
   id: totrans-117
   prefs:
@@ -643,11 +730,13 @@
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 如前面的配置所示，此适配器被连接到`mailChannel`—路由器将消息路由到的其他通道之一。
 - en: 'The mail sender used by the preceding component:'
   id: totrans-119
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 前一个组件使用的邮件发送者：
 - en: '[PRE31]'
   id: totrans-120
   prefs:
@@ -659,12 +748,14 @@
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 将消息放入JMS队列
 - en: 'Finally, let''s use the outbound channel adapter to put the message on to a
     JMS queue, this polls the channel `jmsChannel` for a message and whenever router
     routes a message here, it puts it on to the `destination` queue:'
   id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后，让我们使用出站通道适配器将消息放入JMS队列，此适配器轮询`jmsChannel`通道以获取消息，每当路由器将消息路由至此处，它都会将其放入`destination`队列：
 - en: '[PRE32]'
   id: totrans-123
   prefs: []
@@ -674,6 +765,7 @@
   id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了测试队列中的消息，让我们添加一个简单的服务激活器：
 - en: '[PRE33]'
   id: totrans-125
   prefs: []
