@@ -146,17 +146,20 @@
   id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些命令帮助你探索运行在容器中的微服务和其它进程的日志。正如你所看到的，当你有很多服务时，使用上述命令将是一个挑战性的任务。例如，如果你有数十个或数百个微服务，跟踪每个微服务的日志将非常困难。同样，你可以想象，即使没有容器，单独监控日志也会非常困难。因此，你可以想象探索和关联数十到数百个容器的日志有多么困难。这是耗时的，并且几乎没有任何价值。
 - en: Therefore, a log aggregator and visualizing tools such as the ELK stack come
     to our rescue. It will be used for centralizing logging. We'll explore this in
     the next section.
   id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，像ELK堆栈这样的日志聚合和可视化工具就派上用场了。它将用于集中日志。我们将在下一节中探讨这一点。
 - en: A brief overview
   id: totrans-24
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 简要概述
 - en: 'The **Elasticsearch, Logstash, Kibana** (**ELK**) stack is a chain of tools
     that performs log aggregation, analysis, visualization, and monitoring. The ELK
     stack provides a complete logging platform that allows you to analyze, visualize,
@@ -166,19 +169,23 @@
   id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: '**Elasticsearch、Logstash、Kibana**（**ELK**）堆栈是一系列执行日志聚合、分析、可视化和监控的工具。ELK堆栈提供了一个完整的日志平台，允许你分析、可视化和监控所有日志，包括各种产品日志和系统日志。如果你已经了解ELK堆栈，请跳到下一节。在这里，我们将简要介绍ELK堆栈中的每个工具：'
 - en: '![](img/87defb1f-0f40-4d90-8f8d-0be85aaf64c6.png)'
   id: totrans-26
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/87defb1f-0f40-4d90-8f8d-0be85aaf64c6.png)'
 - en: 'ELK overview (source: elastic.co)'
   id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: ELK概览（来源：elastic.co）
 - en: Elasticsearch
   id: totrans-28
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Elasticsearch
 - en: Elasticsearch is one of the most popular enterprise full text search engines.
     It is open source software. It is distributable and supports multi-tenancy. A
     single Elasticsearch server stores multiple indexes (each index represents a database),
@@ -187,6 +194,7 @@
   id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: Elasticsearch是最受欢迎的企业级全文搜索引擎之一。它是开源软件。它是可分发的，并支持多租户。单个Elasticsearch服务器存储多个索引（每个索引代表一个数据库），单个查询可以搜索多个索引的数据。它是一个分布式搜索引擎，并支持集群。
 - en: It is readily scalable and can provide near-real-time searches with a latency
     of 1 second. It is developed in Java using Apache Lucene. Apache Lucene is also
     free and open source, and it provides the core of Elasticsearch, also known as
@@ -194,17 +202,21 @@
   id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 它易于扩展，可以提供接近实时的搜索，延迟仅为1秒。它使用Java编写，依赖于Apache Lucene。Apache Lucene也是免费和开源的，它为Elasticsearch提供了核心，也被称为信息检索软件库。
 - en: Elasticsearch APIs are extensive in nature and very elaborative. Elasticsearch
     provides a JSON-based schema, less storage, and represents data models in JSON.
     Elasticsearch APIs use JSON documents for HTTP requests and responses.
   id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: Elasticsearch API广泛且详尽。Elasticsearch提供基于JSON的架构，占用更少的存储，并以JSON的形式表示数据模型。Elasticsearch
+    API使用JSON文档进行HTTP请求和响应。
 - en: Logstash
   id: totrans-32
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Logstash
 - en: Logstash is an open source data collection engine with real-time pipeline capabilities.
     In simple words, it collects, parses, processes, and stores the data. Since Logstash
     has data pipeline capabilities, it helps you to process any event data, such as
@@ -214,23 +226,28 @@
   id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: Logstash是一个具有实时流水线功能的开源数据收集引擎。简单来说，它收集、解析、处理和存储数据。由于Logstash具有数据流水线功能，它帮助你处理来自各种系统的各种事件数据，如日志。Logstash作为一个代理运行，收集数据、解析数据、过滤数据，并将输出发送到指定应用，如Elasticsearch，或简单的控制台标准输出。
 - en: 'It also has a very good plugin ecosystem (image sourced from [www.elastic.co](http://www.elastic.co)):'
   id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 它还拥有一个非常好的插件生态系统（图片来源于[www.elastic.co](http://www.elastic.co)：
 - en: '![](img/d8951d1d-10a5-4118-bf8d-6a6174fb9975.jpg)'
   id: totrans-35
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/d8951d1d-10a5-4118-bf8d-6a6174fb9975.jpg)'
 - en: Logstash ecosystem
   id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: Logstash生态系统
 - en: Kibana
   id: totrans-37
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Kibana
 - en: Kibana is an open source analytics and visualization web application. It is
     designed to work with Elasticsearch. You use Kibana to search, view, and interact
     with data stored in Elasticsearch indices.
@@ -396,11 +413,13 @@
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 准备一个配置文件，如下所示。它指示Logstash从给定文件中读取输入并将其传递给Elasticsearch（请参阅下面的`config`文件；Elasticsearch由localhost和`9200`端口表示）。这是最简单的配置文件。要添加过滤器并了解更多关于Logstash的信息，你可以探索可用的Logstash参考文档[https://www.elastic.co/guide/en/logstash/current/index.html](https://www.elastic.co/guide/en/logstash/current/index.html)。
 - en: As you can see, the OTRS `service` log and `edge-server` log are added as input.
     Similarly, you can also add log files of other microservices.
   id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如你所看到的，OTRS的`service`日志和`edge-server`日志作为输入添加了。同样地，你也可以添加其他微服务的日志文件。
 - en: '[PRE4]'
   id: totrans-65
   prefs: []
@@ -416,20 +435,25 @@
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 在Unix-based系统上，前往Logstash主目录并运行`bin/logstash agent -f logstash.conf`，在Windows上，运行`bin/logstash.bat
+    agent -f logstash.conf`。在这里，Logstash使用`agent`命令执行。Logstash代理从配置文件中提供的输入字段中的源收集数据，并将输出发送到Elasticsearch。在这里，我们没有使用过滤器，因为否则它可能会在将数据提供给Elasticsearch之前处理输入数据。
 - en: Similarly, you can run Logstash using the downloaded Docker image (later, we'll
     use the `docker-compose` to run the ELK stack together).
   id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 同样地，你可以使用下载的Docker镜像来运行Logstash（稍后，我们将使用`docker-compose`来一起运行ELK栈）。
 - en: Installing Kibana
   id: totrans-68
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 安装Kibana
 - en: 'To install Kibana, we can use the Kibana Docker image:'
   id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 要安装Kibana，我们可以使用Kibana的Docker镜像：
 - en: '[PRE5]'
   id: totrans-70
   prefs: []
@@ -440,22 +464,26 @@
   id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们还可以通过执行以下步骤来安装Kibana网页应用程序：
 - en: 'Download the latest Kibana distribution from: [https://www.elastic.co/downloads/kibana](https://www.elastic.co/downloads/kibana).'
   id: totrans-72
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 从[https://www.elastic.co/downloads/kibana](https://www.elastic.co/downloads/kibana)下载最新的Kibana分发版。
 - en: Unzip it to the desired location in your system.
   id: totrans-73
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 将其解压到系统中的所需位置。
 - en: 'Open the configuration file `config/kibana.yml` from the Kibana home directory
     and point the `elasticsearch.url` to the previously configured Elasticsearch instance:'
   id: totrans-74
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 打开Kibana主目录下的配置文件`config/kibana.yml`，并将`elasticsearch.url`指向之前配置的Elasticsearch实例。
 - en: '[PRE6]'
   id: totrans-75
   prefs: []
@@ -467,22 +495,27 @@
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 在Unix-based系统上，前往Kibana主目录并运行`bin/kibana agent -f logstash.conf`，在Windows上，运行`bin/kibana.bat
+    agent -f logstash.conf`。
 - en: If you are using the Kibana Docker image, then you can run the Docker image
     (later, we'll use docker-compose to run the ELK stack together).
   id: totrans-77
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 如果你使用的是Kibana的Docker镜像，那么你可以运行Docker镜像（稍后，我们将使用docker-compose来一起运行ELK栈）。
 - en: Now, you can access the Kibana app from your browser using the URL `http://localhost:5601/`.
   id: totrans-78
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 现在，你可以通过URL`http://localhost:5601/`从你的浏览器访问Kibana应用。
 - en: To learn more about Kibana, explore the Kibana reference documentation at [https://www.elastic.co/guide/en/kibana/current/getting-started.html](https://www.elastic.co/guide/en/kibana/current/getting-started.html).
   id: totrans-79
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 要了解更多关于Kibana的信息，请探索Kibana参考文档[https://www.elastic.co/guide/en/kibana/current/getting-started.html](https://www.elastic.co/guide/en/kibana/current/getting-started.html)。
 - en: As we followed the preceding steps, you may have noticed that it requires some
     amount of effort. If you want to avoid a manual setup, you can Dockerize it. If
     you don't want to put effort into creating the Docker container of the ELK stack,
@@ -493,11 +526,15 @@
   id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如我们遵循前面的步骤，你可能已经注意到它需要一些努力。如果你想要避免手动设置，你可以Docker化它。如果你不想花精力创建ELK栈的Docker容器，你可以在Docker
+    Hub上选择一个。在Docker Hub上，有许多现成的ELK栈Docker镜像。你可以尝试不同的ELK容器，选择最适合你的那个。`willdurand/elk`是最受欢迎的容器，启动简单，与Docker
+    Compose配合良好。
 - en: Running the ELK stack using Docker Compose
   id: totrans-81
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 使用Docker Compose运行ELK栈
 - en: 'ELK images available on elastic.co''s own Docker repository have the XPack
     package enabled by default at the time of writing this section. In the future,
     it may be optional. Based on XPack availability in ELK images, you can modify
@@ -505,6 +542,8 @@
   id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 截至撰写本节时，elastic.co自己的Docker仓库中可用的ELK镜像默认启用了XPack包。将来，这可能成为可选的。根据ELK镜像中XPack的可用性，您可以修改`docker-compose-elk.yml`
+    `docker-compose`文件：
 - en: '[PRE7]'
   id: totrans-83
   prefs: []
@@ -516,6 +555,7 @@
   id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦保存了ELK Docker Compose文件，您可以使用以下命令运行ELK堆栈（该命令从包含Docker Compose文件的目录运行）：
 - en: '[PRE8]'
   id: totrans-85
   prefs: []
@@ -525,14 +565,17 @@
   id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 前一条命令的输出如以下截图所示：
 - en: '![](img/c32104c2-3d7a-4822-a5f1-15d7e7be0b52.png)'
   id: totrans-87
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/c32104c2-3d7a-4822-a5f1-15d7e7be0b52.png)'
 - en: Running the ELK stack using Docker Compose
   id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用Docker Compose运行ELK堆栈
 - en: 'If volume is not used, the environment pipeline does not work. For a Windows
     environment such as Windows 7, where normally volume is hard to configure, you
     can copy the pipeline CONF file inside the container and restart the Logstash
@@ -540,6 +583,7 @@
   id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果不使用卷，环境管道将无法工作。对于像Windows 7这样的Windows环境，通常很难配置卷，您可以将管道CONF文件复制到容器内并重新启动Logstash容器：
 - en: '[PRE9]'
   id: totrans-90
   prefs: []
@@ -550,6 +594,7 @@
   id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: 在复制`pipeline/logstash.conf`管道CONF文件后，请重新启动Logstash容器：
 - en: '[PRE10]'
   id: totrans-92
   prefs: []
@@ -560,22 +605,26 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 将日志推送到ELK堆栈
 - en: We are done making the ELK stack available for consumption. Now, Logstash just
     needs a log stream that can be indexed by Elasticsearch. Once the Elasticsearch
     index of logs is created, logs can be accessed and processed on the Kibana dashboard.
   id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们已经完成了使ELK堆栈可供消费的工作。现在，Logstash只需要一个可以被Elasticsearch索引的日志流。一旦创建了日志的Elasticsearch索引，就可以在Kibana仪表板上访问和处理日志。
 - en: To push the logs to Logstash, we need to make the following changes in our service
     code. We need to add logback and logstash-logback encoder dependencies in OTRS
     services.
   id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了将日志推送到Logstash，我们需要在我们的服务代码中进行以下更改。我们需要在OTRS服务中添加logback和logstash-logback编码器依赖项。
 - en: 'Add the following dependencies in the `pom.xml` file:'
   id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 在`pom.xml`文件中添加以下依赖项：
 - en: '[PRE11]'
   id: totrans-97
   prefs: []
@@ -585,10 +634,12 @@
   id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们还需要通过向`src/main/resources`添加`logback.xml`来配置logback。
 - en: 'The `logback.xml` file will look something like this:'
   id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: '`logback.xml`文件将看起来像这样：'
 - en: '[PRE12]'
   id: totrans-100
   prefs: []
@@ -602,21 +653,25 @@
   id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里，目标是在`192.168.99.100:5001`上，那里托管Logstash；根据您的配置，您可以进行更改。对于编码器，使用了`net.logstash.logback.encoder.LogstashEncoder`类。`spring.application.name`属性的值应设置为配置的服务。同样，添加了一个关闭钩子，以便在服务停止时，应释放和清理所有资源。
 - en: You want to start services after the ELK stack is available, so services can
     push the logs to Logstash.
   id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 您希望在ELK堆栈可用后启动服务，以便服务可以将日志推送到Logstash。
 - en: Once the ELK stack and services are up, you can check the ELK stack to view
     the logs. You want to wait for a few minutes after starting the ELK stack and
     then access the following URLs (replace the IP based on your configuration).
   id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦ELK堆栈和服务启动，您可以检查ELK堆栈以查看日志。您希望在启动ELK堆栈后等待几分钟，然后访问以下URL（根据您的配置替换IP）。
 - en: 'To check whether Elasticsearch is up, access the following URL:'
   id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了检查Elasticsearch是否启动，请访问以下URL：
 - en: '[PRE13]'
   id: totrans-105
   prefs: []
@@ -627,6 +682,7 @@
   id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了检查是否已创建索引，请访问以下任一URL：
 - en: '[PRE14]'
   id: totrans-107
   prefs: []
@@ -637,6 +693,7 @@
   id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦完成了Logstash索引（您可能有一些服务端点来生成一些日志），请访问Kibana：
 - en: '[PRE15]'
   id: totrans-109
   prefs: []
@@ -647,16 +704,19 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: ELK堆栈实现的技巧
 - en: 'The following are some useful tips for implementing the ELK stack:'
   id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下是一些实施ELK堆栈的有用技巧：
 - en: To avoid any data loss and handle the sudden spike of input load, using a broker
     such as Redis or RabbitMQ is recommended between Logstash and Elasticsearch.
   id: totrans-112
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 为了避免任何数据丢失并处理输入负载的突然激增，建议在Logstash和Elasticsearch之间使用如Redis或RabbitMQ之类的代理。
 - en: Use an odd number of nodes for Elasticsearch if you are using clustering to
     prevent the split-brain problem.
   id: totrans-113
@@ -906,51 +966,63 @@
   id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，有许多方法可以管理API版本。其中一种方法是使用我们在本书中使用的路径版本；还有一些人使用HTTP头。HTTP头可能是一个自定义请求头，或者您可以使用`Accept
+    Header`来表示调用API的版本。有关如何使用HTTP头处理版本的信息，请参阅Bhakti Mehta著，Packt出版社出版的*RESTful Java
+    Patterns and Best Practices*： [https://www.packtpub.com/application-development/restful-java-patterns-and-best-practices](https://www.packtpub.com/application-development/restful-java-patterns-and-best-practices)。
 - en: It is very important while troubleshooting any issue that your microservices
     are implemented to produce the version numbers in logs. In addition, ideally,
     you should avoid any instance where you have too many versions of any microservice.
   id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: 在排查任何问题时，让微服务在日志中产生版本号非常重要。此外，理想情况下，您应该避免任何微服务版本过多的实例。
 - en: References
   id: totrans-150
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 参考文献
 - en: 'This following links will have more information:'
   id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下链接将提供更多信息：
 - en: 'Elasticsearch: [https://www.elastic.co/products/elasticsearch](https://www.elastic.co/products/elasticsearch)'
   id: totrans-152
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 'Elasticsearch: [https://www.elastic.co/products/elasticsearch](https://www.elastic.co/products/elasticsearch)'
 - en: 'Logstash: [https://www.elastic.co/products/logstash](https://www.elastic.co/products/logstash)'
   id: totrans-153
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 'Logstash: [https://www.elastic.co/products/logstash](https://www.elastic.co/products/logstash)'
 - en: 'Kibana: [https://www.elastic.co/products/kibana](https://www.elastic.co/products/kibana)'
   id: totrans-154
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 'Kibana: [https://www.elastic.co/products/kibana](https://www.elastic.co/products/kibana)'
 - en: '`willdurand/elk`: ELK Docker image'
   id: totrans-155
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`willdurand/elk`：ELK Docker镜像'
 - en: '*Mastering Elasticsearch - Second* *Edition*: [https://www.packtpub.com/web-development/mastering-elasticsearch-second-edition](https://www.packtpub.com/web-development/mastering-elasticsearch-second-edition)'
   id: totrans-156
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*精通Elasticsearch - 第二版*: [https://www.packtpub.com/web-development/mastering-elasticsearch-second-edition](https://www.packtpub.com/web-development/mastering-elasticsearch-second-edition)'
 - en: Summary
   id: totrans-157
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 总结
 - en: In this chapter, we have explored the ELK stack overview and installation. In
     the ELK stack, Elasticsearch is used for storing the logs and service queries
     from Kibana. Logstash is an agent that runs on each server that you wish to collect
@@ -960,6 +1032,7 @@
   id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本章中，我们探讨了ELK堆栈的概述和安装。在ELK堆栈中，Elasticsearch用于存储来自Kibana的日志和服务查询。Logstash是运行在您希望收集日志的每个服务器上的代理。Logstash读取日志，过滤/转换它们，并将它们提供给Elasticsearch。Kibana从Elasticsearch中读取/查询数据，并以表格或图形可视化的形式呈现它们。
 - en: We also understand the utility of having the correlation ID while debugging
     issues. At the end of this chapter, we also discovered the shortcomings of a few
     microservice designs. It was a challenging task to cover all of the topics relating
@@ -972,3 +1045,4 @@
   id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们也非常理解在排查问题时拥有关联ID的实用性。在本章末尾，我们也发现了某些微服务设计的一些不足。由于在本书中涵盖所有与微服务相关的主题具有挑战性，因此我尽可能地包含尽可能多的相关信息，并配有精确的章节和参考文献，这使您能够进一步探索。现在，我希望让您开始在您的工作场所或个人项目中实施本章学到的概念。这不仅能为您提供实践经验，还可能使您掌握微服务。此外，您还将能够参加当地的技术聚会和会议。
