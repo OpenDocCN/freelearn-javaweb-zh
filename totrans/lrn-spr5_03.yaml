@@ -3,6 +3,7 @@
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 第3章。使用Spring DAO加速
 - en: In the second chapter, we discussed in depth about dependency injection. Obviously,
     we discussed various ways to use DI in the configuration files as well as using
     annotations, but still somewhere due to unavailability of real time application
@@ -12,40 +13,47 @@
   id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 在第二章节中，我们深入讨论了依赖注入。显然，我们讨论了在配置文件中以及使用注解的各种使用DI的方法，但由于缺乏实时应用程序，这些讨论仍然不完整。我们没有其他选择，因为这些都是每个Spring框架开发者都应该了解的最重要的基础知识。现在，我们将开始处理数据库，这是应用程序的核心。
 - en: 'nfigurations which we discussed. In this chapter we will discuss the following
     points:'
   id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将讨论以下配置：
 - en: We will discuss about DataSource and its configuration using JNDI, pooled DataSource,
     and JDBCDriver based DataSource
   id: totrans-3
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 我们将讨论关于DataSource及其使用JNDI、池化DataSource和JDBCDriver based DataSource的配置。
 - en: We will learn how to integrate database in the application using DataSource
     and JDBCTemplate
   id: totrans-4
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 我们将学习如何使用DataSource和JDBCTemplate将数据库集成到应用程序中。
 - en: Understanding ORM and its configuration in application using SessionFactory
     will be the next point to discuss
   id: totrans-5
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 接下来我们将讨论如何使用SessionFactory在应用程序中理解ORM及其配置。
 - en: We will configure HibernateTemplate to talk with database using ORM.
   id: totrans-6
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 我们将配置HibernateTemplate以使用ORM与数据库通信。
 - en: We will cover configuring cache manager to enable the support of caching the
     data
   id: totrans-7
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 我们将讨论如何配置缓存管理器以支持缓存数据。
 - en: As we are well aware that, the database gives easy structuring of the data facilitating
     easy access using various ways. Not only many ways are available but also there
     are number of databases available in market. On one hand it's good to have many
@@ -61,15 +69,19 @@
   id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们都知道，数据库为数据提供了易于结构化的方式，从而可以使用各种方法轻松访问。不仅有许多可用的方法，市场上还有许多不同的数据库。一方面，拥有多种数据库选项是好事，但另一方面，因为每个数据库都需要单独处理，所以这也使得事情变得复杂。在Java应用程序的庞大阶段，需要持久性来访问、更新、删除和添加数据库中的记录。JDBC
+    API通过驱动程序帮助访问这些记录。JDBC提供了诸如定义、打开和关闭连接，创建语句，通过ResultSet迭代获取数据，处理异常等低级别的数据库操作。但是，到了某个点，这些操作变得重复且紧密耦合。Spring框架通过DAO设计模式提供了一种松耦合、高级、干净的解决方案，并有一系列自定义异常。
 - en: How Spring handles database?
   id: totrans-9
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: Spring如何处理数据库？
 - en: '* * *'
   id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: '* * *'
 - en: In Java application the developers generally uses a concept of utility class
     to create, open and close database connection. A pretty sound, smart and reusable
     way for connection management but still the application is tightly coupled with
@@ -83,11 +95,13 @@
   id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Java应用程序中，开发者通常使用一个工具类概念来创建、打开和关闭数据库连接。这是一种非常可靠、智能且可重用的连接管理方式，但应用程序仍然与工具类紧密耦合。如果数据库或其连接性（如URL、用户名、密码或模式）有任何更改，需要在类中进行更改。这需要重新编译和部署代码。在这种情况下，外部化连接参数将是一个好的解决方案。我们无法外部化Connection对象，这仍然需要开发者来管理，同样处理它时出现的异常也是如此。Spring有一种优雅的方式来管理连接，使用位于中心的DataSource。
 - en: The DataSource
   id: totrans-12
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: DataSource
 - en: 'The DataSource is the factory for data source connections similar to the DriverManager
     in JDBC who helps for Connection management. Following are some of the implementations
     which can be used in the application to obtain the Connection object:'
