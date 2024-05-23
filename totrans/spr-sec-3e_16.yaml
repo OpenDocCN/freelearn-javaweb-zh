@@ -136,25 +136,30 @@
   id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 在JIRA中可以找到3.x和4.x之间非被动更改的完整列表：[https://jira.spring.io/browse/SEC-2916?jql=project%20%3D%20SEC%20AND%20fixVersion%20in%20(4.0.0%2C%204.0.0.M1%2C%204.0.0.M2%2C%204.0.0.RC1%2C%204.0.0.RC2)%20AND%20labels%20%3D%20passivity](https://jira.spring.io/browse/SEC-2916?jql=project%20%3D%20SEC%20AND%20fixVersion%20in%20(4.0.0%2C%204.0.0.M1%2C%204.0.0.M2%2C%204.0.0.RC1%2C%204.0.0.RC2)%20AND%20labels%20%3D%20passivity).
 - en: Sample migration
   id: totrans-19
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 示例迁移
 - en: The Spring Security team has created a sample project illustrating all of the
     changes when migrating from 3.x to 4.x and has made the project available on GitHub.
   id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: Spring Security团队创建了一个示例项目，展示了从3.x迁移到4.x时的所有更改，并将在GitHub上提供该项目。
 - en: The sample includes both XML and JavaConfig examples and can be found at [https://github.com/spring-projects/spring-security-migrate-3-to-4/](https://github.com/spring-projects/spring-security-migrate-3-to-4/).
   id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例包括XML和JavaConfig示例，可以在[https://github.com/spring-projects/spring-security-migrate-3-to-4/](https://github.com/spring-projects/spring-security-migrate-3-to-4/)找到。
 - en: Enhancements in Spring Security 4.2
   id: totrans-22
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 在Spring Security 4.2中的增强功能
 - en: There are quite a few notable changes in Spring Security 4.2, and this release
     also brings early support for Spring Framework 5\. You can find the changelogs
     for 4.2.0.M1, 4.2.0.RC1, and 4.2.0.RELEASE, which covers over 80 issues. The community
@@ -162,134 +167,160 @@
   id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Spring Security 4.2中有很多值得注意的更改，此版本还带来了对Spring Framework 5的早期支持。你可以找到4.2.0.M1、4.2.0.RC1和4.2.0.RELEASE的更改日志，涵盖了超过80个问题。社区贡献了绝大多数这些功能。
 - en: 'Significant enhancements in Spring Security 4.2, improved since Spring Security
     3 include the following features and their support numbers:'
   id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Spring Security 4.2中进行了重大改进，自Spring Security 3以来，包括以下特性和它们的支持号码：
 - en: 'Web improvements:'
   id: totrans-25
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 网络改进：
 - en: 'The following items are related to Spring Security''s interaction with Web-based
     applications:'
   id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下项目与Spring Security与基于Web的应用程序的交互相关：
 - en: '**#3812**: Jackson support'
   id: totrans-27
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**#3812**: Jackson支持'
 - en: '**#4116**: Referrer policy'
   id: totrans-28
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**#4116**: 引用策略'
 - en: '**#3938**: Added HTTP response splitting prevention'
   id: totrans-29
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**#3938**: 添加HTTP响应分割预防'
 - en: '**#3949**: Added bean reference support to `@AuthenticationPrincipal`'
   id: totrans-30
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**#3949**: 为`@AuthenticationPrincipal`添加了bean引用支持'
 - en: '**#3978**: Support for Standford WebAuth and Shibboleth using the newly added
     `RequestAttributeAuthenticationFilter`'
   id: totrans-31
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**#3978**: 支持使用新添加的`RequestAttributeAuthenticationFilter`的Standford WebAuth和Shibboleth。'
 - en: '**#4076**: Document proxy server configuration'
   id: totrans-32
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**#4076**: 文档代理服务器配置'
 - en: '**#3795**: `ConcurrentSessionFilter` supports `InvalidSessionStrategy`'
   id: totrans-33
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**#3795**: `ConcurrentSessionFilter`支持`InvalidSessionStrategy`'
 - en: '**#3904**: Added `CompositeLogoutHandler`'
   id: totrans-34
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**#3904**: 添加`CompositeLogoutHandler`'
 - en: 'Spring Security Configuration improvements:'
   id: totrans-35
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Spring Security配置改进：
 - en: 'The following items are related to the configuration of Spring Security:'
   id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下项目与Spring Security的配置相关：
 - en: '**#3956**: Central configuration of the default role prefix. See the issue
     for details'
   id: totrans-37
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**#3956**: 默认角色前缀的集中配置。详情请看问题'
 - en: '**#4102**: Custom default configuration in `WebSecurityConfigurerAdapter`'
   id: totrans-38
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**#4102**: 在`WebSecurityConfigurerAdapter`中自定义默认配置'
 - en: '**#3899**: `concurrency-control@max-sessions` supports unlimited sessions.'
   id: totrans-39
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**#3899**: `concurrency-control@max-sessions`支持无限会话。'
 - en: '**#4097**: `intercept-url@request-matcher-ref` adds more powerful request matching
     support to the XML namespace'
   id: totrans-40
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**#4097**: `intercept-url@request-matcher-ref`为XML命名空间添加了更强大的请求匹配支持'
 - en: '**#3990**: Support for constructing `RoleHierarchy` from Map (such as YML).'
   id: totrans-41
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**#3990**: 支持从Map（如YML）构建`RoleHierarchy`。'
 - en: '**#4062**: Custom `cookiePath` to `CookieCsrfTokenRepository`.'
   id: totrans-42
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**#4062**: 自定义`cookiePath`到`CookieCsrfTokenRepository`。'
 - en: '**#3794**: Allowing the configuration of `InvalidSessionStrategy` on `SessionManagementConfigurer`'
   id: totrans-43
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**#3794**: 允许在`SessionManagementConfigurer`上配置`InvalidSessionStrategy`'
 - en: '**#4020**: Fixing exposed beans for `defaultMethodExpressionHandler` can prevent
     Method Security'
   id: totrans-44
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**#4020**: 修复`defaultMethodExpressionHandler`暴露的beans可以防止方法安全'
 - en: Miscellaneous changes in Spring Security 4.x
   id: totrans-45
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 在Spring Security 4.x中的其他更改
 - en: 'The following items are miscellaneous changes that are worth noting as many
     of them might impact upgrading to Spring Security 4.x:'
   id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下项目是一些值得注意的其他更改，其中许多可能会影响升级到Spring Security 4.x：
 - en: '**#4080**: Spring 5 support'
   id: totrans-47
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**#4080**: Spring 5'
 - en: '#4095 - Added `UserBuilder`'
   id: totrans-48
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '#4095 - 添加`UserBuilder`'
 - en: '**#4018**: Fixes after `csrf()` is invoked, future `MockMvc` invocations use
     original `CsrfTokenRepository`'
   id: totrans-49
@@ -976,6 +1007,7 @@
   id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: '`RememberMeAuthenticationFilter`的默认构造函数、`setAuthenticationManager`和`setRememberMeServices`方法已被移除，改为使用构造器注入，如下：'
 - en: '[PRE39]'
   id: totrans-168
   prefs: []
@@ -985,6 +1017,7 @@
   id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 这应该替换为：
 - en: '[PRE40]'
   id: totrans-170
   prefs: []
@@ -995,6 +1028,7 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: TokenBasedRememberMeServices
 - en: '`AbstractRememberMeServices` and its subclasses `PersistentTokenBasedRememberMeServices`
     and `TokenBasedRememberMeServices` removed the default constructor, the `setKey`,
     and the `setUserDetailsService` methods in favor of the constructor injection.
@@ -1002,6 +1036,7 @@
   id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: '`AbstractRememberMeServices`及其子类`PersistentTokenBasedRememberMeServices`和`TokenBasedRememberMeServices`移除了默认构造函数、`setKey`和`setUserDetailsService`方法，改为使用构造器注入。例如：'
 - en: '[PRE41]'
   id: totrans-173
   prefs: []
@@ -1011,6 +1046,7 @@
   id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: 这应该替换为：
 - en: '[PRE42]'
   id: totrans-175
   prefs: []
@@ -1021,12 +1057,14 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: ConcurrentSessionControlStrategy
 - en: '`ConcurrentSessionControlStrategy` was replaced with `ConcurrentSessionControlAuthenticationStrategy`.
     Previously, `ConcurrentSessionControlStrategy` could not be decoupled from `SessionFixationProtectionStrategy`.
     Now it is completely decoupled. For example:'
   id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: '`ConcurrentSessionControlStrategy`已被替换为`ConcurrentSessionControlAuthenticationStrategy`。以前，`ConcurrentSessionControlStrategy`无法与`SessionFixationProtectionStrategy`解耦。现在它完全解耦了。例如：'
 - en: '[PRE43]'
   id: totrans-178
   prefs: []
@@ -1036,6 +1074,7 @@
   id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 这可以替换为：
 - en: '[PRE44]'
   id: totrans-180
   prefs: []
@@ -1046,12 +1085,14 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: SessionFixationProtectionStrategy
 - en: '`SessionFixationProtectionStrategy` removed the `setRetainedAttributes` method
     in favor of users subclassing `SessionFixationProtectionStrategy` and overriding
     the `extractAttributes` method. Look at the following code:'
   id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: '`SessionFixationProtectionStrategy`移除了`setRetainedAttributes`方法，改为让用户继承`SessionFixationProtectionStrategy`并重写`extractAttributes`方法。查看以下代码：'
 - en: '[PRE45]'
   id: totrans-183
   prefs: []
@@ -1061,6 +1102,7 @@
   id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: 它应该替换为：
 - en: '[PRE46]'
   id: totrans-185
   prefs: []
@@ -1071,12 +1113,14 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: BasicAuthenticationFilter
 - en: 'The `BasicAuthenticationFilter` default constructor, the `setAuthenticationManager`,
     and the `setRememberMeServices` methods were removed in favor of the constructor
     injection:'
   id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: '`BasicAuthenticationFilter`的默认构造函数、`setAuthenticationManager`和`setRememberMeServices`方法已被移除，改为使用构造器注入：'
 - en: '[PRE47]'
   id: totrans-188
   prefs: []
@@ -1086,6 +1130,7 @@
   id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: 这应该替换为：
 - en: '[PRE48]'
   id: totrans-190
   prefs: []
@@ -1095,16 +1140,19 @@
   id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用这个构造函数会自动将`ignoreFalure`设置为`true`。
 - en: SecurityContextPersistenceFilter
   id: totrans-192
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: SecurityContextPersistenceFilter
 - en: '`SecurityContextPersistenceFilter` removed the `setSecurityContextRepository`
     in favor of the constructor injection. For example:'
   id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: '`SecurityContextPersistenceFilter`移除了`setSecurityContextRepository`，改为使用构造器注入。例如：'
 - en: '[PRE49]'
   id: totrans-194
   prefs: []
@@ -1114,6 +1162,7 @@
   id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: 这应该替换为：
 - en: '[PRE50]'
   id: totrans-196
   prefs: []
@@ -1124,11 +1173,13 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: RequestCacheAwareFilter
 - en: '`RequestCacheAwareFilter` removed the `setRequestCache` in favor of the constructor
     injection. For example:'
   id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: '`RequestCacheAwareFilter`移除了`setRequestCache`，改为使用构造器注入。例如：'
 - en: '[PRE51]'
   id: totrans-199
   prefs: []
@@ -1138,6 +1189,7 @@
   id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: 这应该替换为：
 - en: '[PRE52]'
   id: totrans-201
   prefs: []
@@ -1148,12 +1200,14 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: ConcurrentSessionFilter
 - en: '`ConcurrentSessionFilter` removed the default constructor, the `setExpiredUrl`,
     and the `setSessionRegistry` methods in favor of the constructor injection. For
     example:'
   id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: '`ConcurrentSessionFilter`移除了默认构造函数、`setExpiredUrl`和`setSessionRegistry`方法，改为使用构造器注入。例如：'
 - en: '[PRE53]'
   id: totrans-204
   prefs: []
@@ -1163,6 +1217,7 @@
   id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: 这应该替换为：
 - en: '[PRE54]'
   id: totrans-206
   prefs: []
@@ -1173,11 +1228,13 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: SessionManagementFilter
 - en: '`SessionManagementFilter` removed the `setSessionAuthenticationStrategy` method
     in favor of the constructor injection. For example:'
   id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: '`SessionManagementFilter`移除了`setSessionAuthenticationStrategy`方法，改为使用构造器注入。例如：'
 - en: '[PRE55]'
   id: totrans-209
   prefs: []
@@ -1187,6 +1244,7 @@
   id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: 这应该替换为：
 - en: '[PRE56]'
   id: totrans-211
   prefs: []
@@ -1197,11 +1255,13 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: RequestMatcher
 - en: 'The `RequestMatcher` and its implementations have moved from the `org.springframework.security.web.util`
     package to `org.springframework.security.web.util.matcher`. Specifically:'
   id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: '`RequestMatcher`及其实现已从`org.springframework.security.web.util`包移动到`org.springframework.security.web.util.matcher`。具体如下：'
 - en: '[PRE57]'
   id: totrans-214
   prefs: []
@@ -1212,14 +1272,17 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: WebSecurityExpressionHandler
 - en: '`WebSecurityExpressionHandler` was removed in favor of using `SecurityExpressionHandler<FilterInvocation>`.'
   id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: '`WebSecurityExpressionHandler`已被移除，改为使用`SecurityExpressionHandler<FilterInvocation>`。'
 - en: 'This means you may have the following:'
   id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: 这意味着你可能有以下内容：
 - en: '[PRE58]'
   id: totrans-218
   prefs: []
@@ -1229,6 +1292,7 @@
   id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: 这需要更新为：
 - en: '[PRE59]'
   id: totrans-220
   prefs: []
@@ -1238,6 +1302,7 @@
   id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可以这样实现`WebSecurityExpressionHandler`：
 - en: '[PRE60]'
   id: totrans-222
   prefs: []
@@ -1247,6 +1312,7 @@
   id: totrans-223
   prefs: []
   type: TYPE_NORMAL
+  zh: 然后它必须更新为：
 - en: '[PRE61]'
   id: totrans-224
   prefs: []
@@ -1257,12 +1323,14 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: '@AuthenticationPrincipal'
 - en: '`org.springframework.security.web.bind.annotation.AuthenticationPrincipal`
     has been deprecated in favor of `org.springframework.security.core.annotation.AuthenticationPrincipal`.
     For example:'
   id: totrans-226
   prefs: []
   type: TYPE_NORMAL
+  zh: '`org.springframework.security.web.bind.annotation.AuthenticationPrincipal`已被弃用，改为`org.springframework.security.core.annotation.AuthenticationPrincipal`。例如：'
 - en: '[PRE62]'
   id: totrans-227
   prefs: []
@@ -1272,6 +1340,7 @@
   id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: 这应该替换为：
 - en: '[PRE63]'
   id: totrans-229
   prefs: []
@@ -1282,6 +1351,7 @@
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 迁移默认过滤器URL
 - en: A number of servlet filters had their default URLs switched to help guard against
     information leakage.
   id: totrans-231
