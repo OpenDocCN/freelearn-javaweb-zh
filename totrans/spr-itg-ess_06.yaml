@@ -206,17 +206,20 @@
   id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 您可能已经意识到，尽管配置简单，但很多事情都在幕后进行，例如防止重复、过滤文件、避免并发访问等。我们将详细讨论这些内容，但在那之前，让我们先看看为这个适配器幕后工作的类。
 - en: Behind the scenes
   id: totrans-32
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 幕后
 - en: 'The adapter declared in the previous example leverages `FileReadingMessageSource`,
     which is an implementation of `MessageSource`. It creates a message based on a
     file from a directory as follows:'
   id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 前一个示例中声明的适配器利用了`FileReadingMessageSource`，这是`MessageSource`的一个实现。它根据目录中的文件创建消息如下：
 - en: '[PRE3]'
   id: totrans-34
   prefs: []
@@ -228,11 +231,14 @@
   id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 在bean声明级别，我们可以注入过滤器、锁机制等——但由于我们使用Spring Integration，它免去了我们在bean声明级别的工作。相反，我们可以使用Spring
+    Integration暴露的适配器。
 - en: Filters
   id: totrans-36
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 过滤器
 - en: Filter is a powerful concept that can be used to prevent duplicates, select
     files based on name patterns, customize the list of files read, and perform many
     more interceptions before the required content can be presented to the next endpoint.
@@ -248,12 +254,15 @@
   id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 过滤器是一个强大的概念，可以用来防止重复，根据名称模式选择文件，自定义读取的文件列表，以及在将所需内容呈现给下一个端点之前执行许多其他拦截。对于大多数常见任务，都有预定义的过滤器，但在Spring的精神下，我们也可以有自定义实现，并将它们注入由Spring
+    Integration提供的适配器中。过滤器必须是`FileListFilter`的一个实例，默认使用的过滤器是`AcceptOnceFileListFilter`。此过滤器跟踪处理过的文件，但实现是在内存中。这意味着如果服务器在处理文件时重新启动，它将失去对已处理文件的跟踪，并将重新阅读相同的文件。为了解决这个问题，应使用`FileSystemPersistentAcceptOnceFileListFilter`的实例，通过利用`MetadataStore`实现来跟踪处理过的文件。
 - en: 'Additionally, filename patterns and `Reg Ex` filters are available and can
     be used to filter files based on their names or by matching the name against the
     `Reg Ex` specified. Let''s see a quick example showing the use of these two filters:'
   id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，文件名模式和`Reg Ex`过滤器可供使用，可以根据它们的名称或通过与指定的`Reg Ex`匹配来过滤文件。让我们通过一个快速示例来看看这两个过滤器的使用：
 - en: '[PRE4]'
   id: totrans-39
   prefs: []
@@ -264,6 +273,7 @@
   id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设我们想要一个自定义过滤器，它可以很容易地被定义和使用。代码如下：
 - en: '[PRE5]'
   id: totrans-41
   prefs: []
@@ -274,6 +284,7 @@
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 防止重复
 - en: Preventing duplicates is a subset of filter that filters out files that have
     already been picked up. Using `prevent-duplicates`, we can instruct an adapter
     to look for unique files only. The only glitch here is that a duplicate check
@@ -282,11 +293,13 @@
   id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 防止重复是过滤器的一个子集，用于过滤已经选择的文件。使用`prevent-duplicates`，我们可以指示适配器只查找唯一的文件。这里的唯一问题是，重复检查限于会话，因为读者不存储任何状态。如果读者重新启动，它将再次阅读所有文件——即使它们之前已经被阅读过。
 - en: Concurrent access
   id: totrans-44
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 并发访问
 - en: 'This is a very common use case in enterprises with multiple consumers, and
     we want to maintain the sanity of the files consumed. We can use the `java.nio`
     locker in the following way to lock files to ensure that they are not accessed
@@ -294,6 +307,7 @@
   id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是企业中具有多个消费者非常常见的用例，我们希望能够维护被消费文件的完整性。我们可以以下面这种方式使用`java.nio`锁来锁定文件，以确保它们不被并发访问：
 - en: '[PRE6]'
   id: totrans-46
   prefs: []
@@ -304,6 +318,8 @@
   id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: '这段代码并没有限制我们只能使用`java.nio.locker`。 Instead of using the `java.nio` locker, we
+    can provide custom lockers as well:'
 - en: '[PRE7]'
   id: totrans-48
   prefs: []
@@ -314,6 +330,7 @@
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 提示
 - en: Unlocking is not explicit. It is performed by calling `FileLocker.unlock(File
     file)`; otherwise, it will result in memory leaks over the period.
   id: totrans-50
