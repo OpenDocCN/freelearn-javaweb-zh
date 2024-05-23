@@ -816,6 +816,7 @@
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 接下来，我们需要如下向 Thymeleaf 引擎添加 `SpringSecurityDialect`：
 - en: '[PRE14]'
   id: totrans-113
   prefs: []
@@ -827,6 +828,7 @@
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 更新 `header.html` 文件以利用 Spring Security 标签库。你可以按照如下方式找到更新：
 - en: '[PRE15]'
   id: totrans-115
   prefs: []
@@ -842,6 +844,9 @@
   id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: '`sec:authorize` 属性确定用户是否以 `isAuthenticated()` 值认证，并在用户认证时显示 HTML 节点，如果用户没有认证，则隐藏节点。`access`
+    属性应该非常熟悉，来自 `antMatcher().access()` 元素。实际上，这两个组件都利用了相同的 SpEL 支持。Thymeleaf 标签库中有不使用表达式的属性。然而，使用
+    SpEL 通常是更受欢迎的方法，因为它更强大。'
 - en: The `sec:authentication` attribute will look up the current `o.s.s.core.Authentication`
     object. The `property` attribute will find the principal attribute of the `o.s.s.core.Authentication`,object,
     which in this case is `o.s.s.core.userdetails.UserDetails`. It then obtains the
@@ -851,6 +856,10 @@
   id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: '`sec:authentication` 属性将查找当前的 `o.s.s.core.Authentication` 对象。`property` 属性将找到
+    `o.s.s.core.Authentication` 对象的 `principal` 属性，在这个例子中是 `o.s.s.core.userdetails.UserDetails`。然后它获取
+    `UserDetails` 的 `username` 属性并将其渲染到页面。如果这些细节让你感到困惑，不要担心。我们将在[第3章](03.html) *自定义认证*
+    中更详细地介绍这一点。'
 - en: If you haven't done so already, restart the application to see the updates we
     have made. At this point, you may realize that we are still displaying links we
     do not have access to. For example, `user1@example.com` should not see a link
@@ -859,15 +868,19 @@
   id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你还没有这样做，请重新启动应用程序以查看我们所做的更新。此时，你可能会意识到我们仍在显示我们没有访问权的链接。例如，`user1@example.com`
+    不应该看到“所有事件”页面的链接。请放心，当我们详细介绍标签时，我们将在[第11章](12.html) *细粒度访问控制* 中解决这个问题。
 - en: 'Your code should now look like this: `chapter02.05-calendar`.'
   id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 你的代码现在应该看起来像这样：`chapter02.05-calendar`。
 - en: Customizing behavior after login
   id: totrans-120
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 登录后的行为自定义。
 - en: We have already discussed how to customize a user's experience during login,
     but sometimes it is necessary to customize the behavior after login. In this section,
     we will discuss how Spring Security behaves after login and will provide a simple
@@ -875,6 +888,7 @@
   id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们已经讨论了如何自定义用户在登录过程中的体验，但有时在登录后自定义行为是必要的。在本节中，我们将讨论 Spring Security 在登录后的行为，并提供一个简单的方法来自定义此行为。
 - en: In the default configuration, Spring Security has two different flows after
     successful authentication. The first scenario occurs if a user never visits a
     resource that requires authentication. In this instance, after a successful login
@@ -884,6 +898,8 @@
   id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 在默认配置中，Spring Security 在成功认证后有两个不同的流程。第一个场景是如果一个用户从未访问过需要认证的资源。在这种情况下，成功登录后，用户将被发送到
+    `defaultSuccessUrl()` 方法，该方法链接到 `formLogin()` 方法。如果未定义，`defaultSuccessUrl()` 将是应用程序的上下文根。
 - en: If a user requests a protected page before being authenticated, Spring Security
     will remember the last protected page that was accessed prior to authenticating,
     using `o.s.s.web.savedrequest.RequestCache`. Upon successful authentication, Spring
@@ -893,11 +909,14 @@
   id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果用户在认证之前请求了一个受保护的页面，Spring Security 将使用 `o.s.s.web.savedrequest.RequestCache`
+    记住在认证之前访问的最后一個受保护的页面。在认证成功后，Spring Security 会将用户发送到在认证之前访问的最后一個受保护的页面。例如，如果一个未认证的用户请求“我的事件”页面，他们将被发送到登录页面。
 - en: After successful authentication, they will be sent to the previously requested
     My Events page.
   id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 成功认证后，他们将被发送到之前请求的“我的事件”页面。
 - en: 'A common requirement is to customize Spring Security to send the user to a
     different `defaultSuccessUrl()` method, depending on the user''s role. Let''s
     take a look at how this can be accomplished by performing the following steps:'
