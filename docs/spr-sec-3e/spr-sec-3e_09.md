@@ -52,21 +52,13 @@
 
 如果你现在不想生成自己的密钥，你可以跳到下一节，并使用示例章节中的`./src/main/resources/keys`文件夹中的示例证书。否则，按照如下方式创建客户端密钥对：
 
-```java
-keytool -genkeypair -alias jbcpclient -keyalg RSA -validity 365 -keystore jbcp_clientauth.p12 -storetype PKCS12
-```
+[PRE0]
 
 你可以在 Oracle 的网站上找到关于`keytool`的额外信息，以及所有的配置选项，链接在这里 [`docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html/keytool.html`](http://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html/keytool.html)。
 
 `keytool`的大部分参数对于这个用例来说是相当任意的。然而，当提示设置客户端证书的第一个和最后一个名字（所有者的 DN 的部分，即 common name）时，请确保第一个提示的答案与我们在 Spring Security JDBC 存储中设置的用户相匹配。例如，`admin1@example.com`是一个合适的值，因为我们已经在 Spring Security 中设置了`admin1@example.com`用户。命令行交互的示例如下：
 
-```java
-What is your first and last name?
-[Unknown]: admin1@example.com
-... etc
-Is CN=admin1@example.com, OU=JBCP Calendar, O=JBCP, L=Park City, ST=UT, C=US correct?
-[no]: yes
-```
+[PRE1]
 
 我们将看到为什么这是重要的，当我们配置 Spring Security 以从证书认证的用户那里获取信息。在我们可以在 Tomcat 中设置证书认证之前，还有最后一个步骤，将在下一节中解释。
 
@@ -84,40 +76,15 @@ Is CN=admin1@example.com, OU=JBCP Calendar, O=JBCP, L=Park City, ST=UT, C=US cor
 
 1.  我们将公钥导出到一个名为`jbcp_clientauth.cer`的标准证书文件中，如下所示：
 
-```java
- keytool -exportcert -alias jbcpclient -keystore jbcp_clientauth.p12 
-      -storetype PKCS12 -storepass changeit -file jbcp_clientauth.cer
-```
+[PRE2]
 
 1.  接下来，我们将把证书导入信任库（这将创建信任库，但在典型的部署场景中，你可能已经在信任库中有一些其他证书）：
 
-```java
- keytool -importcert -alias jbcpclient -keystore tomcat.truststore 
-      -file jbcp_clientauth.cer
-```
+[PRE3]
 
 前面的命令将创建一个名为`tomcat.truststore`的信任库，并提示你输入密码（我们选择了密码`changeit`）。你还将看到一些关于证书的信息，并最终被要求确认你是否信任该证书，如下所示：
 
-```java
- Owner: CN=admin1@example.com, OU=JBCP Calendar, O=JBCP, L=Park City,
-      ST=UT, C=US Issuer: CN=admin1@example.com, OU=JBCP Calendar, O=JBCP, L=Park City,
-      ST=UT, C=US Serial number: 464fc10c Valid from: Fri Jun 23 11:10:19 MDT 2017 until: Thu Feb 12 10:10:19 
-      MST 2043      //Certificate fingerprints:
-
- MD5: 8D:27:CE:F7:8B:C3:BD:BD:64:D6:F5:24:D8:A1:8B:50 SHA1: C1:51:4A:47:EC:9D:01:5A:28:BB:59:F5:FC:10:87:EA:68:24:E3:1F SHA256: 2C:F6:2F:29:ED:09:48:FD:FE:A5:83:67:E0:A0:B9:DA:C5:3B:
-      FD:CF:4F:95:50:3A:
-      2C:B8:2B:BD:81:48:BB:EF Signature algorithm name: SHA256withRSA Version: 3      //Extensions
-
- #1: ObjectId: 2.5.29.14 Criticality=false
- SubjectKeyIdentifier [
- KeyIdentifier [
- 0000: 29 F3 A7 A1 8F D2 87 4B   EA 74 AC 8A 4B BC 4B 5D 
-      )......K.t..K.K]
- 0010: 7C 9B 44 4A                                       ..DJ
- ]
- ]
- Trust this certificate? [no]: yes
-```
+[PRE4]
 
 记住新`tomcat.truststore`文件的位置，因为我们将需要在 Tomcat 配置中引用它。
 
@@ -129,19 +96,7 @@ Is CN=admin1@example.com, OU=JBCP Calendar, O=JBCP, L=Park City, ST=UT, C=US cor
 
 1.  最后，我们需要将 Tomcat 指向信任库并启用客户端证书认证。这通过在 Tomcat `server.xml`文件中的 SSL 连接器添加三个附加属性来完成，如下所示：
 
-```java
-//sever.xml
-
-<Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true"
-maxThreads="150" scheme="https" secure="true"
-sslProtocol="TLS"
-keystoreFile="<KEYSTORE_PATH>/tomcat.keystore"
-keystorePass="changeit"
-truststoreFile="<CERT_PATH>/tomcat.truststore"
-truststorePass="changeit"
-clientAuth="true"
-/>
-```
+[PRE5]
 
 `server.xml`文件可以在`TOMCAT_HOME/conf/server.xml`找到。如果你使用 Eclipse 或 Spring Tool Suite 与 Tomcat 交互，你会找到一个名为`Servers`的项目，包含`server.xml`。例如，如果你使用的是 Tomcat 8，你 Eclipse 工作区中的路径可能类似于`/Servers/Tomcat v7.0 Server`在`localhost-config/server.xml`。
 
@@ -157,16 +112,7 @@ clientAuth="true"
 
 配置 Spring Boot 使用我们新创建的证书，就像 YAML 条目的属性一样简单，如下面的代码片段所示：
 
-```java
-    server:
-    port: 8443
-    ssl:
-       key-store: "classpath:keys/jbcp_clientauth.p12"
-       key-store-password: changeit
-       keyStoreType: PKCS12
-       keyAlias: jbcpclient
-       protocol: TLS
-```
+[PRE6]
 
 最后一步是将证书导入客户端浏览器。
 
@@ -280,10 +226,7 @@ clientAuth="true"
 
 尽管 LDAP 配置的复杂性令人望而却步，但配置客户端证书认证却是一种受欢迎的解脱。如果我们使用安全命名空间配置方式，在`HttpSecurity`声明中添加客户端证书认证只需简单的一行配置更改。接着，你可以对提供的`SecurityConfig.java`配置文件进行以下修改：
 
-```java
-//src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-    http.x509().userDetailsService(userDetailsService);
-```
+[PRE7]
 
 请注意`.x509()`方法引用了我们现有的`userDetailsService()`配置。为了简单起见，我们使用了在第五章中介绍的`UserDetailsServiceImpl`实现，关于*使用 Spring Data 进行认证*。然而，我们很容易用其他任何实现来替换它（即在第四章中介绍的基于 LDAP 或 JDBC 的实现，关于*基于 JDBC 的认证*）。
 
@@ -295,17 +238,11 @@ clientAuth="true"
 
 如前所述，Spring Security 在证书交换中的作用是提取 presented certificate 中的信息，并将用户的凭据映射到用户服务。我们在使用`.x509()`方法时没有看到使其成为可能的精灵。回想一下，当我们设置客户端证书时，与证书关联的类似 LDAP DN 的 DN 如下所示：
 
-```java
-    Owner: CN=admin@example.com, OU=JBCP Calendar, O=JBCP, L=Park City, ST=UT, C=US
-```
+[PRE8]
 
 Spring Security 使用 DN 中的信息来确定主体的实际用户名，并将在`UserDetailsService`中查找此信息。特别是，它允许指定一个正则表达式，用于匹配与证书建立的 DN 的一部分，并使用这部分 DN 作为主体名称。`.x509()`方法的隐式默认配置如下：
 
-```java
-  http.x509()
-   .userDetailsService(userDetailsService)
- .subjectPrincipalRegex("CN=(.*?),");
-```
+[PRE9]
 
 我们可以看到，这个正则表达式会将`admin1@example.com`值作为主体名称匹配。这个正则表达式必须包含一个匹配组，但可以配置以支持您应用程序的用户名和 DN 发行需求。例如，如果您组织证书的 DN 包括`email`或`userid`字段，正则表达式可以修改为使用这些值作为认证主体的名称。
 
@@ -331,18 +268,7 @@ Spring Security 使用 DN 中的信息来确定主体的实际用户名，并将
 
 相比之下，在典型的客户端证书认证环境中，其他认证方法根本不被支持（记住 Tomcat 在任何 Spring Security 表单登录发生之前都会期望证书）。因此，保留重定向到表单登录页面的默认行为是没有意义的。相反，我们将修改入口点，简单地返回一个`HTTP 403 Forbidden`消息，使用`o.s.s.web.authentication.Http403ForbiddenEntryPoint`。在你的`SecurityConfig.java`文件中，进行以下更新：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Autowired
- private Http403ForbiddenEntryPoint forbiddenEntryPoint;    http.exceptionHandling()
- .authenticationEntryPoint(forbiddenEntryPoint)       .accessDeniedPage("/errors/403");
-    ...
-    @Bean
-    public Http403ForbiddenEntryPoint forbiddenEntryPoint(){
-       return new Http403ForbiddenEntryPoint();
-    }
-```
+[PRE10]
 
 现在，如果一个用户尝试访问一个受保护的资源并且无法提供有效的证书，他们将看到以下页面，而不是被重定向到登录页面：
 
@@ -366,17 +292,7 @@ Spring Security 使用 DN 中的信息来确定主体的实际用户名，并将
 
 如果你选择以这种方式配置你的应用程序，你将需要调整 Tomcat 的 SSL 设置（根据你的应用程序服务器适当更改）。将`clientAuth`指令更改为`want`，而不是`true`：
 
-```java
-   <Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true"
-       maxThreads="150" scheme="https" secure="true"
-       sslProtocol="TLS"
-       keystoreFile="conf/tomcat.keystore"
-       keystorePass="password"
-       truststoreFile="conf/tomcat.truststore"
-       truststorePass="password"
-       clientAuth="want"
-       />
-```
+[PRE11]
 
 我们还需要移除上一次练习中我们配置的`authenticationEntryPoint()`方法，这样如果用户在浏览器首次查询时无法提供有效的证书，标准的基于表单的认证工作流程就会接管。
 
@@ -400,52 +316,11 @@ Spring Security 使用 DN 中的信息来确定主体的实际用户名，并将
 
 在本章的早些时候，我们回顾了参与客户端证书认证的类的流程。因此，使用显式 Bean 配置 JBCP 日历对我们来说应该是直接的。通过使用显式配置，我们将有更多的配置选项可供使用。让我们看看如何使用显式配置：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Bean
-    public X509AuthenticationFilter x509Filter(AuthenticationManager  
-    authenticationManager){
-       return new X509AuthenticationFilter(){{
-           setAuthenticationManager(authenticationManager);
-       }};
-    }
-   @Bean
-    public PreAuthenticatedAuthenticationProvider    
-    preauthAuthenticationProvider(AuthenticationUserDetailsService   
-    authenticationUserDetailsService){
-       return new PreAuthenticatedAuthenticationProvider(){{
-         setPreAuthenticatedUserDetailsService(authenticationUserDetailsService);
-       }};
-    }
-    @Bean
-    public UserDetailsByNameServiceWrapper   
-    authenticationUserDetailsService(UserDetailsService userDetailsService){
-       return new UserDetailsByNameServiceWrapper(){{
-           setUserDetailsService(userDetailsService);
-       }};
-    }
-```
+[PRE12]
 
 我们还需要删除`x509()`方法，将`x509Filter`添加到我们的过滤器链中，并将我们的`AuthenticationProvider`实现添加到`AuthenticationManger`中：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-       http.x509()
- //.userDetailsService(userDetailsService)           .x509AuthenticationFilter(x509Filter());
-    ...
-    }
-    @Override
-    public void configure(AuthenticationManagerBuilder auth)
-    throws Exception {
-       auth
- .authenticationProvider(preAuthAuthenticationProvider)         .userDetailsService(userDetailsService)
-         .passwordEncoder(passwordEncoder());
-    }
-```
+[PRE13]
 
 现在，尝试一下应用程序。从用户的角度来看，并没有发生太多变化，但作为开发者，我们已经为许多额外的配置选项打开了大门。
 

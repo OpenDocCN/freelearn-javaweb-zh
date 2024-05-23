@@ -40,9 +40,7 @@ LDAP 起源于 30 多年前的概念性目录模型-类似于组织结构图和�
 
 沿着树向下走到一个单独的叶节点形成的从上到下的完整路径是由沿途的所有中间节点组成的一个字符串，就像`admin1`的节点路径一样，如下所示：
 
-```java
-    uid=admin1,ou=users,dc=example,dc=com
-```
+[PRE0]
 
 前面的节点路径是唯一的，被称为节点的** Distinguished Name** (**DN**)。Distinguished Name 类似于数据库的主键，允许在复杂的树结构中唯一标识和定位一个节点。在 Spring Security LDAP 集成中，我们将看到节点的 DN 在认证和搜索过程中被广泛使用。
 
@@ -78,18 +76,7 @@ LDAP 有一套丰富的标准模式，涵盖可用的 LDAP 对象类及其适用
 
 我们已经为您本章所需的所有依赖项，所以你不需要对你的`build.gradle`文件做任何更新。然而，如果你只是想为你的应用程序添加 LDAP 支持，你需要在`build.gradle`中添加`spring-security-ldap`作为依赖项，如下所示：
 
-```java
-    //build.gradle
-
-    dependencies {
-    // LDAP:
-    compile('org.springframework.boot:spring-boot-starter-data-ldap')
-    compile("org.springframework.ldap:spring-ldap-core")
-    compile("org.springframework.security:spring-security-ldap")
- compile("org.springframework:spring-tx")    compile("com.unboundid:unboundid-ldapsdk")
-       ...
-    }
-```
+[PRE1]
 
 由于 Gradle 的一个艺术品解析问题，`spring-tx`必须被引入，否则 Gradle 会获取一个较旧的版本，无法使用。
 
@@ -97,14 +84,7 @@ LDAP 有一套丰富的标准模式，涵盖可用的 LDAP 对象类及其适用
 
 如果你在你的网络应用程序中使用**ApacheDS**运行 LDAP 服务器，正如我们在我们的日历应用程序中所做的那样，你需要添加 ApacheDS 相关的 JAR 包依赖。由于这些更新已经被包含在我们的示例应用程序中，所以无需对示例应用程序进行这些更新。请注意，如果你连接到一个外部的 LDAP 服务器，这些依赖是不必要的：
 
-```java
-//build.gradle
-
-    compile 'org.apache.directory.server:apacheds-core:2.0.0-M23'
-    compile 'org.apache.directory.server:apacheds-protocol-ldap:2.0.0-M23'
-    compile 'org.apache.directory.server:apacheds-protocol-shared:2.0.0
-    -M23'
-```
+[PRE2]
 
 配置嵌入式 LDAP 集成
 
@@ -114,17 +94,9 @@ LDAP 有一套丰富的标准模式，涵盖可用的 LDAP 对象类及其适用
 
 第一步是配置嵌入式 LDAP 服务器。Spring Boot 会自动配置一个嵌入式 LDAP 服务器，但我们还需要稍微调整一下配置。对你的`application.yml`文件进行以下更新：
 
-```java
-      //src/main/resources/application.yml
+[PRE3]
 
-      spring:
-      ## LDAP
- ldap: embedded: 
-```
-
-```java
- ldif: classpath:/ldif/calendar.ldif base-dn: dc=jbcpcalendar,dc=com port: 33389
-```
+[PRE4]
 
 你应该从`chapter06.00-calendar`的源代码开始。
 
@@ -138,19 +110,7 @@ LDAP 有一套丰富的标准模式，涵盖可用的 LDAP 对象类及其适用
 
 接下来，我们需要配置另一个`AuthenticationProvider`接口，以将用户凭据与 LDAP 提供者进行核对。只需更新 Spring Security 配置，使用`o.s.s.ldap.authentication.LdapAuthenticationProvider`引用，如下所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Override
-    public void configure(AuthenticationManagerBuilder auth)
-    throws Exception {
-       auth
- .ldapAuthentication() .userSearchBase("") .userSearchFilter("(uid={0})") .groupSearchBase("ou=Groups") .groupSearchFilter("(uniqueMember={0})") .contextSource(contextSource()) .passwordCompare() .passwordAttribute("userPassword");    }
-    @Bean
-    public DefaultSpringSecurityContextSource contextSource() {
- return new DefaultSpringSecurityContextSource( Arrays.asList("ldap://localhost:33389/"), "dc=jbcpcalendar,dc=com");
-    }
-```
+[PRE5]
 
 我们稍后会讨论这些属性。现在，先让应用程序恢复正常运行，然后尝试使用`admin1@example.com`作为用户名和`admin1`作为密码登录。你应该可以登录！
 
@@ -294,13 +254,7 @@ LDAP 有一套丰富的标准模式，涵盖可用的 LDAP 对象类及其适用
 
 现在，Spring Security 会为每个搜索结果创建一个`GrantedAuthority`对象，通过将找到的组的名称强制转换为大写并在组名称前加上`ROLE_`前缀。伪代码看起来类似于以下代码片段：
 
-```java
-    foreach group in groups:
-
-    authority = ("ROLE_"+group).upperCase()
-
-    grantedAuthority = new GrantedAuthority(authority)
-```
+[PRE6]
 
 Spring LDAP 和你的灰质一样灵活。请记住，虽然这是一种组织 LDAP 目录以与 Spring Security 兼容的方法，但典型的使用场景正好相反——一个已经存在的 LDAP 目录需要与 Spring Security 进行集成。在许多情况下，你将能够重新配置 Spring Security 以处理 LDAP 服务器的层次结构；然而，关键是你需要有效地规划并理解 Spring 在查询时如何与 LDAP 合作。用你的大脑，规划用户搜索和组搜索，并提出你能想到的最优计划——尽量保持搜索的范围最小和尽可能精确。
 
@@ -352,21 +306,7 @@ Spring LDAP 和你的灰质一样灵活。请记住，虽然这是一种组织 L
 
 配置密码比较认证而不是绑定认证，只需在`AuthenticationManagerBuilder`声明中添加一个方法即可。更新`SecurityConfig.java`文件，如下所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Override
-    public void configure(AuthenticationManagerBuilder auth)
-       throws Exception {
-       auth
-         .ldapAuthentication()
-         .userSearchBase("")
-         .userSearchFilter("(uid={0})")
-         .groupSearchBase("ou=Groups")
-         .groupSearchFilter("(uniqueMember={0})")
-         .contextSource(contextSource())
- .passwordCompare() .passwordEncoder(new LdapShaPasswordEncoder()) .passwordAttribute("userPassword");    }
-```
+[PRE7]
 
 `PasswordCompareConfigurer`类通过声明`passwordCompare`方法来使用，该类使用`PlaintextPasswordEncoder`进行密码编码。要使用`SHA-1`密码算法，我们需要设置一个密码编码器，我们可以使用`o.s.s.a.encoding.LdapShaPasswordEncoder`为`SHA`支持（回想我们在第四章，*基于 JDBC 的认证*中广泛讨论了`SHA-1`密码算法）。
 
@@ -414,25 +354,7 @@ LDAP 对多种密码编码算法提供了普遍支持，这些算法从明文到
 
 让我们重新配置我们的 `SecurityConfig.java` 文件，以使用 `inetOrgPerson` 映射器版本。更新 `SecurityConfig.java` 文件，如下所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Override
-    public void configure(AuthenticationManagerBuilder auth)
-    throws Exception {
-       auth
-           .ldapAuthentication()
-           .userSearchBase("")
-           .userSearchFilter("(uid={0})")
-           .groupSearchBase("ou=Groups")
-           .groupSearchFilter("(uniqueMember={0})")
- .userDetailsContextMapper( new InetOrgPersonContextMapper())           .contextSource(contextSource())
-           .passwordCompare()
-              // Supports {SHA} and {SSHA}
-               .passwordEncoder(new LdapShaPasswordEncoder())
-               .passwordAttribute("userPassword");
-    }
-```
+[PRE8]
 
 如果我们移除 `passwordEncoder` 方法，那么使用 `SHA` 密码的 LDAP 用户将无法进行身份验证。
 
@@ -446,68 +368,15 @@ LDAP 对多种密码编码算法提供了普遍支持，这些算法从明文到
 
 你可能注意到这一章带有一个额外的控制器，名为 `AccountController`。你可以看到相关的代码，如下所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/web/controllers/AccountController.java
-
-    ...
-    @RequestMapping("/accounts/my")
-    public String view(Model model) {
-    Authentication authentication = SecurityContextHolder.
-    getContext().getAuthentication();
-    // null check on authentication omitted
-    Object principal = authentication.getPrincipal();
-    model.addAttribute("user", principal);
-    model.addAttribute("isLdapUserDetails", principal instanceof
-    LdapUserDetails);
-    model.addAttribute("isLdapPerson", principal instanceof Person);
-    model.addAttribute("isLdapInetOrgPerson", principal instanceof
-    InetOrgPerson);
-    return "accounts/show";
-    }
-    ...
-```
+[PRE9]
 
 前面的代码将通过`LdapAuthenticationProvider`从`Authentication`对象中检索存储在`UserDetails`对象（主体）中，并确定它是哪种类型的`LdapUserDetailsImplinterface`。页面代码本身将根据已绑定到用户认证信息的`UserDetails`对象类型显示各种详细信息，正如我们在下面的 JSP 代码中所看到的那样。我们已经包括了 JSP：
 
-```java
-    //src/main/resources/templates/accounts/show.html
-
-    <dl>
-       <dt>Username</dt>
-       <dd id="username" th:text="${user.username}">ChuckNorris</dd>
-       <dt>DN</dt>
-       <dd id="dn" th:text="${user.dn}"></dd>
-       <span th:if="${isLdapPerson}">
-           <dt>Description</dt>
-           <dd id="description" th:text="${user.description}"></dd>
-           <dt>Telephone</dt>
-           <dd id="telephoneNumber" th:text="${user.telephoneNumber}"></dd>
-           <dt>Full Name(s)</dt>
-           <span th:each="cn : ${user.cn}">
-           <dd th:text="${cn}"></dd>
-           </span>
-       </span>
-       <span th:if="${isLdapInetOrgPerson}">
-           <dt>Email</dt>
-           <dd id="email" th:text="${user.mail}"></dd>
-           <dt>Street</dt>
-           <dd id="street" th:text="${user.street}"></dd>
-       </span>
-    </dl>
-```
+[PRE10]
 
 实际需要做的工作只是在我们`header.html`文件中添加一个链接，如下面的代码片段所示：
 
-```java
-    //src/main/resources/templates/fragments/header.html
-
-    <li>
-    <p class="navbar-text">Welcome &nbsp;
- <a id="navMyAccount" th:href="@{/accounts/my}">         <div class="navbar-text" th:text="${#authentication.name}">
-         User</div>
- </a>    </p>
-    </li>
-```
+[PRE11]
 
 我们增加了以下两个用户，您可以使用它们来检查可用数据元素的区别：
 
@@ -530,24 +399,7 @@ LDAP 对多种密码编码算法提供了普遍支持，这些算法从明文到
 
 `PasswordComparisonAuthenticator`接口还支持将用户密码与替代的 LDAP 条目属性进行验证的能力，而不是标准的`userPassword`属性。这非常容易配置，我们可以通过使用明文`telephoneNumber`属性来演示一个简单的例子。按照以下方式更新`SecurityConfig.java`：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Override
-    public void configure(AuthenticationManagerBuilder auth)
-    throws Exception {
-       auth
-         .ldapAuthentication()
-         .userSearchBase("")
-         .userSearchFilter("(uid={0})")
-        .groupSearchBase("ou=Groups")
-         .groupSearchFilter("(uniqueMember={0})")
-         .userDetailsContextMapper(new InetOrgPersonContextMapper())
-         .contextSource(contextSource())
-         .passwordCompare()
-            .passwordAttribute("telephoneNumber");
-    }
-```
+[PRE12]
 
 我们可以重新启动服务器，并尝试使用`hasphone@example.com`作为`username`和`0123456789`作为`password`（电话号码）属性进行登录。
 
@@ -561,34 +413,13 @@ LDAP 对多种密码编码算法提供了普遍支持，这些算法从明文到
 
 我们将修改我们的`AccountController`对象，使其使用`LdapUserDetailsService`接口来获取用户。在这样做之前，请确保删除以下代码片段中的`passwordCompare`方法：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Override
-    public void configure(AuthenticationManagerBuilder auth)
-    throws Exception {
-       auth
-         .ldapAuthentication()
-         .userSearchFilter("(uid={0})")
-         .groupSearchBase("ou=Groups")
-         .userDetailsContextMapper(new InetOrgPersonContextMapper())
-         .contextSource(contextSource());
-    }
-```
+[PRE13]
 
 # 配置 LdapUserDetailsService
 
 将 LDAP 配置为`UserDetailsService`的功能与配置 LDAP`AuthenticationProvider`非常相似。与 JDBC`UserDetailsService`一样，LDAP`UserDetailsService`接口被配置为`<http>`声明的兄弟。请对`SecurityConfig.java`文件进行以下更新：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Bean
-    @Override
-    public UserDetailsService userDetailsService() {
-       return super.userDetailsService();
-   }
-```
+[PRE14]
 
 从功能上讲，`o.s.s.ldap.userdetails.LdapUserDetailsService`的配置几乎与`LdapAuthenticationProvider`完全相同，不同之处在于这里没有尝试使用主体的用户名来绑定 LDAP。相反，`DefaultSpringSecurityContextSource`提供的凭据本身就是参考，用来执行用户查找。
 
@@ -598,28 +429,7 @@ LDAP 对多种密码编码算法提供了普遍支持，这些算法从明文到
 
 现在我们将更新`AccountController`对象，使其使用`LdapDetailsUserDetailsService`接口来查找它显示的用户：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/web/controllers/AccountController.java
-
-    @Controller
-    public class AccountController {
-    private final UserDetailsService userDetailsService;
-    @Autowired
-    public AccountController(UserDetailsService userDetailsService) {
-       this.userDetailsService = userDetailsService;
-    }
-    @RequestMapping("/accounts/my")
-    public String view(Model model) {
-       Authentication authentication = SecurityContextHolder.
-       getContext().getAuthentication();
-       // null check omitted
-       String principalName = authentication.getName();
-       Object principal = userDetailsService.
-       loadUserByUsername(principalName);
-       ...
-    }
-    }
-```
+[PRE15]
 
 显然，这个例子有点傻，但它演示了如何使用`LdapUserDetailsService`。请重新启动应用程序，使用`username`为`admin1@example.com`和`password`为`admin1`来尝试一下。你能弄清楚如何修改控制器以显示任意用户的信息吗？
 
@@ -633,20 +443,7 @@ LDAP 对多种密码编码算法提供了普遍支持，这些算法从明文到
 
 更新 Spring Security 配置以连接到端口`33389`的外部 LDAP 服务器，如下所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Override
-    public void configure(AuthenticationManagerBuilder auth)
-    throws Exception {
-       auth
-        .ldapAuthentication()
-         .userSearchFilter("(uid={0})")
-         .groupSearchBase("ou=Groups")
-         .userDetailsContextMapper(new InetOrgPersonContextMapper())
-         //.contextSource(contextSource())
- .contextSource() .managerDn("uid=admin,ou=system") .managerPassword("secret") .url("ldap://localhost:33389/dc=jbcpcalendar,dc=com");    }
-```
+[PRE16]
 
 这里的主要区别（除了 LDAP URL 之外）在于提供了账户的 DN 和密码。账户（实际上是可选的）应该被允许绑定到目录并在所有相关的 DN 上执行用户和组信息的搜索。这些凭据应用于 LDAP 服务器 URL 后，用于在 LDAP 安全系统中的其余 LDAP 操作。
 
@@ -654,26 +451,7 @@ LDAP 对多种密码编码算法提供了普遍支持，这些算法从明文到
 
 如果你没有可用的 LDAP 服务器并且想尝试一下，可以添加以下代码到你的`SecurityConfig.java`文件中，以此启动我们一直在使用的嵌入式 LDAP 服务器：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Override
-    public void configure(AuthenticationManagerBuilder auth)
-    throws Exception {
-       auth
-         .ldapAuthentication()
-         .userSearchBase("")
-         .userSearchFilter("(uid={0})")
-         .groupSearchBase("ou=Groups")
-         .groupSearchFilter("(uniqueMember={0})")
-         .userDetailsContextMapper(new InetOrgPersonContextMapper())
- .contextSource() .managerDn("uid=admin,ou=system") .managerPassword("secret") .url("ldap://localhost:10389/dc=jbcpcalendar,dc=com") .root("dc=jbcpcalendar,dc=com") .ldif("classpath:/ldif/calendar.ldif")           .and()
-               .passwordCompare()
-                .passwordEncoder(new LdapShaPasswordEncoder())
-                .passwordAttribute("userPassword")
-       ;
-    }
-```
+[PRE17]
 
 如果这还不能让你信服，可以尝试使用 Apache Directory Studio 启动一个 LDAP 服务器，并把它里面的`calendar.ldif`文件导入进去。这样你就可以连接到外部的 LDAP 服务器了。然后重启应用程序，使用`username`为`shauser@example.com`和`password`为`shauser`来尝试这个。
 
@@ -687,19 +465,7 @@ LDAP 对多种密码编码算法提供了普遍支持，这些算法从明文到
 
 为了实现此配置，我们将假设我们有一个本地 LDAP 服务器正在端口`10389`上运行，具有与上一节中提供的`DefaultSpringSecurityContextSource`接口对应的相同配置。所需的 bean 定义已经在`SecurityConfig.java`文件中提供。实际上，为了保持事情简单，我们提供了整个`SecurityConfig.java`文件。请查看以下代码片段中的 LDAP 服务器参考：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Bean
-    public DefaultSpringSecurityContextSource contextSource() {return new    
-    DefaultSpringSecurityContextSource(
-       Arrays.asList("ldap://localhost:10389/"), 
-       "dc=jbcpcalendar,dc=com"){{
-          setUserDn("uid=admin,ou=system");
-          setPassword("secret");
-    }};
-    }
-```
+[PRE18]
 
 接下来，我们需要配置`LdapAuthenticationProvider`，这有点复杂。
 
@@ -715,72 +481,19 @@ LDAP 对多种密码编码算法提供了普遍支持，这些算法从明文到
 
 1.  让我们开始吧-我们首先探索已经配置好的`LdapAuthenticationProvider`接口，如下所示：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/configuration/
-        SecurityConfig.java
-
-        @Bean
-        public LdapAuthenticationProvider authenticationProvider 
-        (BindAuthenticator ba,LdapAuthoritiesPopulator lap,
-         \UserDetailsContextMapper cm){
-            return new LdapAuthenticationProvider(ba, lap){{
-              setUserDetailsContextMapper(cm);
-           }};
-        }
-```
+[PRE19]
 
 1.  下一个为我们提供的 bean 是`BindAuthenticator`，支持`FilterBasedLdapUserSearch`bean 用于在 LDAP 目录中定位用户 DN，如下所示：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/configuration/
-        SecurityConfig.java
-
-        @Bean
-        public BindAuthenticator bindAuthenticator
-        (FilterBasedLdapUserSearch userSearch)
-        {
-            return new BindAuthenticator(contextSource()){{
-               setUserSearch(userSearch);
-           }};
-       }
-        @Bean
-        public FilterBasedLdapUserSearch filterBasedLdapUserSearch(){
-           return new FilterBasedLdapUserSearch("", 
-           //user-search-base "(uid={0})", //user-search-filter
-           contextSource()); //ldapServer
-        }
-```
+[PRE20]
 
 最后，`LdapAuthoritiesPopulator`和`UserDetailsContextMapper`执行我们本章早些时候探讨的角色：
 
-```java
-            //src/main/java/com/packtpub/springsecurity/configuration/
-            SecurityConfig.java
-
-            @Bean
-            public LdapAuthoritiesPopulator authoritiesPopulator(){
-               return new DefaultLdapAuthoritiesPopulator(contextSource(),
-               "ou=Groups"){{
-                  setGroupSearchFilter("(uniqueMember={0})");
-           }};
-        }
-        @Bean
-        public userDetailsContextMapper userDetailsContextMapper(){
-           return new InetOrgPersonContextMapper();
-        }
-```
+[PRE21]
 
 1.  在下一步中，我们必须更新 Spring Security 以使用我们显式配置的`LdapAuthenticationProvider`接口。更新`SecurityConfig.java`文件以使用我们的新配置，确保您删除旧的`ldapAuthentication`方法，如下所示：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/configuration/
-        SecurityConfig.java
-
- @Autowired private LdapAuthenticationProvider authenticationProvider;        @Override
-        public void configure(AuthenticationManagerBuilder auth)
-        throws Exception {
- auth.authenticationProvider(authenticationProvider);        }
-```
+[PRE22]
 
 至此，我们已经使用显式的 Spring bean 表示法完全配置了 LDAP 身份验证。在 LDAP 集成中使用此技术在某些情况下是有用的，例如当安全命名空间不暴露某些配置属性，或者需要提供针对特定业务场景的自定义实现类时。我们将在本章后面探讨这样一个场景，即如何通过 LDAP 连接到 Microsoft AD。
 
@@ -792,42 +505,11 @@ LDAP 对多种密码编码算法提供了普遍支持，这些算法从明文到
 
 一种填充可用于显式 bean 配置的用户角色的技术是实现`UserDetailsService`中按用户名查找用户的支持，并从此来源获取`GrantedAuthority`对象。配置像替换带有`ldapAuthoritiesPopulator` ID 的 bean 一样简单，使用一个更新的`UserDetailsServiceLdapAuthoritiesPopulator`对象，带有对`UserDetailsService`的引用。确保您在`SecurityConfig.java`文件中进行以下更新，并确保您移除之前的`ldapAuthoritiesPopulator`bean 定义：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    //@Bean
-    //public LdapAuthoritiesPopulator authoritiesPopulator(){
-        //return new DefaultLdapAuthoritiesPopulator(contextSource(),
-       //"ou=Groups"){{
-              //setGroupSearchFilter("(uniqueMember={0})");
-        //   }};
-      //}
-    @Bean
-    public LdapAuthoritiesPopulator authoritiesPopulator(
-       UserDetailsService userDetailsService){ 
- return new UserDetailsServiceLdapAuthoritiesPopulator
-         (userDetailsService);
-    }
-```
+[PRE23]
 
 我们还需要确保我们已经定义了`userDetailsService`。为了简单起见，请添加如下所示的内存`UserDetailsService`接口：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Bean
-    @Override
-    public UserDetailsManager userDetailsService() {
-       InMemoryUserDetailsManager manager = new 
-        InMemoryUserDetailsManager();
-       manager.createUser(User.withUsername("user1@example.com")
-       .password("user1").roles("USER").build());
-       manager.createUser(
-           User.withUsername("admin1@example.com")
-               .password("admin1").roles("USER", "ADMIN").build());
-       return manager;
-    }
-```
+[PRE24]
 
 现在您应该能够使用`admin1@example.com`作为`username`和`admin1`作为`password`进行身份验证。当然，我们也可以用这种在内存中的`UserDetailsService`接口替换我们在第四章《基于 JDBC 的认证》和第五章《使用 Spring Data 的认证》中讨论的基于 JDBC 或 JPA 的接口。
 
@@ -851,58 +533,11 @@ LDAP 对多种密码编码算法提供了普遍支持，这些算法从明文到
 
 让我们用最近学到的显式 bean 配置知识来编写一个`LdapAuthoritiesPopulator`的实现，这个实现可以从用户的`memberOf`属性中获取`GrantedAuthority`。在下一节中，你可以找到这个章节示例代码中提供的`ActiveDirectoryLdapAuthoritiesPopulator.java`文件：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/ldap/userdetails/ad/
-    ActiveDirectoryLdapAuthoritiesPopulator.java
-
-    public final class ActiveDirectoryLdapAuthoritiesPopulator
-    implements LdapAuthoritiesPopulator {
-       public Collection<? extends GrantedAuthority>
-         getGrantedAuthorities(DirContextOperations userData, String
-          username) {
-           String[] groups = userData.getStringAttributes("memberOf");
-           List<GrantedAuthority> authorities = new 
-            ArrayList<GrantedAuthority>();
-         for (String group : groups) {
-           LdapRdn authority = new DistinguishedName(group).removeLast();
-           authorities.add(new SimpleGrantedAuthority
-           (authority.getValue()));
-       }
-       return authorities;
-    }
-    }
-```
+[PRE25]
 
 现在，我们需要修改我们的配置以支持我们的 AD 结构。假设我们是从前一部分详细介绍的 bean 配置开始的，做以下更新：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Bean
-    public DefaultSpringSecurityContextSource contextSource() {
-       return new DefaultSpringSecurityContextSource(Arrays.asList
-       ("ldap://corp.jbcpcalendar.com/"), "dc=corp,dc=jbcpcalendar,
-        dc=com"){{     
-             setUserDn("CN=Administrator,CN=Users," +                  
-             "DC=corp,DC=jbcpcalendar,DC=com");
-             setPassword("admin123!");
-       }};
-    }
-    @Bean
-    public LdapAuthenticationProvider authenticationProvider(                                    
-    BindAuthenticator ba, LdapAuthoritiesPopulator lap){
-       // removed UserDetailsContextMapper
-       return new LdapAuthenticationProvider(ba, lap);
-    }
-    @Bean
-    public FilterBasedLdapUserSearch filterBasedLdapUserSearch(){
-       return new FilterBasedLdapUserSearch("CN=Users", //user-search-base
- "(sAMAccountName={0})", //user-search-filter       contextSource()); //ldapServer
-    }
-    @Bean
-    public LdapAuthoritiesPopulator authoritiesPopulator(){
- return new ActiveDirectoryLdapAuthoritiesPopulator();    }
-```
+[PRE26]
 
 如果你定义了它，你将希望在`SecurityConfig.java`文件中删除`UserDetailsService`声明。最后，你还需要从`AccountController`中删除对`UserDetailsService`的引用。
 
@@ -914,31 +549,11 @@ LDAP 对多种密码编码算法提供了普遍支持，这些算法从明文到
 
 Spring Security 在 Spring Security 3.1 中增加了 AD 支持。事实上，前一部分的`ActiveDirectoryLdapAuthoritiesPopulator`类就是基于新增加的支持。为了使用 Spring Security 4.2 中的内置支持，我们可以用以下配置替换我们的整个`SecurityConfig.java`文件：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Bean
-    public AuthenticationProvider authenticationProvider(){
- ActiveDirectoryLdapAuthenticationProvider ap = new 
-       ActiveDirectoryLdapAuthenticationProvider("corp.jbcpcalendar.com",
-       "ldap://corp.jbcpcalendar.com/");
- ap.setConvertSubErrorCodesToExceptions(true);       return ap;
-    }
-```
+[PRE27]
 
 当然，如果你打算使用它，你需要确保将其连接到`AuthenticationManager`。我们已经完成了这一点，但你可以在以下代码片段中找到配置的样子：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Autowired
-    private AuthenticationProvider authenticationProvider;
-    @Override
-    public void configure(AuthenticationManagerBuilder auth)
-    throws Exception {
-       auth.authenticationProvider(authenticationProvider);
-   }
-```
+[PRE28]
 
 关于提供的`ActiveDirectoryLdapAuthenticationProvider`类，以下几点需要注意：
 

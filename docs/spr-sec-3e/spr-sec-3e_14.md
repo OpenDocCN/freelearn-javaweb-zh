@@ -18,10 +18,7 @@
 
 因为我们正在使用配置命名空间的风格，会话固定保护已经为我们配置好了。如果我们想要显式配置它以反映默认设置，我们会这样做：
 
-```java
-    http.sessionManagement()
-    .sessionFixation().migrateSession();
-```
+[PRE0]
 
 **会话固定保护**是框架的一个特性，除非你试图充当恶意用户，否则你很可能会注意到它。我们将向你展示如何模拟一个会话窃取攻击；在我们这样做之前，了解会话固定做什么以及它防止的攻击类型是很重要的。
 
@@ -59,12 +56,7 @@
 
 让我们来看一下以下的代码片段：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/
-    SecurityConfig.java
-
-    http.sessionManagement().sessionFixation().none();
-```
+[PRE1]
 
 你的代码现在应该看起来像`chapter14.01-calendar`。
 
@@ -116,24 +108,11 @@
 
 1.  首先，你按照如下方式更新你的`security.xml`文件：
 
-```java
-        // src/main/java/com/packtpub/springsecurity/configuration/
-        SecurityConfig.java
-
-        http.sessionManagement().maximumSessions(1)
-```
+[PRE2]
 
 1.  接下来，我们需要在`SecurityConfig.java`部署描述符中启用`o.s.s.web.session.HttpSessionEventPublisher`，以便 Servlet 容器将通过`HttpSessionEventPublisher`通知 Spring Security 关于会话生命周期事件，如下所示：
 
-```java
-        // src/main/java/com/packtpub/springsecurity/configuration/ 
-        SecurityConfig.java
-
-        @Bean
-        public HttpSessionEventPublisher httpSessionEventPublisher() {
-            return new HttpSessionEventPublisher();
-        }
-```
+[PRE3]
 
 有了这两个配置项，并发会话控制现在将被激活。让我们看看它实际做了什么，然后我们将展示如何测试它。
 
@@ -175,27 +154,11 @@
 
 幸运的是，有一个简单的方法可以将用户重定向到一个友好的页面（通常是登录页面），当他们在并发会话控制中被标记时-只需指定`expired-url`属性，并将其设置为应用程序中的有效页面。如下更新你的`security.xml`文件：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    http.sessionManagement()
-    .maximumSessions(1)
- .expiredUrl("/login/form?expired")    ;
-```
+[PRE4]
 
 在我们的应用程序的情况下，这将把用户重定向到标准的登录表单。然后我们将使用查询参数来显示一个友好的消息，表明我们确定他们有多个活动会话，应该重新登录。更新你的`login.html`页面，使用此参数来显示我们的消息：
 
-```java
-    //src/main/resources/templates/login.html
-
-    ...
-    <div th:if="${param.expired != null}" class="alert alert-success">
-    <strong>Session Expired</strong>
-   <span>You have been forcibly logged out due to multiplesessions 
-   on the same account (only one activesession per user is allowed).</span>
-   </div>
-    <label for="username">Username</label>
-```
+[PRE5]
 
 然后尝试通过在 Google Chrome 和 Firefox 中分别以`admin1@example.com`/`admin1`的身份登录用户。这次，你应该会看到一个带有自定义错误消息的登录页面。
 
@@ -215,14 +178,7 @@
 
 Spring Security 还可以阻止用户如果已经有一个会话的情况下登录到应用程序。这意味着，Spring Security 不是强制原始用户登出，而是阻止第二个用户登录。配置更改如下所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    http.sessionManagement()
-    .maximumSessions(1)
-    .expiredUrl("/login/form?expired")
- .maxSessionsPreventsLogin(true);
-```
+[PRE6]
 
 进行更新后，使用 Google Chrome 登录日历应用程序。现在，尝试使用相同的用户名尝试使用 Firefox 登录日历应用程序。你应该会看到我们自定义的错误信息，来自我们的`login.html`文件。
 
@@ -238,28 +194,11 @@ Spring Security 还可以阻止用户如果已经有一个会话的情况下登�
 
 1.  即使你不想启用并发会话控制，你也可以这样做。只需将`maximumSessions`设置为`-1`，会话跟踪将保持启用，尽管不会强制执行最大值。相反，我们将使用本章`SessionConfig.java`文件中提供的显式 bean 配置，如下所示：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/configuration/
-        SessionConfig.java
-
-        @Bean
-        public SessionRegistry sessionRegistry(){
-         return new SessionRegistryImpl();
-        }
-```
+[PRE7]
 
 1.  我们已经将`SessionConfig.java`文件的导入添加到了`SecurityConfig.java`文件中。所以，我们只需要在我们的`SecurityConfig.java`文件中引用自定义配置。用以下代码片段替换当前的`sessionManagement`和`maximumSessions`配置：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/configuration/
-        SecurityConfig.java
-
-        http.sessionManagement()
-        .maximumSessions(-1)
-        .sessionRegistry(sessionRegistry)
-        .expiredUrl("/login/form?expired")
-        .maxSessionsPreventsLogin(true);
-```
+[PRE8]
 
 你的代码现在应该看起来像`chapter14.05-calendar`。
 
@@ -269,60 +208,13 @@ Spring Security 还可以阻止用户如果已经有一个会话的情况下登�
 
 你可能已经看到过许多网站允许用户查看和强制登出他们账户的会话。我们可以很容易地利用这个强制登出功能来完成同样的操作。我们已经提供了`UserSessionController`，它获取当前登录用户的活动会话。你可以看到实现如下：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/web/controllers/
-    UserSessionController.java
+[PRE9]
 
-    @Controller
-    public class UserSessionController {
-     private final SessionRegistry sessionRegistry;
-    @Autowired
-     public UserSessionController(SessionRegistry sessionRegistry) {
-      this.sessionRegistry = sessionRegistry;
-    }
-      @GetMapping("/user/sessions/")
-    public String sessions(Authentication authentication, ModelMap model) {
-    List<SessionInformation> sessions = sessionRegistry.getAllSessions
-    (authentication.getPrincipal(), false);
-    model.put("sessions", sessions);
-      return "user/sessions";
-     }
-      @DeleteMapping(value="/user/sessions/{sessionId}")
-     public String removeSession(@PathVariable String sessionId,
-      RedirectAttributes redirectAttrs) {
-    SessionInformation sessionInformation = sessionRegistry.
-    getSessionInformation(sessionId);
-    if(sessionInformation != null) {
-       sessionInformation.expireNow();
-    }
-```
-
-```java
-       redirectAttrs.addFlashAttribute("message", "Session was removed");
-       return "redirect:/user/sessions/";
-       }
-    }
-```
+[PRE10]
 
 我们的会话方法将使用 Spring MVC 自动获取当前的 Spring Security `Authentication`。如果我们没有使用 Spring MVC，我们也可以从`SecurityContextHolder`获取当前的`Authentication`，如在第三章中*自定义认证*所讨论的。然后使用主体来获取当前用户的所有`SessionInformation`对象。通过遍历我们`sessions.html`文件中的`SessionInformation`对象，如下所示，轻松显示信息：
 
-```java
-//src/main/resources/templates/sessions.html
-
-...
-<tr th:each="session : ${sessions}">
-<td th:text="${#calendars.format(session.lastRequest, 'yyyy-MM-dd HH:mm')}">
-</td>
-<td th:text="${session.sessionId}"></td>
-<td>
-<form action="#" th:action="@{'/user/sessions/{id}'(id=${session.sessionId})}"
-th:method="delete" cssClass="form-horizontal">
-<input type="submit" value="Delete" class="btn"/>
-</form>
-</td>
-</tr>
-...
-```
+[PRE11]
 
 现在你可以安全地启动 JBCP 日历应用程序，并使用`user1@example.com`/`user1`在 Google Chrome 中登录。然后，使用 Firefox 登录，并点击右上角的`user1@example.com`链接。接下来，您将在显示上看到两个会话列表，如下面的屏幕截图所示：
 
@@ -377,43 +269,19 @@ Spring Security 有能力配置何时由 Spring Security 创建会话。这可�
 
 1.  更新你的`SecurityConfig.java`文件，使其会话策略为`NEVER`。同时，在`@EnableWebSecurity`注解上添加`debug`标志为`true`，这样我们就可以追踪会话是在何时创建的。更新如下所示：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/configuration/
-        SecurityConfig.java
-
-       @Configuration
-        @Enable WebSecurity(debug = true)
-        public class SecurityConfig extends WebSecurityConfigurerAdapter {
-           ...
-          http.sessionManagement()
-         .sessionCreationPolicy(SessionCreationPolicy.NEVER);
-```
+[PRE12]
 
 1.  启动应用程序时，你应该会看到类似以下代码写入标准输出。如果你还没有做，确保你已经为 Spring Security 调试器类别启用日志记录：
 
-```java
-            ********************************************************************  
-            **********       Security debugging is enabled.             *************
-            **********   This may include sensitive information.     *************
-            **********     Do not use in a production system!         *************
-            ********************************************************************
-```
+[PRE13]
 
 1.  现在，清除你的 cookies（这可以在 Firefox 中通过*Shift* + *Ctrl* + *Delete*完成），启动应用程序，直接导航到`http://localhost:8080`。当我们像章节早期那样查看 cookies 时，我们可以看到尽管我们声明 Spring Security 不应该创建`HttpSession`，但`JSESSIONID`仍然被创建了。再次查看日志，你会看到创建`HttpSession`的代码调用栈如下：
 
-```java
-            ************************************************************
-            2017-07-25 18:02:31.802 INFO 71368 --- [nio-8080-exec-1] 
-            Spring Security Debugger                 :
-            ************************************************************
-            New HTTP session created: 2A708D1C3AAD508160E6189B69D716DB
-```
+[PRE14]
 
 1.  在这个实例中，我们的 JSP 页面负责创建新的`HttpSession`方法。实际上，所有 JSP 默认都会创建新的`HttpSession`方法，除非你在每个 JSP 文件的顶部包含以下代码：
 
-```java
-        <%@ page session="false" %>
-```
+[PRE15]
 
 `DebugFilter`还有许多其他用途，我们鼓励你自己去探索，例如，确定一个请求将匹配特定的 URL，哪些 Spring Security 过滤器被调用等等。
 

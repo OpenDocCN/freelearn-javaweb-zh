@@ -62,76 +62,21 @@
 
 1.  为了使用 OAuth，我们需要包含特定提供者的依赖及其传递依赖。这可以通过更新`build.gradle`文件在 Gradle 中完成，如下代码片段所示：
 
-```java
-        //build.gradle
-
-        compile("org.springframework.boot:spring-boot-starter-
-        social-facebook")
-        compile("org.springframework.boot:spring-boot-starter-
-        social-linkedin")
-        compile("org.springframework.boot:spring-boot-starter-
-        social-twitter")
-```
+[PRE0]
 
 1.  使用 Spring Boot 包括了对 Facebook、Twitter 和 LinkedIn 启动依赖的引用，如前文代码片段所示。要添加其他提供者，我们必须包含提供者的依赖并指定版本。这可以通过更新`build.gradle`文件在 Gradle 中完成，如下代码片段所示：
 
-```java
-        //build.gradle
-
-        compile("org.springframework.social:spring-social-google:
-        latest.release ")
-        compile("org.springframework.social:spring-social-github:
-        latest.release ")
-        compile("org.springframework.social:spring-social-linkedin:
-        latest.release ")
-```
+[PRE1]
 
 你应该从`chapter09.00-calendar`的源代码开始。
 
 1.  当编写 OAuth 登录表单时，我们需要将`username`和`password`字段替换为 OAuth 字段。现在请对您的`login.html`文件进行以下更新：
 
-```java
-        //src/main/resources/templates/login.html
-
-         <div class="form-actions">
-            <input id="submit" class="btn" name="submit" type="submit" 
-            value="Login"/>
-           </div>
-         </form>
-       <br/>
-         <h3>Social Login</h3>
-       <br />
-        <form th:action="@{/signin/twitter}" method="POST"
-        class="form-horizontal">
-         <input type="hidden" name="scope" value="public_profile" />
-        <div class="form-actions">
-        <input id="twitter-submit" class="btn" type="submit" 
-        value="Login using  
-        Twitter"/>
-         </div>
-        </form>
-       </div>
-```
+[PRE2]
 
 1.  我们可以对注册表单进行类似的编辑，如下代码片段所示：
 
-```java
-         //src/main/resources/templates/signup/form.html
-
-        </fieldset>
-        </form>
-         <br/>
-           <h3>Social Login</h3>
-         <br/>
- <form th:action="@{/signin/twitter}" method="POST" 
-           class="form-horizontal">
- <input type="hidden" name="scope" value="public_profile" />        <div class="form-actions">
-         <input id="twitter-submit" class="btn" type="submit" 
-         value="Login using Twitter"/>
-        </div>
-        </form>
-         </div>
-```
+[PRE3]
 
 你会注意到我们已经添加了一个范围字段来定义我们在认证过程中感兴趣的 OAuth 2 详细信息。
 
@@ -149,86 +94,17 @@
 
 `UsersConnectionRepository`接口是用于管理用户与服务提供商连接的全球存储的数据访问接口。它提供了适用于多个用户记录的数据访问操作，如下代码片段所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SocialConfig.java
-
-    @Autowired
-
-    private UsersConnectionRepository usersConnectionRepository;
-
-    @Autowired
-
-     private ProviderConnectionSignup providerConnectionSignup;
-
-    @Bean
-
-    public ProviderSignInController providerSignInController() {
-
-       ((JdbcUsersConnectionRepository) usersConnectionRepository)
-
-       .setConnectionSignUp(providerConnectionSignup);
-
-       ...
-
-    }
-
-```
+[PRE4]
 
 # 为提供商详情创建本地数据库条目
 
 Spring Security 提供了支持，将提供者详情保存到一组单独的数据库表中，以防我们想在本地数据存储中保存用户，但不想将那些数据包含在现有的`User`表中：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/
-    SocialDatabasePopulator.java
-
-    @Component
-    public class SocialDatabasePopulator
-    implements InitializingBean {
-       private final DataSource dataSource;
-       @Autowired
-    public SocialDatabasePopulator(final DataSource dataSource) {
-    this.dataSource = dataSource;
-     }
-    @Override
-    public void afterPropertiesSet() throws Exception {
-       ClassPathResource resource = new ClassPathResource(
-       "org/springframework/social/connect/jdbc/
-       JdbcUsersConnectionRepository.sql");
-       executeSql(resource);
-     }
-    private void executeSql(final Resource resource) {
-     ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-     populator.setContinueOnError(true);
-     populator.addScript(resource);
-     DatabasePopulatorUtils.execute(populator, dataSource);
-     }
-  }
-```
+[PRE5]
 
 这个`InitializingBean`接口在加载时执行，并将执行位于类路径中的`spring-social-core-[VERSION].jar`文件内的`JdbcUsersConnectionRepository.sql`，将以下模式种子到我们的本地数据库中：
 
-```java
-    spring-social-core-  [VERSION].jar#org/springframework/social/connect/jdbc/
-    JdbcUsersConnectionRepository.sql
-
-    create table UserConnection(
-      userId varchar(255) not null,
-      providerId varchar(255) not null,
-      providerUserId varchar(255),
-      rank int not null,
-      displayName varchar(255),
-      profileUrl varchar(512),
-      imageUrl varchar(512),
-      accessToken varchar(512) not null,
-      secret varchar(512),
-      refreshToken varchar(512),
-      expireTime bigint,
-      primary key (userId, providerId, providerUserId));
-
-      create unique index UserConnectionRank on UserConnection(userId, providerId,  
-      rank);
-```
+[PRE6]
 
 现在我们已经有一个表来存储提供者详情，我们可以配置`ConnectionRepository`在运行时保存提供者详情。
 
@@ -236,48 +112,7 @@ Spring Security 提供了支持，将提供者详情保存到一组单独的数�
 
 我们需要创建一个`UserConnectionRepository`接口，我们可以利用`JdbcUsersConnectionRepository`作为实现，它是基于我们加载时生成的`JdbcUsersConnectionRepository.sql`模式：
 
-```java
-      //src/main/java/com/packtpub/springsecurity/configuration/
-
-      DatabaseSocialConfigurer.java
-
-      public class DatabaseSocialConfigurer extends SocialConfigurerAdapter {
-
-        private final DataSource dataSource;
-
-        public DatabaseSocialConfigurer(DataSource dataSource) {
-
-         this.dataSource = dataSource;
-
-       }
-
-      @Override
-
-      public UsersConnectionRepository getUsersConnectionRepository(
-
-      ConnectionFactoryLocator connectionFactoryLocator) {
-
-          TextEncryptor textEncryptor = Encryptors.noOpText();
-
-          return new JdbcUsersConnectionRepository(
-
-          dataSource, connectionFactoryLocator, textEncryptor);
-
-     }
-
-      @Override
-
-     public void addConnectionFactories(ConnectionFactoryConfigurer config,
-
-     Environment env) {
-
-          super.addConnectionFactories(config, env);
-
-       }
-
-   }
-
-```
+[PRE7]
 
 现在，每次用户连接到注册的提供者时，连接详情将被保存到我们的本地数据库中。
 
@@ -285,71 +120,19 @@ Spring Security 提供了支持，将提供者详情保存到一组单独的数�
 
 为了将提供者详情保存到本地存储库，我们创建了一个`ConnectionSignup`对象，这是一个命令，在无法从`Connection`映射出`userid`的情况下注册新用户，允许在提供者登录尝试期间从连接数据隐式创建本地用户配置文件：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/authentication/
-    ProviderConnectionSignup.java
-
-    @Service
-     public class ProviderConnectionSignup implements ConnectionSignUp {
-        ...; 
-    @Override
-    public String execute(Connection<?> connection) {
-       ...
-     }
-    }
-```
+[PRE8]
 
 # 执行 OAuth 2 提供商连接工作流
 
 为了保存提供者详情，我们需要从提供者获取可用细节，这些细节通过 OAuth 2 连接可用。接下来，我们从可用细节创建一个`CalendarUser`表。注意我们需要至少创建一个`GrantedAuthority`角色。在这里，我们使用了`CalendarUserAuthorityUtils#createAuthorities`来创建`ROLE_USER` `GrantedAuthority`：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/authentication/
-    ProviderConnectionSignup.java
-
-    @Service
-    public class ProviderConnectionSignup implements ConnectionSignUp {
-         ...
-    @Override
-    public String execute(Connection<?> connection) {
-        UserProfile profile = connection.fetchUserProfile();
-        CalendarUser user = new CalendarUser();
-        if(profile.getEmail() != null){
-             user.setEmail(profile.getEmail());
-          }
-        else if(profile.getUsername() != null){
-             user.setEmail(profile.getUsername());
-         }
-        else {
-             user.setEmail(connection.getDisplayName());
-         }
-             user.setFirstName(profile.getFirstName());
-             user.setLastName(profile.getLastName());
-             user.setPassword(randomAlphabetic(32));
-             CalendarUserAuthorityUtils.createAuthorities(user);
-             ...
-         }
-      }
-
-```
+[PRE9]
 
 # 添加 OAuth 2 用户
 
 既然我们已经从我们的提供者详情中创建了`CalendarUser`，我们需要使用`CalendarUserDao`将那个`User`账户保存到我们的数据库中。然后我们返回`CalendarUser`的电子邮件，因为这是我们一直在 JBCP 日历中使用的用户名：
 
-```java
-//src/main/java/com/packtpub/springsecurity/authentication/
-ProviderConnectionSignup.java
-
-@Service
-public class ProviderConnectionSignup
-implements ConnectionSignUp {
- @Autowired private CalendarUserDao calendarUserDao;  @Override
- public String execute(Connection<?> connection) {...
-calendarUserDao.createUser(user); return user.getEmail();
-   }
-}
-```
+[PRE10]
 
 现在，我们已经根据提供者详情在数据库中创建了一个本地`User`账户。
 
@@ -361,18 +144,7 @@ calendarUserDao.createUser(user); return user.getEmail();
 
 `ServiceLocator`接口用于创建`ConnectionFactory`实例。此工厂支持通过`providerId`和`apiType`查找，基于 Spring Boot 的`AutoConfiguration`中包含的服务提供商：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SocialConfig.java
-
-    @Autowired
-    private ConnectionFactoryLocator connectionFactoryLocator;
-    @Bean
-    public ProviderSignInController providerSignInController() {
-        ...
-        return new ProviderSignInController(connectionFactoryLocator,
-        usersConnectionRepository, authSignInAdapter());
-    }
-```
+[PRE11]
 
 这将允许拦截特定提供商`uri`的提交，并开始 OAuth 2 连接流程。
 
@@ -382,61 +154,15 @@ calendarUserDao.createUser(user); return user.getEmail();
 
 1.  `ProviderSignInController`控制器使用一个认证`SignInAdapter`进行初始化，该适配器用于通过使用指定 ID 登录本地用户账户来完成提供商登录尝试：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/configuration/
-        SocialConfig.java
-
-        @Bean
-        public SignInAdapter authSignInAdapter() {
-           return (userId, connection, request) -> {
-             SocialAuthenticationUtils.authenticate(connection);
-             return null;
-           };
-         }
-```
+[PRE12]
 
 1.  在前面的代码片段中，在`SingInAdapter`bean 中，我们使用了一个自定义认证工具方法，以`UsernamePasswordAuthenticationToken`的形式创建了一个`Authentication`对象，并基于 OAuth 2 提供商返回的详情将其添加到`SecurityContext`中：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/authentication/
-        SocialAuthenticationUtils.java
-
-        public class SocialAuthenticationUtils {
-       public static void authenticate(Connection<?> connection) {
-         UserProfile profile = connection.fetchUserProfile();
-         CalendarUser user = new CalendarUser();
-         if(profile.getEmail() != null){
-             user.setEmail(profile.getEmail());
-           }
-         else if(profile.getUsername() != null){
-             user.setEmail(profile.getUsername());
-          }
-         else {
-             user.setEmail(connection.getDisplayName());
-           }
-             user.setFirstName(profile.getFirstName());
-             user.setLastName(profile.getLastName());
-             UsernamePasswordAuthenticationToken authentication = new  
-             UsernamePasswordAuthenticationToken(user, null,        
-             CalendarUserAuthorityUtils.createAuthorities(user));
-             SecurityContextHolder.getContext()
-             .setAuthentication(authentication);
-           }
-        }
-```
+[PRE13]
 
 连接到提供商所需的最详细信息是创建提供商应用时获得的应用程序 ID 和密钥：
 
-```java
-        //src/main/resources/application.yml:
-
-        spring
-        ## Social Configuration:
-        social:
-        twitter:
- appId: cgceheRX6a8EAE74JUeiRi8jZ
- appSecret: XR0J2N0Inzy2y2poxzot9oSAaE6MIOs4QHSWzT8dyeZaaeawep
-```
+[PRE14]
 
 1.  现在我们有了连接到 Twitter JBCP 日历所需的所有详细信息，我们可以启动 JBCP 日历并使用 Twitter 提供商登录。
 
@@ -500,95 +226,21 @@ calendarUserDao.createUser(user); return user.getEmail();
 
 1.  对每个提供者，我们需要在我们的`build.gradle`文件中包括提供者依赖项，如下所示：
 
-```java
-        //build.gradle
-
-        dependencies {
-          ...
-          compile("org.springframework.social:spring-social-google:
-          ${springSocialGoogleVersion}")
-          compile("org.springframework.social:spring-social-github:
-          ${springSocialGithubVersion}")
-        }
-```
+[PRE15]
 
 1.  接下来，我们将使用以下为每个提供者的`appId`和`appSecret`键将提供者注册到 JBCP 日历应用程序：
 
-```java
-        //src/main/resources/application.yml
-
-        spring:
-          social:
-            # Google
- google:
- appId: 947438796602-uiob88a5kg1j9mcljfmk00quok7rphib.apps.
-                 googleusercontent.com
- appSecret: lpYZpF2IUgNXyXdZn-zY3gpR
-           # Github
- github:
- appId: 71649b756d29b5a2fc84
- appSecret: 4335dcc0131ed62d757cc63e2fdc1be09c38abbf
-```
+[PRE16]
 
 1.  每个新提供者必须通过添加相应的`ConnectionFactory`接口进行注册。我们可以为每个新提供者添加一个新的`ConnectionFactory`条目到自定义的`DatabaseSocialConfigurer.java`文件中，如下所示：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/configuration/
-        DatabaseSocialConfigurer.java
+[PRE17]
 
-        public class DatabaseSocialConfigurer 
-        extends SocialConfigurerAdapter {
-           ...
-        @Override
-        public void addConnectionFactories(
-        ConnectionFactoryConfigurer config, Environment env) {
-               super.addConnectionFactories(config, env);
-
-            // Adding GitHub Connection with properties
-           // from application.yml
- config.addConnectionFactory(
- new GitHubConnectionFactory(
- env.getProperty("spring.social.github.appId"),
- env.getProperty("spring.social.github.appSecret")));
-          // Adding Google Connection with properties
-```
-
-```java
-         // from application.yml
- config.addConnectionFactory(
- new GoogleConnectionFactory(
- env.getProperty("spring.social.google.appId"),
- env.getProperty("spring.social.google.appSecret")));
-             }
-         }
-```
+[PRE18]
 
 1.  现在我们可以将新的登录选项添加到我们的`login.html`文件和`form.html`注册页面，为每个新提供者包括一个新的`<form>`标签：
 
-```java
-        //src/main/resources/templates/login.html
-
-        <h3>Social Login</h3>
-        ...
- <form th:action="@{/signin/google}" method="POST"        class="form-horizontal">
-        <input type="hidden" name="scope" value="profile" />
-        <div class="form-actions">
-           <input id="google-submit" class="btn" type="submit" 
-           value="Login using  
-           Google"/>
-        </div>
-      </form>
-     <br />
-
- <form th:action="@{/signin/github}" method="POST"       class="form-horizontal">
-       <input type="hidden" name="scope" value="public_profile" />
-       <div class="form-actions">
-         <input id="github-submit" class="btn" type="submit"
-         value="Login using  
-         Github"/>
-       </div>
-     </form&gt;
-```
+[PRE19]
 
 1.  现在，我们有了连接到 JBCP 日历额外提供者的所需详细信息。我们可以重新启动 JBCP 日历应用程序，并尝试使用额外的 OAuth 2.0 提供商登录。现在登录时，我们应该会看到额外的提供商选项，如下面的屏幕截图所示：
 

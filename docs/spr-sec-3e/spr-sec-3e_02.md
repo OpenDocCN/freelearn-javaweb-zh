@@ -36,18 +36,7 @@
 
 让我们看一下以下的代码片段：
 
-```java
-    build.gradle:
-    dependencies {
-        compile "org.springframework.security:spring-security-  
-        config:${springSecurityVersion}"
-        compile "org.springframework.security:spring-security- 
-        core:${springSecurityVersion}"
-        compile "org.springframework.security:spring-security- 
-        web:${springSecurityVersion}"
-        ...
-    }
-```
+[PRE0]
 
 # 使用 Spring 4.3 和 Spring Security 4.2
 
@@ -55,18 +44,7 @@ Spring 4.2 是一致使用的。我们提供的示例应用程序展示了前一
 
 在下面的代码中，我们展示了添加到 Gradle `build.gradle`文件的一个示例片段，以利用 Gradle 的依赖管理功能；这确保了整个应用程序中使用正确的 Spring 版本。我们将利用 Spring IO **物料清单**（**BOM**）依赖，这将确保通过 BOM 导入的所有依赖版本正确地一起工作：
 
-```java
-    build.gradle
-    // Spring Security IO with ensures correct Springframework versions
-    dependencyManagement {
-         imports {
-            mavenBom 'io.spring.platform:platform-bom:Brussels-${springIoVersion}'
-        }
-    }
-    dependencies {
-        ...
-    }
-```
+[PRE1]
 
 如果您正在使用 Spring Tool Suite，每次更新`build.gradle`文件时，请确保您右键点击项目，导航到 Gradle | 刷新 Gradle 项目，并选择确定以更新所有依赖项。
 
@@ -78,32 +56,7 @@ Spring 4.2 是一致使用的。我们提供的示例应用程序展示了前一
 
 在`src/main/java/com/packtpub/springsecurity/configuration/`目录下创建一个新的 Java 文件，命名为`SecurityConfig.java`，并包含以下内容。此文件展示了我们应用程序中每个页面对用户登录的要求，提供了一个登录页面，对用户进行了身份验证，并要求登录的用户对每个 URL 元素关联一个名为`USER`的角色：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/
-    SecurityConfig.java
-
-    @Configuration
-    @EnableWebSecurity
-    public class SecurityConfig extends WebSecurityConfigurerAdapter {
-        @Override
-        public void configure(final AuthenticationManagerBuilder auth) throws Exception     
-        {
-            auth.inMemoryAuthentication().withUser("user1@example.com")
-            .password("user1").roles("USER");
-        }
-        @Override
-        protected void configure(final HttpSecurity http) throws Exception {
-            http.authorizeRequests()
-                    .antMatchers("/**").access("hasRole('USER')")
-                    // equivalent to <http auto-config="true">
-                    .and().formLogin()
-                    .and().httpBasic()
-                    .and().logout()
-                    // CSRF is enabled by default (will discuss later)
-                    .and().csrf().disable();
-        }
-    }
-```
+[PRE2]
 
 如果你使用的是 Spring Tool Suite，你可以通过按 *F3* 轻松查看 `WebSecurityConfigurerAdapter`。记住，下一个检查点（`chapter02.01-calendar`）有一个可行的解决方案，所以文件也可以从那里复制。
 
@@ -125,19 +78,7 @@ Spring 4.2 是一致使用的。我们提供的示例应用程序展示了前一
 
 更新`web.xml`文件的第一步是删除它，并用`javax.servlet.ServletContainerInitializer`替换它，这是 Servlet 3.0+初始化的首选方法。Spring MVC 提供了`o.s.w.WebApplicationInitializer`接口，利用这一机制。在 Spring MVC 中，首选的方法是扩展`o.s.w.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer`。`WebApplicationInitializer`类是多态的`o.s.w.context.AbstractContextLoaderInitializer`，并使用抽象的`createRootApplicationContext()`方法创建一个根`ApplicationContext`，然后将其委托给`ContextLoaderListener`，后者注册在`ServletContext`实例中，如下代码片段所示：
 
-```java
-    //src/main/java/c/p/s/web/configuration/WebAppInitializer
-
-    public class WebAppInitializer extends   
-    AbstractAnnotationConfigDispatcherServletInitializer {
-        @Override
-        protected Class<?>[] getRootConfigClasses() {
-            return new Class[] { JavaConfig.class, SecurityConfig.class,    
-            DataSourceConfig.class };
-        }
-        ...
-    }
-```
+[PRE3]
 
 更新后的配置现在将从此 WAR 文件的类路径中加载`SecurityConfig.class`。
 
@@ -145,25 +86,7 @@ Spring 4.2 是一致使用的。我们提供的示例应用程序展示了前一
 
 `o.s.web.servlet.DispatcherServlet`接口指定了通过`getServletConfigClasses()`方法独立加载的配置类：
 
-```java
-    //src/main/java/c/p/s/web/configuration/WebAppInitializer
-
-    public class WebAppInitializer extends     
-    AbstractAnnotationConfigDispatcherServletInitializer {
-        ...
-        @Override
-        protected Class<?>[] getServletConfigClasses() {
-            return new Class[] { WebMvcConfig.class };
-        }
-        ...
-        @Override
-        public void onStartup(final ServletContext servletContext) throws  
-        ServletException {
-            // Registers DispatcherServlet
-            super.onStartup(servletContext);
-        }
-    }
-```
+[PRE4]
 
 `DispatcherServlet`类创建了`o.s.context.ApplicationContext`，它是根`ApplicationContext`接口的子接口。通常，Spring MVC 特定组件是在`DispatcherServlet`的`ApplicationContext`接口中初始化的，而其余的则是由`ContextLoaderListener`加载的。重要的是要知道，子`ApplicationContext`中的 Bean（如由`DispatcherServlet`创建的）可以引用父`ApplicationContext`中的 Bean（如由`ContextLoaderListener`创建的），但父`ApplicationContext`接口不能引用子`ApplicationContext`中的 Bean。
 
@@ -177,17 +100,7 @@ Spring 4.2 是一致使用的。我们提供的示例应用程序展示了前一
 
 下一步是配置`springSecurityFilterChain`以拦截所有请求，通过创建`AbstractSecurityWebApplicationInitializer`的实现。确保`springSecurityFilterChain`首先声明至关重要，以确保在调用任何其他逻辑之前请求是安全的。为了确保`springSecurityFilterChain`首先加载，我们可以使用如下配置中的`@Order(1)`：
 
-```java
-    //src/main/java/c/p/s/web/configuration/SecurityWebAppInitializer
-
-    @Order(1)
-    public class SecurityWebAppInitializer extends     
- AbstractSecurityWebApplicationInitializer {
-        public SecurityWebAppInitializer() {
-            super();
-        }
-    }
-```
+[PRE5]
 
 `SecurityWebAppInitializer`类将自动为应用程序中的每个 URL 注册`springSecurityFilterChain`过滤器，并将添加`ContextLoaderListener`，后者加载`SecurityConfig`。
 
@@ -195,36 +108,13 @@ Spring 4.2 是一致使用的。我们提供的示例应用程序展示了前一
 
 `o.s.web.filter.DelegatingFilterProxy`类是 Spring Web 提供的 Servlet 过滤器，它将所有工作委派给`ApplicationContext`根目录下的一个 Spring bean，该 bean 必须实现`javax.servlet.Filter`。由于默认情况下是通过名称查找 bean，使用`<filter-name>`值，我们必须确保我们使用`springSecurityFilterChain`作为`<filter-name>`的值。我们可以在以下代码片段中找到`o.s.web.filter.DelegatingFilterProxy`类对于我们`web.xml`文件的工作伪代码：
 
-```java
-    public class DelegatingFilterProxy implements Filter {
-      void doFilter(request, response, filterChain) {
-        Filter delegate = applicationContet.getBean("springSecurityFilterChain")
-        delegate.doFilter(request,response,filterChain);
-      }
-    }
-```
+[PRE6]
 
 # `FilterChainProxy`类
 
 当与 Spring Security 一起使用时，`o.s.web.filter.DelegatingFilterProxy`将委派给 Spring Security 的`o.s.s.web.FilterChainProxy`接口，该接口是在我们的最小`security.xml`文件中创建的。`FilterChainProxy`类允许 Spring Security 条件性地将任意数量的 Servlet 过滤器应用于 Servlet 请求。我们将在书的其余部分了解更多关于 Spring Security 过滤器的内容，以及它们在确保我们的应用程序得到适当保护方面的作用。`FilterChainProxy`的工作伪代码如下：
 
-```java
-    public class FilterChainProxy implements Filter {
-  void doFilter(request, response, filterChain) {
-    // lookup all the Filters for this request
-    List<Filter> delegates =       lookupDelegates(request,response)
-    // invoke each filter unless the delegate decided to stop
-    for delegate in delegates {
-      if continue processing
-        delegate.doFilter(request,response,filterChain)
-    }
-    // if all the filters decide it is ok allow the 
-    // rest of the application to run
-    if continue processing
-      filterChain.doFilter(request,response)  }
-    }
-
-```
+[PRE7]
 
 由于`DelegatingFilterProxy`和`FilterChainProxy`都是 Spring Security 的前门，当在 Web 应用程序中使用时，您会在尝试了解发生了什么时添加一个调试点。
 
@@ -264,10 +154,7 @@ Spring 4.2 是一致使用的。我们提供的示例应用程序展示了前一
 
 +   我们不得不在`SecurityConfig`配置文件中硬编码用户的用户名、密码和角色信息。回想一下我们添加的`configure(AuthenticationManagerBuilder)`方法的这一部分：
 
-```java
-        auth.inMemoryAuthentication().withUser("user1@example.com")
-        .password("user1").roles("USER");
-```
+[PRE8]
 
 +   你可以看到用户名和密码就在文件里。我们不太可能想要为系统中的每个用户在文件中添加一个新的声明！为了解决这个问题，我们需要用另一种认证方式更新配置。
 
@@ -279,42 +166,15 @@ Spring Security 的`HttpSecurity`配置自动添加了对用户登出的支持�
 
 1.  如下更新 Spring Security 配置：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/configuration/
-        SecurityConfig.java
-
-        http.authorizeRequests()
-        ...
-       .logout()
-       .logoutUrl("/logout")
-       .logoutSuccessUrl("/login?logout");
-```
+[PRE9]
 
 1.  你必须为用户提供一个可以点击的链接以登出。我们将更新`header.html`文件，以便在每一页上出现`Logout`链接：
 
-```java
-        //src/main/webapp/WEB-INF/templates/fragments/header.html
-
-        <div id="navbar" ...>
-         ...
-           <ul class="nav navbar-nav pull-right">
-             <li><a id="navLogoutLink" th:href="@{/logout}">
-               Logout</a></li>
-           </ul>
-            ...
-        </div>
-```
+[PRE10]
 
 1.  最后一步是更新`login.html`文件，当`logout`参数存在时，显示一条表示登出成功的消息：
 
-```java
-        //src/main/webapp/WEB-INF/templates/login.html
-
-        <div th:if="${param.logout != null}" class="alert 
-        alert-success"> You have been logged out.</div>
-          <label for="username">Username</label>
-          ...
-```
+[PRE11]
 
 你的代码现在应该看起来像`chapter02.02-calendar`。
 
@@ -346,18 +206,7 @@ Spring Security 的`HttpSecurity`配置自动添加了对用户登出的支持�
 
 你可能已经注意到，允许所有人访问远不如我们期望的简洁。幸运的是，Spring Security 可以利用**Spring 表达式语言**（**SpEL**）来确定用户是否有授权。在下面的代码片段中，你可以看到使用 SpEL 与 Spring Security 时的更新：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/
-    SecurityConfig.java
-
-    http.authorizeRequests()
-        .antMatchers("/").access("hasAnyRole('ANONYMOUS', 'USER')")
-        .antMatchers("/login/*").access("hasAnyRole('ANONYMOUS', 'USER')")
-        .antMatchers("/logout/*").access("hasAnyRole('ANONYMOUS', 'USER')")
-        .antMatchers("/admin/*").access("hasRole('ADMIN')")
-        .antMatchers("/events/").access("hasRole('ADMIN')")
-        .antMatchers("/**").access("hasRole('USER')")
-```
+[PRE12]
 
 你可能会注意到`/events/`的安全约束很脆弱。例如，`/events` URL 不受 Spring Security 的保护，以限制`ADMIN`角色。这证明了我们需要确保提供多层次的安全性。我们将在第十一章中利用这种弱点，进行*细粒度访问控制*。
 
@@ -371,64 +220,15 @@ Spring Security 的`HttpSecurity`配置自动添加了对用户登出的支持�
 
 1.  更新您的依赖项，包括`thymeleaf-extras-springsecurity4` JAR 文件。由于我们正在使用 Gradle，我们将在`build.gradle`文件中添加一个新的依赖项声明，如下所示：
 
-```java
-        //build.gradle
-
-           dependency{
-              ...
-              compile 'org.thymeleaf.extras:thymeleaf-
-              extras-springsecurity4'
-         }
-```
+[PRE13]
 
 1.  接下来，我们需要如下向 Thymeleaf 引擎添加 `SpringSecurityDialect`：
 
-```java
-        //src/com/packtpub/springsecurity/web/configuration/
-        ThymeleafConfig.java
-
-            @Bean
-            public SpringTemplateEngine templateEngine(
-             final ServletContextTemplateResolver resolver)   
-            {
-                SpringTemplateEngine engine = new SpringTemplateEngine();
-               engine.setTemplateResolver(resolver);
- engine.setAdditionalDialects(new HashSet<IDialect>() {{ add(new LayoutDialect()); add(new SpringSecurityDialect()); }});                return engine;
-            }
-```
+[PRE14]
 
 1.  更新 `header.html` 文件以利用 Spring Security 标签库。你可以按照如下方式找到更新：
 
-```java
-        //src/main/webapp/WEB-INF/templates/fragments/header.html
-
-            <html xmlns:th="http://www.thymeleaf.org" 
- xmlns:sec="http://www.thymeleaf.org/thymeleaf- 
-            extras-springsecurity4">
-            ...
-        <div id="navbar" class="collapse navbar-collapse">
-            ...
-            <ul class="nav navbar-nav pull-right" 
- sec:authorize="isAuthenticated()">
-                <li>
-                    <p class="navbar-text">Welcome <div class="navbar-text"  
-                    th:text="${#authentication.name}">User</div></p>
-                </li>
-                <li>
-                    <a id="navLogoutLink" class="btn btn-default" 
-                    role="button" th:href="@{/logout}">Logout</a>
-                </li>
-                <li>&nbsp;|&nbsp;</li>
-            </ul>
-            <ul class="nav navbar-nav pull-right" 
- sec:authorize=" ! isAuthenticated()">
-                <li><a id="navLoginLink" class="btn btn-default" 
-                role="button"  
-                th:href="@{/login/form}">Login</a></li>
-                <li>&nbsp;|&nbsp;</li>
-            </ul>
-            ...
-```
+[PRE15]
 
 `sec:authorize` 属性确定用户是否以 `isAuthenticated()` 值认证，并在用户认证时显示 HTML 节点，如果用户没有认证，则隐藏节点。`access` 属性应该非常熟悉，来自 `antMatcher().access()` 元素。实际上，这两个组件都利用了相同的 SpEL 支持。Thymeleaf 标签库中有不使用表达式的属性。然而，使用 SpEL 通常是更受欢迎的方法，因为它更强大。
 
@@ -452,37 +252,11 @@ Spring Security 的`HttpSecurity`配置自动添加了对用户登出的支持�
 
 1.  第一步是配置`defaultSuccessUrl()`方法，它在`formLogin()`方法之后链式调用。大胆地更新`security.xml`文件，使用`/default`而不是上下文根：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/configuration/
-        SecurityConfig.java
-
-          .formLogin()
-                      .loginPage("/login/form")
-                      .loginProcessingUrl("/login")
-                      .failureUrl("/login/form?error")
-                      .usernameParameter("username")
-                      .passwordParameter("password")
- .defaultSuccessUrl("/default")                      .permitAll()
-```
+[PRE16]
 
 1.  下一步是创建一个处理`/default`的控制器。在下面的代码中，你会发现一个示例 Spring MVC 控制器`DefaultController`，它演示了如何将管理员重定向到所有事件页面，并将其他用户重定向到欢迎页面。在以下位置创建一个新的文件：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/web/controllers/
-        DefaultController.java
-
-            // imports omitted
-            @Controller 
-            public class DefaultController {
-           @RequestMapping("/default") 
-             public String defaultAfterLogin(HttpServletRequest request) { 
-                 if (request.isUserInRole("ADMIN")) { 
-                     return "redirect:/events/"; 
-                 } 
-                 return "redirect:/"; 
-             }
-        }
-```
+[PRE17]
 
 在 Spring Tool Suite 中，你可以使用*Shift* + *Ctrl* + *O* 来自动添加缺少的导入。
 
@@ -490,9 +264,7 @@ Spring Security 的`HttpSecurity`配置自动添加了对用户登出的支持�
 
 1.  如果你希望总是去到`defaultSuccessUrl()`方法，你可以利用`defaultSuccessUrl()`方法的第二个参数，这是一个`Boolean`用于始终使用。我们不会在我们的配置中这样做，但你可以如下看到一个例子：
 
-```java
-        .defaultSuccessUrl("/default", true)
-```
+[PRE18]
 
 1.  你现在可以尝试一下了。重新启动应用程序并直接转到我的事件页面，然后登录；你会发现你在我的事件页面。
 

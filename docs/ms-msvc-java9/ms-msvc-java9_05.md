@@ -475,6 +475,12 @@ logging:
 
 # 创建 Turbine 服务
 
+Turbine 将所有`/hystrix.stream`端点聚合成一个合并的`/turbine.stream`，以供 Hystrix 仪表板使用，这更有助于查看系统的整体健康状况，而不是使用`/hystrix.stream`监视各个服务。我们将在 IDE 中创建另一个服务项目，然后在`pom.xml`中为 Turbine 添加 Maven 依赖项。
+
+现在，我们将使用以下步骤配置 Turbine 服务器：
+
+1.  在`pom.xml`中定义 Turbine 服务器的依赖项：
+
 ```java
 <dependency> 
     <groupId> org.springframework.cloud</groupId> 
@@ -490,6 +496,10 @@ logging:
 </dependency> 
 
 ```
+
+1.  在您的应用程序类中使用`@EnableTurbineStream`注解，如
+
+    此处显示。我们还定义了一个将返回 RabbitMQ `ConnectionFactory`的 Bean：
 
 ```java
 @SpringBootApplication 
@@ -514,6 +524,12 @@ public class TurbineApp {
     } 
 } 
 ```
+
+1.  根据下面所示，更新`application.yml`中的 Turbine 配置：
+
++   `server:port`：Turbine HTTP 使用的主要端口
+
++   `management:port`：Turbine 执行器端点的端口：
 
 ```java
 application.yml 
@@ -549,6 +565,14 @@ logging:
         org.springframework.integration: DEBUG 
 ```
 
+之前，我们使用`turbine.aggregator.clusterConfig`属性将用户和餐厅服务添加到一个集群中。这里，值以大写字母表示，因为 Eureka 以大写字母返回服务名称。而且，`turbine.appConfig`属性包含了 Turbine 用来查找实例的 Eureka 服务 ID 列表。请注意，之前的步骤总是使用默认配置创建了相应的服务器。如有需要，可以使用特定设置覆盖默认配置。
+
+# 构建和运行 OTRS 应用程序
+
+使用以下文件：`..\Chapter5 \pom.xml`，使用`mvn clean install`构建所有项目。
+
+输出应该如下所示：
+
 ```java
 6392_chapter5 ..................................... SUCCESS [3.037s] 
 online-table-reservation:common ................... SUCCESS [5.899s] 
@@ -561,6 +585,8 @@ online-table-reservation:api-service .............. SUCCESS [3.065s]
 online-table-reservation:booking-service .......... SUCCESS [26.496s] 
 ```
 
+然后，命令提示符上进入`<path to source>/6392_chapter5`并运行以下命令：
+
 ```java
 java -jar eureka-server/target/eureka-server.jar 
 java -jar turbine-server/target/turbine-server.jar 
@@ -571,9 +597,23 @@ java -jar booking-service/target/booking-service.jar
 java -jar api-service/target/api-service.jar 
 ```
 
+注意：在启动 Zuul 服务之前，请确保 Eureka 仪表板上的所有服务都处于启动状态：`http://localhost:8761/`：
+
 ```java
 java -jar zuul-server/target/zuul-server.jar 
 ```
+
+再次检查 Eureka 仪表板，所有应用程序都应该处于启动状态。然后进行测试。
+
+# 使用容器部署微服务
+
+读完第一章《解决方案方法》后，您可能已经理解了 Docker 的要点。
+
+Docker 容器提供了一个轻量级的运行时环境，由虚拟机的核心功能和操作系统的隔离服务组成，称为 Docker 镜像。Docker 使微服务的打包和执行变得更加简单。每个操作系统可以有多个 Docker，每个 Docker 可以运行单个应用程序。
+
+# 安装与配置
+
+如果您不使用 Linux 操作系统，Docker 需要一个虚拟化服务器。您可以安装 VirtualBox 或类似的工具，如 Docker Toolbox，使其适用于您。Docker 安装页面提供了更多关于它的细节，并告诉您如何执行。所以，请参考 Docker 网站上的 Docker 安装指南。
 
 你可以根据你的平台，通过遵循给出的说明安装 Docker：[`docs.docker.com/engine/installation/`](https://docs.docker.com/engine/installation/)。
 

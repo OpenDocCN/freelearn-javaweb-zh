@@ -26,55 +26,19 @@
 
 我们的日历应用程序使用一个名为`CalendarUser`的域对象，其中包含有关我们的用户的信息，如下所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/domain/CalendarUser.java
-
-    public class CalendarUser implements Serializable {
-       private Integer id;
-       private String firstName;
-       private String lastName;
-       private String email;
-       private String password;
-       ... accessor methods omitted ..
-    }
-```
+[PRE0]
 
 # 事件对象
 
 我们的应用程序有一个`Event`对象，其中包含有关每个事件的详细信息，如下所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/domain/Event.java
-
-    public class Event {
-       private Integer id;
-       private String summary;
-       private String description;
-       private Calendar when;
-       private CalendarUser owner;
-       private CalendarUser attendee;
-       ... accessor methods omitted ..
-    }
-```
+[PRE1]
 
 # 日历服务接口
 
 我们的应用程序包含一个`CalendarService`接口，可以用来访问和存储我们的域对象。`CalendarService`的代码如下：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/service/CalendarService.java
-
-    public interface CalendarService {
-       CalendarUser getUser(int id);
-       CalendarUser findUserByEmail(String email);
-       List<CalendarUser> findUsersByEmail(String partialEmail);
-       int createUser(CalendarUser user);
-       Event getEvent(int eventId);
-       int createEvent(Event event);
-       List<Event> findForUser(int userId);
-       List<Event> getEvents();
-    }
-```
+[PRE2]
 
 我们不会讨论`CalendarService`中使用的方法，但它们应该是相当直接的。如果您想了解每个方法的作用，请查阅示例代码中的 Javadoc。
 
@@ -82,24 +46,13 @@
 
 像大多数应用程序一样，我们的应用程序需要与我们当前登录的用户进行交互。我们创建了一个非常简单的接口，名为`UserContext`，用于管理当前登录的用户，如下所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/service/UserContext.java
-
-    public interface UserContext {
-       CalendarUser getCurrentUser();
-       void setCurrentUser(CalendarUser user);
-    }
-```
+[PRE3]
 
 这意味着我们的应用程序可以调用`UserContext.getCurrentUser()`来获取当前登录用户的信息。它还可以调用`UserContext.setCurrentUser(CalendarUser)`来指定哪个用户已登录。在本章后面，我们将探讨如何编写实现此接口的实现，该实现使用 Spring Security 访问我们当前的用户并使用`SecurityContextHolder`获取他们的详细信息。
 
 Spring Security 提供了很多不同的方法来验证用户。然而，最终结果是 Spring Security 会将`o.s.s.core.context.SecurityContext`填充为`o.s.s.core.Authentication`。`Authentication`对象代表了我们在认证时收集的所有信息（用户名、密码、角色等）。然后`SecurityContext`接口被设置在`o.s.s.core.context.SecurityContextHolder`接口上。这意味着 Spring Security 和开发者可以使用`SecurityContextHolder`来获取关于当前登录用户的信息。以下是一个获取当前用户名的示例：
 
-```java
-    String username = SecurityContextHolder.getContext()
-       .getAuthentication()
-       .getName();
-```
+[PRE4]
 
 需要注意的是，应该始终对`Authentication`对象进行`null`检查，因为如果用户没有登录，这个对象可能是`null`。
 
@@ -117,47 +70,13 @@ Spring Security 提供了很多不同的方法来验证用户。然而，最终�
 
 请查看以下代码片段：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/service/UserContextStub.java
-
-        ...
-        //@Component
-        public class UserContextStub implements UserContext {
-        ...
-```
+[PRE5]
 
 1.  下一步是利用`SecurityContext`来获取当前登录的用户。在本章的代码中，我们包含了`SpringSecurityUserContext`，它已经集成了必要的依赖项，但没有任何实际功能。
 
 1.  打开`SpringSecurityUserContext.java`文件，添加`@Component`注解。接下来，替换`getCurrentUser`实现，如下面的代码片段所示：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/service/
-        SpringSecurityUserContext.java
-
-        @Component
-        public class SpringSecurityUserContext implements UserContext {
-          private final CalendarService calendarService;
-          private final UserDetailsService userDetailsService;
-        @Autowired
-        public SpringSecurityUserContext(CalendarService calendarService, 
-        UserDetailsService userDetailsService) {
-           this.calendarService = calendarService;
-           this.userDetailsService = userDetailsService;
-        }
-        public CalendarUser getCurrentUser() {
-           SecurityContext context = SecurityContextHolder.getContext();
-           Authentication authentication = context.getAuthentication();
-           if (authentication == null) {
-             return null;
-           }
-           String email = authentication.getName();
-           return calendarService.findUserByEmail(email);
-        }
-        public void setCurrentUser(CalendarUser user) {
-           throw new UnsupportedOperationException();
-        }
-        }
-```
+[PRE6]
 
 我们的代码从当前 Spring Security 的`Authentication`对象中获取用户名，并利用该用户名通过电子邮件地址查找当前的`CalendarUser`对象。由于我们的 Spring Security 用户名是一个电子邮件地址，因此我们能够使用电子邮件地址将`CalendarUser`与 Spring Security 用户关联起来。请注意，如果我们打算关联账户，通常我们希望能够用我们生成的键来做这件事，而不是可能改变的东西（也就是说，电子邮件地址）。我们遵循只向应用程序返回我们的域对象的良好实践。这确保了我们的应用程序只认识我们的`CalendarUser`对象，从而与 Spring Security 解耦。
 
@@ -185,10 +104,7 @@ Spring Security 提供了很多不同的方法来验证用户。然而，最终�
 
 Spring Security 提供了一个`o.s.s.provisioning.UserDetailsManager`接口来管理用户。还记得我们的内存中的 Spring Security 配置吗？
 
-```java
-    auth.inMemoryAuthentication().
-    withUser("user").password("user").roles("USER");
-```
+[PRE7]
 
 `.inMemoryAuthentication()`方法创建了一个名为`o.s.s.provisioning.InMemoryUserDetailsManager`的内存实现`UserDetailsManager`，该实现可以用来创建一个新的 Spring Security 用户。
 
@@ -198,42 +114,11 @@ Spring Security 提供了一个`o.s.s.provisioning.UserDetailsManager`接口来�
 
 1.  为了通过基于 Java 的配置暴露`UserDetailsManager`，我们需要在`WebSecurityConfigurerAdapter` DSL 之外创建`InMemoryUserDetailsManager`：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/configuration/
-        SecurityConfig.java
-
-        @Bean
-        @Override
-        public UserDetailsManager userDetailsService() {
-           InMemoryUserDetailsManager manager = new 
-           InMemoryUserDetailsManager();
-           manager.createUser(
-               User.withUsername("user1@example.com")
-                   .password("user1").roles("USER").build());
-           manager.createUser(
-               User.withUsername("admin1@example.com")
-                   .password("admin1").roles("USER", "ADMIN").build());
-           return manager;
-        }
-```
+[PRE8]
 
 1.  一旦我们在 Spring 配置中暴露了`UserDetailsManager`接口，我们所需要做的就是更新我们现有的`CalendarService`实现，`DefaultCalendarService`，以在 Spring Security 中添加用户。对`DefaultCalendarService.java`文件进行以下更新：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/service/
-        DefaultCalendarService.java
-
-        public int createUser(CalendarUser user) {
-            List<GrantedAuthority> authorities = AuthorityUtils.
-            createAuthorityList("ROLE_USER");
-            UserDetails userDetails = new User(user.getEmail(),
-            user.getPassword(), authorities);
-           // create a Spring Security user
-           userDetailsManager.createUser(userDetails);
-           // create a CalendarUser
-           return userDao.createUser(user);
-        }
-```
+[PRE9]
 
 1.  为了利用`UserDetailsManager`，我们首先将`CalendarUser`转换为 Spring Security 的`UserDetails`对象。
 
@@ -243,20 +128,7 @@ Spring Security 提供了一个`o.s.s.provisioning.UserDetailsManager`接口来�
 
 现在我们能够向系统添加新用户，我们需要指示用户已认证。更新`SpringSecurityUserContext`以在 Spring Security 的`SecurityContextHolder`对象上设置当前用户，如下所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/service/
-    SpringSecurityUserContext.java
-
-    public void setCurrentUser(CalendarUser user) {
-      UserDetails userDetails = userDetailsService.
-      loadUserByUsername(user.getEmail());
-      Authentication authentication = new   
-      UsernamePasswordAuthenticationToken(userDetails, user.getPassword(),
-      userDetails.getAuthorities());
-      SecurityContextHolder.getContext().
-      setAuthentication(authentication);
-    }
-```
+[PRE10]
 
 我们首先执行的步骤是将我们的`CalendarUser`对象转换为 Spring Security 的`UserDetails`对象。这是必要的，因为正如 Spring Security 不知道如何保存我们的自定义`CalendarUser`对象一样，Spring Security 也不理解如何使用我们的自定义`CalendarUser`对象做出安全决策。我们使用 Spring Security 的`o.s.s.core.userdetails.UserDetailsService`接口来获取我们通过`UserDetailsManager`保存的相同的`UserDetails`对象。`UserDetailsService`接口提供了`UserDetailsManager`对象的功能的一个子集，通过用户名查找。
 
@@ -266,13 +138,7 @@ Spring Security 提供了一个`o.s.s.provisioning.UserDetailsManager`接口来�
 
 值得一提的是，我们本可以直接通过创建一个新的`o.s.s.core.userdetails.User`对象来转换`CalendarUser`，而不是在`UserDetailsService`中查找。例如，下面的代码也可以认证用户：
 
-```java
-List<GrantedAuthority> authorities =
-AuthorityUtils.createAuthorityList("ROLE_USER");
-UserDetails userDetails = new User("username","password",authorities); Authentication authentication = new UsernamePasswordAuthenticationToken ( userDetails,userDetails.getPassword(),userDetails.getAuthorities());
-SecurityContextHolder.getContext()
-.setAuthentication(authentication);
-```
+[PRE11]
 
 这种方法的优点在于，我们无需再次访问数据存储。在我们这个案例中，数据存储是一个内存中的数据存储，但这也可能是由一个数据库支持的，这可能会带来一些安全风险。这种方法的一个缺点是我们无法复用代码太多。由于这种方法调用不频繁，我们选择复用代码。通常，最佳做法是单独评估每种情况，以确定哪种方法最合适。
 
@@ -280,22 +146,7 @@ SecurityContextHolder.getContext()
 
 应用程序有一个`SignupController`对象，该对象处理创建新的`CalendarUser`对象的 HTTP 请求。最后一步是更新`SignupController`以创建我们的用户，然后指示他们已经登录。对`SignupController`进行以下更新：
 
-```java
-//src/main/java/com/packtpub/springsecurity/web/controllers/
-SignupController.java
-
-@RequestMapping(value="/signup/new", method=RequestMethod.POST)
-public String signup(@Valid SignupForm signupForm,
-BindingResult result, RedirectAttributes redirectAttributes) {
-... existing validation ¦
-user.setPassword(signupForm.getPassword());
-int id = calendarService.createUser(user);
-user.setId(id);
-userContext.setCurrentUser(user);
-redirectAttributes.addFlashAttribute("message", "Success");
-return "redirect:/";
-}
-```
+[PRE12]
 
 如果你还没有这么做，请重新启动应用程序，访问`http://localhost:8080/`，创建一个新的用户，并查看新用户是否自动登录。
 
@@ -309,35 +160,7 @@ return "redirect:/";
 
 到目前为止，我们需要两种不同的用户表示：一种用于 Spring Security 做出安全决策，另一种用于我们的应用程序将我们的领域对象关联起来。创建一个名为`CalendarUserDetailsService`的新类，使 Spring Security 意识到我们的`CalendarUser`对象。这将确保 Spring Security 可以根据我们的领域模型做出决策。按照如下方式创建一个名为`CalendarUserDetailsService.java`的新文件：
 
-```java
-//src/main/java/com/packtpub/springsecurity/core/userdetails/
-CalendarUserDetailsService.java
-
-// imports and package declaration omitted
-
-@Component
-public class CalendarUserDetailsService implements
-UserDetailsService {
-private final CalendarUserDao calendarUserDao;
-@Autowired
-public CalendarUserDetailsService(CalendarUserDao
-   calendarUserDao) {
-   this.calendarUserDao = calendarUserDao;
-}
-public UserDetails loadUserByUsername(String username) throws
-   UsernameNotFoundException {
-   CalendarUser user = calendarUserDao.findUserByEmail(username);
-  if (user == null) {
-     throw new UsernameNotFoundException("Invalid
-       username/password.");
-   }
-   Collection<? extends GrantedAuthority> authorities =
-     CalendarUserAuthorityUtils.createAuthorities(user);
-   return new User(user.getEmail(), user.getPassword(),
-     authorities);
-}
-}
-```
+[PRE13]
 
 在 Spring Tool Suite 中，您可以使用*Shift*+*Ctrl*+*O*快捷键轻松添加缺少的导入。另外，您还可以从下一个检查点（`chapter03.03-calendar`）复制代码。
 
@@ -351,42 +174,13 @@ public UserDetails loadUserByUsername(String username) throws
 
 现在我们已经有一个新的`UserDetailsService`对象，让我们更新 Spring Security 配置以使用它。由于我们利用类路径扫描和`@Component`注解，我们的`CalendarUserDetailsService`类自动添加到 Spring 配置中。这意味着我们只需要更新 Spring Security 以引用我们刚刚创建的`CalendarUserDetailsService`类。我们还可以删除`configure()`和`userDetailsService()`方法，因为我们现在提供了自己的`UserDetailsService`实现。按照如下方式更新`SecurityConfig.java`文件：
 
-```java
-//src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-@Override
-public void configure(AuthenticationManagerBuilder auth) throws Exception {
-    ...
-}
-@Bean
-@Override
-public UserDetailsManager userDetailsService() {
-    ...
-}
-```
+[PRE14]
 
 # 删除对 UserDetailsManager 的引用
 
 我们需要删除在`DefaultCalendarService`中使用`UserDetailsManager`进行同步的代码，该代码将 Spring Security 的`o.s.s.core.userdetails.User`接口和`CalendarUser`同步。首先，由于 Spring Security 现在引用`CalendarUserDetailsService`，所以这段代码是不必要的。其次，由于我们移除了`inMemoryAuthentication()`方法，我们 Spring 配置中没有定义`UserDetailsManager`对象。删除在`DefaultCalendarService`中找到的所有对`UserDetailsManager`的引用。更新将类似于以下示例片段：
 
-```java
-//src/main/java/com/packtpub/springsecurity/service/
-DefaultCalendarService.java
-
-public class DefaultCalendarService implements CalendarService {
-   private final EventDao eventDao;
-   private final CalendarUserDao userDao;
-   @Autowired
-   public DefaultCalendarService(EventDao eventDao,CalendarUserDao userDao) {
-       this.eventDao = eventDao;
-       this.userDao = userDao;
-   }
-   ...
-   public int createUser(CalendarUser user) {
-       return userDao.createUser(user);
-   }
-}
-```
+[PRE15]
 
 启动应用程序并查看 Spring Security 的内存中`UserDetailsManager`对象已不再必要（我们已将其从我们的`SecurityConfig.java`文件中删除）。
 
@@ -396,37 +190,7 @@ public class DefaultCalendarService implements CalendarService {
 
 我们已经成功消除了同时管理 Spring Security 用户和我们自己的`CalendarUser`对象的需求。然而，我们仍然需要不断在两者之间进行转换，这很麻烦。相反，我们将创建一个`CalendarUserDetails`对象，该对象可以被称为`UserDetails`和`CalendarUser`。使用以下代码更新`CalendarUserDetailsService`：
 
-```java
-//src/main/java/com/packtpub/springsecurity/core/userdetails/
-CalendarUserDetailsService.java
-
-public UserDetails loadUserByUsername(String username) throws
-UsernameNotFoundException {
-...
-return new CalendarUserDetails(user);
-}
-private final class CalendarUserDetails extends CalendarUser 
-implements UserDetails {
-CalendarUserDetails(CalendarUser user) {
-   setId(user.getId());
-   setEmail(user.getEmail());
-   setFirstName(user.getFirstName());
-   setLastName(user.getLastName());
-   setPassword(user.getPassword());
-}
-public Collection<? extends GrantedAuthority>
-   getAuthorities() {
-   return CalendarUserAuthorityUtils.createAuthorities(this);
-}
-public String getUsername() {
-   return getEmail();
-}
-public boolean isAccountNonExpired() { return true; }
-public boolean isAccountNonLocked() { return true; }
-public boolean isCredentialsNonExpired() { return true; }
-public boolean isEnabled() { return true; }
-}
-```
+[PRE16]
 
 在下一节中，我们将看到我们的应用程序现在可以引用当前`CalendarUser`对象的主体认证。然而，Spring Security 仍然可以将`CalendarUserDetails`视为一个`UserDetails`对象。
 
@@ -434,26 +198,7 @@ public boolean isEnabled() { return true; }
 
 我们已经更新了`CalendarUserDetailsService`，使其返回一个扩展了`CalendarUser`并实现了`UserDetails`的`UserDetails`对象。这意味着，我们不需要在两个对象之间进行转换，只需简单地引用一个`CalendarUser`对象。按照以下方式更新`SpringSecurityUserContext`：
 
-```java
-public class SpringSecurityUserContext implements UserContext {
-public CalendarUser getCurrentUser() {
-   SecurityContext context = SecurityContextHolder.getContext();
-   Authentication authentication = context.getAuthentication();
-   if(authentication == null) {
-      return null;
-   }
-   return (CalendarUser) authentication.getPrincipal();
-}
-
-public void setCurrentUser(CalendarUser user) {
-   Collection authorities =
-     CalendarUserAuthorityUtils.createAuthorities(user);
-   Authentication authentication = new      UsernamePasswordAuthenticationToken(user,user.getPassword(), authorities);
-   SecurityContextHolder.getContext()
-     .setAuthentication(authentication);
-}
-}
-```
+[PRE17]
 
 更新不再需要使用`CalendarUserDao`或 Spring Security 的`UserDetailsService`接口。还记得我们上一节中的`loadUserByUsername`方法吗？这个方法调用的结果成为认证的主体。由于我们更新的`loadUserByUsername`方法返回一个扩展了`CalendarUser`的对象，我们可以安全地将`Authentication`对象的主体转换为`CalendarUser`。当调用`setCurrentUser`方法时，我们可以将一个`CalendarUser`对象作为主体传递给`UsernamePasswordAuthenticationToken`构造函数。这允许我们在调用`getCurrentUser`方法时仍然将主体转换为`CalendarUser`对象。
 
@@ -461,26 +206,11 @@ public void setCurrentUser(CalendarUser user) {
 
 现在`CalendarUser`已经填充到 Spring Security 的认证中，我们可以更新我们的 UI 来显示当前用户的姓名，而不是电子邮件地址。使用以下代码更新`header.html`文件：
 
-```java
-    //src/main/resources/templates/fragments/header.html
-
-    <ul class="nav navbar-nav pull-right" 
- sec:authorize="isAuthenticated()">
-       <li id="greeting">
-           <p class="navbar-text">Welcome <div class="navbar-text"   
-           th:text="${#authentication.getPrincipal().getName()}">
-           User</div></p>
-       </li>
-```
+[PRE18]
 
 内部地，`"${#authentication.getPrincipal().getName()}"`标签属性执行以下代码。请注意，高亮显示的值与我们在`header.html`文件中指定的认证标签的`property`属性相关联：
 
-```java
-    SecurityContext context = SecurityContextHolder.getContext();
-    Authentication authentication = context.getAuthentication();
-    CalendarUser user = (CalendarUser) authentication.getPrincipal();
-    String firstAndLastName = user.getName();
-```
+[PRE19]
 
 重启应用程序，访问`http://localhost:8080/`，登录以查看更新。 Instead of seeing the current user's email, you should now see their first and last names.（您现在应该看到的是当前用户的姓名，而不是电子邮件地址。）
 
@@ -498,51 +228,7 @@ Spring Security 委托一个`AuthenticationProvider`对象来确定用户是否�
 
 创建一个名为`CalendarUserAuthenticationProvider`的新类，如下所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/authentication/
-    CalendarUserAuthenticationProvider.java
-
-    // ¦ imports omitted ...
-
-    @Component
-    public class CalendarUserAuthenticationProvider implements
-    AuthenticationProvider {
-    private final CalendarService calendarService;
-    @Autowired
-    public CalendarUserAuthenticationProvider
-    (CalendarService    calendarService) {
-       this.calendarService = calendarService;
-    }
-    public Authentication authenticate(Authentication
-       authentication) throws AuthenticationException {
-           UsernamePasswordAuthenticationToken token =   
-           (UsernamePasswordAuthenticationToken) 
-       authentication;
-       String email = token.getName();
-       CalendarUser user = null;
-       if(email != null) {
-         user = calendarService.findUserByEmail(email);
-       }
-       if(user == null) {
-         throw new UsernameNotFoundException("Invalid
-         username/password");
-       }
-       String password = user.getPassword();
-       if(!password.equals(token.getCredentials())) {
-         throw new BadCredentialsException("Invalid
-         username/password");
-       }
-       Collection<? extends GrantedAuthority> authorities =
-         CalendarUserAuthorityUtils.createAuthorities(user);
-       return new UsernamePasswordAuthenticationToken(user, password,
-         authorities);
-    }
-    public boolean supports(Class<?> authentication) {
-       return UsernamePasswordAuthenticationToken
-         .class.equals(authentication);
-     }
-    }
-```
+[PRE20]
 
 记得在 Eclipse 中你可以使用*Shift*+*Ctrl*+*O*快捷键轻松添加缺失的导入。另外，你也可以从`chapter03.05-calendar`中复制实现。
 
@@ -560,16 +246,7 @@ Spring Security 委托一个`AuthenticationProvider`对象来确定用户是否�
 
 1.  更新`SecurityConfig.java`文件以引用我们新创建的`CalendarUserAuthenticationProvider`对象，并删除对`CalendarUserDetailsService`的引用，如下代码片段所示：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/configuration/
-        SecurityConfig.java
-
- @Autowired CalendarUserAuthenticationProvider cuap;        @Override
-        public void configure(AuthenticationManagerBuilder auth) 
-        throws Exception {
-           auth.authenticationProvider(cuap);
-        }
-```
+[PRE21]
 
 1.  重启应用程序并确保一切仍然正常工作。作为用户，我们并没有察觉到任何不同。然而，作为开发者，我们知道`CalendarUserDetails`已经不再需要；我们仍然能够显示当前用户的姓名和姓氏，Spring Security 仍然能够利用`CalendarUser`进行认证。
 
@@ -585,32 +262,7 @@ Spring Security 委托一个`AuthenticationProvider`对象来确定用户是否�
 
 当用户进行认证时，Spring Security 会将一个`Authentication`对象提交给`AuthenticationProvider`，其中包含用户提供的信息。当前的`UsernamePasswordAuthentication`对象只包含用户名和密码字段。创建一个包含`domain`字段的`DomainUsernamePasswordAuthenticationToken`对象，如下代码片段所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/authentication/
-    DomainUsernamePasswordAuthenticationToken.java
-
-    public final class DomainUsernamePasswordAuthenticationToken extends     
-    UsernamePasswordAuthenticationToken {
-            private final String domain;
-            // used for attempting authentication
-           public DomainUsernamePasswordAuthenticationToken(String
-           principal, String credentials, String domain) {
-              super(principal, credentials);
-              this.domain = domain;
-            } 
-    // used for returning to Spring Security after being
-    //authenticated
-    public DomainUsernamePasswordAuthenticationToken(CalendarUser
-       principal, String credentials, String domain,
-       Collection<? extends GrantedAuthority> authorities) {
-         super(principal, credentials, authorities);
-         this.domain = domain;
-       }
-    public String getDomain() {
-       return domain;
-    }
-    }
-```
+[PRE22]
 
 # 更新`CalendarUserAuthenticationProvider`
 
@@ -618,26 +270,7 @@ Spring Security 委托一个`AuthenticationProvider`对象来确定用户是否�
 
 1.  现在，我们需要更新`CalendarUserAuthenticationProvider`以使用域名字段，如下所示：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/authentication/
-        CalendarUserAuthenticationProvider.java
-
-        public Authentication authenticate(Authentication authentication) 
-        throws AuthenticationException {
-             DomainUsernamePasswordAuthenticationToken token =
-             (DomainUsernamePasswordAuthenticationToken) authentication;
-        String userName = token.getName();
-        String domain = token.getDomain();
-        String email = userName + "@" + domain;
-        ... previous validation of the user and password ...
-        return new DomainUsernamePasswordAuthenticationToken(user,
-        password, domain, authorities);
-        }
-        public boolean supports(Class<?> authentication) {
-          return DomainUsernamePasswordAuthenticationToken
-          .class.equals(authentication);
-        }
-```
+[PRE23]
 
 1.  我们首先更新`supports`方法，以便 Spring Security 会将`DomainUsernamePasswordAuthenticationToken`传递到我们的`authenticate`方法中。
 
@@ -649,18 +282,7 @@ Spring Security 委托一个`AuthenticationProvider`对象来确定用户是否�
 
 打开`login.html`文件，添加一个名为`domain`的新输入，如下所示：
 
-```java
-    //src/main/resources/templates/login.html
-
-    ...
-    <label for="username">Username</label>
-    <input type="text" id="username" name="username"/>
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password"/>
-    <label for="domain">Domain</label>
-    <input type="text" id="domain" name="domain"/>
-    ¦
-```
+[PRE24]
 
 现在，当用户尝试登录时，将提交域。然而，Spring Security 不知道如何使用这个域来创建一个`DomainUsernamePasswordAuthenticationToken`对象并将其传递给`AuthenticationProvider`。为了解决这个问题，我们需要创建`DomainUsernamePasswordAuthenticationFilter`。
 
@@ -678,35 +300,7 @@ Spring Security 提供了一系列作为用户认证控制器的 servlet 过滤�
 
 +   创建一个`DomainUsernamePasswordAuthenticationFilter`对象，如下所示：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/web/authentication/
-        DomainUsernamePasswordAuthenticationFilter.java
-
-        public final class
-        DomainUsernamePasswordAuthenticationFilter extends 
-         UsernamePasswordAuthenticationFilter {
-        public Authentication attemptAuthentication
-        (HttpServletRequest request,HttpServletResponse response) throws
-        AuthenticationException {
-               if (!request.getMethod().equals("POST")) {
-                 throw new AuthenticationServiceException
-                 ("Authentication method not supported: " 
-                  + request.getMethod());
-               }
-           String username = obtainUsername(request);
-           String password = obtainPassword(request);
-           String domain = request.getParameter("domain");
-           // authRequest.isAuthenticated() = false since no
-           //authorities are specified
-           DomainUsernamePasswordAuthenticationToken authRequest
-           = new DomainUsernamePasswordAuthenticationToken(username, 
-           password, domain);
-          setDetails(request, authRequest);
-          return this.getAuthenticationManager()
-          .authenticate(authRequest);
-          }
-        }
-```
+[PRE25]
 
 新的`DomainUsernamePasswordAuthenticationFilter`对象将执行以下任务：
 
@@ -722,52 +316,7 @@ Spring Security 提供了一系列作为用户认证控制器的 servlet 过滤�
 
 现在我们已经创建了所有需要的额外参数的代码，我们需要配置 Spring Security 使其能够意识到这个参数。以下代码片段包括了我们`SecurityConfig.java`文件以支持我们的额外参数所需的必要更新：
 
-```java
-//src/main/java/com/packtpub/springsecurity/configuration/
-SecurityConfig.java
-
-@Override
-protected void configure(final HttpSecurity http) throws Exception {
-   http.authorizeRequests()
-       ...
-       .and().exceptionHandling()
-           .accessDeniedPage("/errors/403")
-           .authenticationEntryPoint(
-               loginUrlAuthenticationEntryPoint())
-       .and().formLogin()
-           .loginPage("/login/form")
-           .loginProcessingUrl("/login")
-           .failureUrl("/login/form?error")
-           .usernameParameter("username")
-           .passwordParameter("password")
-           .defaultSuccessUrl("/default", true)
-           .permitAll()
-         ...
-          // Add custom UsernamePasswordAuthenticationFilter
- .addFilterAt( domainUsernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class) ; }
-@Bean public DomainUsernamePasswordAuthenticationFilter domainUsernamePasswordAuthenticationFilter()
- throws Exception {   DomainUsernamePasswordAuthenticationFilter dupaf = new DomainUsernamePasswordAuthenticationFilter(
-                            super.authenticationManagerBean());
-   dupaf.setFilterProcessesUrl("/login");
-   dupaf.setUsernameParameter("username");
-   dupaf.setPasswordParameter("password");
-   dupaf.setAuthenticationSuccessHandler(
-           new SavedRequestAwareAuthenticationSuccessHandler(){{
-               setDefaultTargetUrl("/default");
-           }}
-   );
-   dupaf.setAuthenticationFailureHandler(
-           new SimpleUrlAuthenticationFailureHandler(){{
-                setDefaultFailureUrl("/login/form?error");
-           }}
-);
- dupaf.afterPropertiesSet();
-   return dupaf;
-}
-@Bean public LoginUrlAuthenticationEntryPoint loginUrlAuthenticationEntryPoint(){
-   return new LoginUrlAuthenticationEntryPoint("/login/form");
-}
-```
+[PRE26]
 
 前一个代码段配置了我们在 Spring Security 配置中的标准 bean。我们展示这个是为了表明它是可以做到的。然而，在本书的其余部分，我们将标准 bean 配置放在自己的文件中，因为这样可以减少配置的冗余。如果你遇到困难，或者不喜欢输入所有这些内容，你可以从 `chapter03.06-calendar` 复制它。
 

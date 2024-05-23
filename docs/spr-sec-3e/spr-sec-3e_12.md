@@ -18,24 +18,13 @@
 
 有许多可选依赖项可能需要，这取决于您决定使用哪些功能。许多这些依赖项已在 Spring Boot 的启动父级中注释掉。您会发现我们的`build.gradle`文件已经包括了以下所有依赖项：
 
-```java
-    //build.gradle
-    // Required for JSR-250 based security:
-    // JSR-250 Annotations
-
- compile ('javax.annotation:javax.annotation-api:1.3')    // Already provided by Spring Boot
- *// compile('cglib:cglib-nodep')*    // Already provided by Spring Boot
-    // Required for protect-pointcut
- *// compile('org.aspectj:aspectjweaver')*
-```
+[PRE0]
 
 # 集成 Spring 表达式语言（SpEL）
 
 Spring Security 利用**Spring 表达式语言**（**SpEL**）集成，以便轻松阐述各种授权要求。如果您还记得，我们在第二章 *开始使用 Spring Security*中已经查看了 SpEL 的使用，当时我们定义了我们的`antMatcher()`方法：
 
-```java
-    .antMatchers("/events/").hasRole("ADMIN")
-```
+[PRE1]
 
 Spring Security 提供了一个`o.s.s.access.expression.SecurityExpressionRoot`对象，提供了可用于做出访问控制决策的方法和对象。例如，可以使用的一个方法是接受一个字符串的`hasRole`方法。这与前面代码片段中访问属性的值相对应。实际上，还有许多其他表达式可供使用，如下表所示：
 
@@ -56,24 +45,7 @@ Spring Security 提供了一个`o.s.s.access.expression.SecurityExpressionRoot`�
 
 我们提供了一些使用这些 SpEL 表达式的示例代码。请记住，我们将在本章和下一章中详细介绍：
 
-```java
-    // allow users with ROLE_ADMIN
-
-    hasRole('ADMIN')
-
-    // allow users that do not have the ROLE_ADMIN
-
-     !hasRole('ADMIN')
-
-    // allow users that have ROLE_ADMIN or ROLE_ROOT and
-    // did not use the remember me feature to login
-
-    fullyAuthenticated() and hasAnyRole('ADMIN','ROOT')
-
-    // allow if Authentication.getName() equals admin
-
-    authentication.name == 'admin'
-```
+[PRE2]
 
 # `WebSecurityExpressionRoot` 类
 
@@ -88,33 +60,21 @@ Spring Security 提供了一个`o.s.s.access.expression.SecurityExpressionRoot`�
 
 `request` 属性相对容易理解，但我们提供了一些示例代码。请记住，这些示例都可以放在 `antMatchers()` 方法的访问属性中或者 `<sec:authorize>` 元素的访问属性中：
 
-```java
-    // allows only HTTP GETrequest.method == 'GET'
-    // allow anyone to perform a GET, but
-    // other methods require ROLE_ADMIN
-
-    request.method == 'GET' ? permitAll : hasRole('ADMIN')
-```
+[PRE3]
 
 # 使用 hasIpAddress 方法
 
 `hasIpAddress` 方法并没有 `request` 属性那么简单明了。`hasIpAddress` 会很容易匹配一个确切的 IP 地址；例如，以下代码如果当前用户 IP 地址是 `192.168.1.93`，则允许访问：
 
-```java
-    hasIpAddress('192.168.1.93')
-```
+[PRE4]
 
 然而，这并不是非常有用。相反，我们可以定义以下代码，这也将匹配我们的 IP 地址以及我们子网中的任何其他 IP 地址：
 
-```java
-    hasIpAddress('192.168.1.0/24')
-```
+[PRE5]
 
 问题是：这是如何计算的？关键是要理解如何计算网络地址及其掩码。要了解如何进行计算，我们可以看一个具体的例子。我们从 Linux 终端启动 `ifconfig` 来查看我们的网络信息（Windows 用户可以在命令提示符中输入 `ipconfig /all`）：
 
-```java
-$ ifconfig wlan0     Link encap:Ethernet HWaddr a0:88:b4:8b:26:64 inet addr:192.168.1.93 Bcast:192.168.1.255 Mask:255.255.255.0
-```
+[PRE6]
 
 查看以下图表：
 
@@ -169,27 +129,15 @@ Spring Security 标签库提供了根据已经在安全配置文件中定义的 
 
 例如，我们可以确保所有事件链接只在适当的时候显示，即对于管理员用户——回想一下我们之前定义的访问规则如下：
 
-```java
-    .antMatchers("/events/").hasRole("ADMIN")
-```
+[PRE7]
 
 更新`header.html`文件以利用此信息，并根据条件渲染到所有事件页面的链接：
 
-```java
-//src/main/resources/templates/fragments/header.html
-
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
-...
-<li sec:authorize-url="/events/">
-<a id="navEventsLink" th:href="@{/events/}">All Events</a></li>
-```
+[PRE8]
 
 这将确保除非用户有足够的权限访问所声明的 URL，否则不显示标签的内容。进一步细化授权检查是可能的，通过在 URL 之前包含方法属性，如下所示：
 
-```java
-    <li sec:authorize-url="GET /events/">
-    <a id="navEventsLink" th:href="@{/events/}">All Events</a></li>
-```
+[PRE9]
 
 使用`authorize-url`属性在代码块上定义授权检查是方便的，因为它将实际授权检查的知识从您的页面抽象出来，并将其保存在您的安全配置文件中。
 
@@ -201,12 +149,7 @@ Spring Security 标签库提供了根据已经在安全配置文件中定义的 
 
 当与`<sec>`标签一起使用时，可以控制 JSP 内容的显示，这是一种更灵活的方法。让我们回顾一下我们在第二章*Spring Security 入门*中学到的内容。我们可以通过更改我们的`header.html`文件，如下所示，将我的事件链接隐藏在任何未认证的用户中：
 
-```java
-    //src/main/resources/templates/fragments/header.html
-
-    <li sec:authorize="isAuthenticated()"> 
-    <a id="navMyEventsLink" th:href="@{/events/my}">My Events</a></li>
-```
+[PRE10]
 
 SpEL 评估是由与`antMatchers()`方法访问声明规则中使用的表达式相同的代码在后台执行的（假设已经配置了表达式）。因此，从使用`<sec>`标签构建的表达式中可以访问相同的内置函数和属性集。
 
@@ -224,15 +167,7 @@ SpEL 评估是由与`antMatchers()`方法访问声明规则中使用的表达式
 
 本章示例代码中的欢迎控制器已更新，使用以下方式从方法名派生一个名为`showCreateLink`的属性来填充模型：
 
-```java
-//src/main/java/com/packtpub/springsecurity/web/controllers/WelcomeController.java
-
-    @ModelAttribute ("showCreateLink")
-    public boolean showCreateLink(Authentication authentication) {
-      return authentication != null && 
-      authentication.getName().contains("user");
-    }
-```
+[PRE11]
 
 你可能会注意到 Spring MVC 可以自动获取`Authentication`对象。这是因为 Spring Security 将我们当前的`Authentication`对象映射到`HttpServletRequest.getPrincipal()`方法。由于 Spring MVC 将自动解析任何`java.security.Principal`类型的对象为`HttpServletRequest.getPrincipal()`的值，将`Authentication`作为控制器的一个参数是一个轻松访问当前`Authentication`对象的方法。我们也可以通过指定`Principal`类型的参数来解耦代码与 Spring Security。然而，在这个场景中我们选择了`Authentication`，以帮助说明一切是如何相互关联的。
 
@@ -240,12 +175,7 @@ SpEL 评估是由与`antMatchers()`方法访问声明规则中使用的表达式
 
 接下来，我们需要在我们的`index.html`文件中使用`HttpServletRequest`属性来确定是否应显示创建活动的链接。更新`index.html`，如下所示：
 
-```java
-    //src/main/resources/templates/header.html
-
-    <li th:if="${showCreateLink}"><a id="navCreateEventLink"   
-    th:href="@{events/form}">...</li>
-```
+[PRE12]
 
 现在，启动应用程序，使用`admin1@example.com`作为用户名，`admin1`作为密码登录，然后访问所有活动页面。你应该再也看不到主导航中的创建活动链接了（尽管它仍然在页面上）。
 
@@ -255,36 +185,15 @@ SpEL 评估是由与`antMatchers()`方法访问声明规则中使用的表达式
 
 有时应用程序可能不会使用 JSP 编写，需要能够根据 URL 确定访问权限，就像我们用`<... sec:authorize-url="/events/">`做的那样。这可以通过使用`o.s.s.web.access.WebInvocationPrivilegeEvaluator`接口来实现，这个接口也是 JSP 标签库背后的同一个接口。在下面的代码片段中，我们通过用名为`showAdminLink`的属性填充我们的模型来演示它的使用。我们可以使用`@Autowired`注解来获取`WebInvocationPrivilegeEvaluator`：
 
-```java
-//src/main/java/com/packtpub/springsecurity/web/controllers/WelcomeController.java
-
-    @ModelAttribute ("showAdminLink")
-    public boolean showAdminLink(Authentication authentication) {
-       return webInvocationPrivilegeEvaluator.
-       isAllowed("/admin/", authentication);
-    }
-```
+[PRE13]
 
 如果你正在使用的框架不是由 Spring 管理的，`@Autowire`将无法为你提供`WebInvocationPrivilegeEvaluator`。相反，你可以使用 Spring 的`org.springframework.web.context.WebApplicationContextUtils`接口来获取`WebInvocationPrivilegeEvaluator`的一个实例，如下所示：
 
-```java
-    ApplicationContext context = WebApplicationContextUtils
-     .getRequiredWebApplicationContext(servletContext);
-    WebInvocationPrivilegeEvaluator privEvaluator =
-    context.getBean(WebInvocationPrivilegeEvaluator.class)
-```
+[PRE14]
 
 为了尝试一下，更新`index.html`以使用`showAdminLink`请求属性，如下所示：
 
-```java
-//src/main/resources/templates/header.html
-
-    <li th:if="${showAdminLink}">
-     <a id="h2Link" th:href="@{admin/h2/}" target="_blank">
-     H2 Database Console</a>
-    ...
-    </li>
-```
+[PRE15]
 
 重新启动应用程序并在登录之前查看欢迎页面。H2 链接应该是不可见的。以`admin1@example.com`/`admin1`的身份登录，你应该就能看到它。
 
@@ -350,15 +259,7 @@ Spring Security 用于保护方法的主要技术有以下两种：
 
 我们的第一个设计决策将是通过确保用户必须以`ADMIN`用户身份登录后才能访问`getEvents()`方法，在业务层增强方法安全性。这是通过在服务接口定义中的方法上添加一个简单的注解来完成的，如下所示：
 
-```java
-    import org.springframework.security.access.prepost.PreAuthorize;
-    ...
-    public interface CalendarService {
-       ...
-     @PreAuthorize("hasRole('ADMIN')")
-      List<Event> getEvents();
-    }
-```
+[PRE16]
 
 这就是确保调用我们`getEvents()`方法的人是管理员所需要的一切。Spring Security 将在运行时使用**面向切面编程**（**AOP**）的**BeforeAdvice**切入点在方法上执行，如果安全约束不被满足，将抛出`o.s.s.access.AccessDeniedException`。
 
@@ -366,14 +267,7 @@ Spring Security 用于保护方法的主要技术有以下两种：
 
 我们还需要对`SecurityConfig.java`进行一次性的更改，我们在那里有剩下的 Spring Security 配置。只需在类声明中添加以下注解：
 
-```java
-//src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-@Configuration
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
-```
+[PRE17]
 
 # 验证方法安全性
 
@@ -383,19 +277,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 如果你查看 Tomcat 控制台，你会看到一个非常长的堆栈跟踪，以以下输出开始：
 
-```java
-    DEBUG ExceptionTranslationFilter - Access is denied 
-    (user is not anonymous); delegating to AccessDeniedHandler
-    org.s.s.access.AccessDeniedException: Access is denied
-    at org.s.s.access.vote.AffirmativeBased.decide
-    at org.s.s.access.intercept.AbstractSecurityInterceptor.
-    beforeInvocation
-    at org.s.s.access.intercept.aopalliance.
-    MethodSecurityInterceptor.invoke
-    ...
-    at $Proxy16.getEvents
-    at com.packtpub.springsecurity.web.controllers.EventsController.events
-```
+[PRE18]
 
 基于访问被拒绝页面，以及堆栈跟踪明确指向`getEvents`方法的调用，我们可以看出用户因为缺少`ROLE_ADMIN`的`GrantedAuthority`而被适当地拒绝了访问业务方法的权限。如果你用用户名`admin1@example.com`和密码`admin1`来运行相同的操作，你会发现访问将被授予。
 
@@ -405,21 +287,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 在前面的章节中给出的示例中，Spring Security 使用基于接口的代理来保护我们的`getEvents`方法。让我们看看简化后的伪代码，了解这是如何工作的：
 
-```java
-    DefaultCalendarService originalService = context.getBean
-    (CalendarService.class)
-    CalendarService secureService = new CalendarService() {
-     ¦ other methods just delegate to originalService ...
-      public List<Event> getEvents() {
- if(!permitted(originalService.getEvents)) {           throw AccessDeniedException()
-          }
-```
+[PRE19]
 
-```java
-       return originalCalendarService.getEvents()
-      }
-   };
-```
+[PRE20]
 
 您可以看到 Spring 创建了原始的`CalendarService`，就像它通常做的那样。然而，它指示我们的代码使用另一个实现`CalendarService`，在返回原始方法的结果之前执行安全检查。安全实现可以在不事先了解我们接口的情况下创建，因为 Spring 使用 Java 的`java.lang.reflect.Proxy` API 动态创建接口的新实现。请注意，返回的对象不再是`DefaultCalendarService`的实例，因为它是一个新的`CalendarService`实现，即它是`CalendarService`的一个匿名实现。这意味着我们必须针对接口编程以使用安全实现，否则会发生`ClassCastException`异常。要了解更多关于 Spring AOP 的信息，请参阅[`static.springsource.org/spring/docs/current/spring-framework-reference/html/aop.html#aop-introduction-proxies`](http://static.springsource.org/spring/docs/current/spring-framework-reference/html/aop.html#aop-introduction-proxies)的 Spring 参考文档。
 
@@ -435,21 +305,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 1.  首先，我们需要更新我们的`SecurityConfig`文件以使用 JSR-250 注解：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/configuration/
-        SecurityConfig.java
-
-        @Configuration
-        @EnableWebSecurity
- @EnableGlobalMethodSecurity(jsr250Enabled = true)        public class SecurityConfig extends WebSecurityConfigurerAdapter {
-```
+[PRE21]
 
 1.  最后，需要将`@PreAuthorize`注解更改为`@RolesAllowed`注解。正如我们所预期的，`@RolesAllowed`注解不支持 SpEL 表达式，因此我们按照如下方式编辑`CalendarService`：
 
-```java
-        @RolesAllowed("ROLE_ADMIN")
-        List<Event> getEvents();
-```
+[PRE22]
 
 1.  重新启动应用程序，以`user1@example.com`/`user1`的身份登录，尝试访问`http://localhost:8080/events/.json`。您应该再次看到访问被拒绝的页面。
 
@@ -457,10 +317,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 请注意，还可以使用 Java 5 标准字符串数组注解语法提供允许的`GrantedAuthority`名称列表：
 
-```java
-    @RolesAllowed({"ROLE_USER","ROLE_ADMIN"})
-    List<Event> getEvents();
-```
+[PRE23]
 
 还有 JSR-250 指定的两个额外的注解，分别是`@PermitAll`和`@DenyAll`，它们的功能如你所料，允许或拒绝所有对所述方法的请求。
 
@@ -472,13 +329,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 Spring 本身提供了一种更简单的注解风格，与 JSR-250 的`@RolesAllowed`注解类似。`@Secured`注解在功能和语法上与`@RolesAllowed`相同。唯一的显著差异是它不需要外部依赖，不能被其他框架处理，并且这些注解的处理必须通过`@EnableGlobalMethodSecurity`注解的另一个属性明确启用：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @EnableWebSecurity(debug = true)
-    @EnableGlobalMethodSecurity(securedEnabled=true)
-    public class SecurityConfig extends WebSecurityConfigurerAdapter {
-```
+[PRE24]
 
 由于`@Secured`函数与 JSR 标准`@RolesAllowed`注解相同，所以在新的代码中没有真正的强制性理由使用它，但在较老的 Spring 代码中可能会遇到它。
 
@@ -494,17 +345,7 @@ Spring 本身提供了一种更简单的注解风格，与 JSR-250 的`@RolesAll
 
 幸运的是，Spring Security 方法注解使用的 SpEL 绑定支持更复杂的表达式，包括包含方法参数的表达式。你还需要确保已经在`SecurityConfig`文件中启用了前缀和后缀注解，如下所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Configuration
-    @EnableWebSecurity
-    @EnableGlobalMethodSecurity(prePostEnabled = true)
-    public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    Lastly, we can update our CalendarService interface as follows:
-    @PreAuthorize("hasRole('ADMIN') or principal.id == #userId")  
-    List<Event> findForUser(int userId);
-```
+[PRE25]
 
 在这里，我们可以看到我们已经用我们在第一个练习中使用的 SpEL 指令增强了对主体的 ID 和`userId`方法参数的检查（`#userId`，方法参数名称前缀有一个`#`符号）。这个强大的方法参数绑定的特性应该能激发你的创造力，并允许你用非常精确的逻辑规则来保护方法调用。
 
@@ -538,12 +379,7 @@ SpEL 变量使用哈希（`#`）前缀引用。一个重要的注意事项是，
 
 将以下代码添加到`CalendarService`接口中：
 
-```java
-    @PostAuthorize("hasRole('ROLE_ADMIN') or " + "principal.username ==   
-    returnObject.owner.email or " +
-    "principal.username == returnObject.attendee.email")
-    Event getEvent(int eventId);
-```
+[PRE26]
 
 现在，尝试使用用户名`user1@example.com`和密码`user1`登录。接下来，尝试通过欢迎页面的链接访问午餐事件。你现在应该会看到“访问被拒绝”的页面。如果你使用用户名`user2@example.com`和密码`user2`登录，由于`user2@example.com`是午餐事件的参与者，事件将如预期显示。
 
@@ -555,11 +391,7 @@ SpEL 变量使用哈希（`#`）前缀引用。一个重要的注意事项是，
 
 我们将通过一个 JBCP 日历的例子来工作，因为我们想要过滤`getEvents`方法，使其只返回这个用户被允许看到的活动。为了做到这一点，我们移除了任何现有的安全注解，并在我们的`CalendarService`接口中添加了`@PostFilter`注解，如下所示：
 
-```java
-    @PostFilter("principal.id == filterObject.owner.id or " + 
-    "principal.id == filterObject.attendee.id")
-    List<Event> getEvents();
-```
+[PRE27]
 
 你的代码应该看起来像这样：`chapter11.08-calendar`。
 
@@ -593,10 +425,7 @@ Spring Security 还提供了预过滤方法参数的功能；我们现在尝试�
 
 想象如果我们有一个`save`方法，它接受一个事件对象的集合，我们只想允许保存当前登录用户拥有的事件。我们可以这样做：
 
-```java
-    @PreFilter("principal.id == filterObject.owner.id")
-    void save(Set<Event> events);
-```
+[PRE28]
 
 与我们的`@PostFilter`方法类似，这个注解导致 Spring Security 遍历每个事件，循环变量`filterObject`。然后，它将当前用户的 ID 与事件所有者的 ID 进行比较。如果它们匹配，保留该事件。如果不匹配，则丢弃结果。
 
@@ -714,15 +543,7 @@ Spring Security 使用有用的值对象来表示与这些概念实体相关的�
 
 与本书的大部分章节一样，我们需要添加一些依赖项才能使用本章的功能。可以查看以下内容，了解我们添加的依赖项及其需要的时机：
 
-```java
-    build.gradle
-    dependencies {
-       // ACL
-       compile('org.springframework.security:spring-security-acl')
-      compile('net.sf.ehcache:ehcache')
-       ...
-    }
-```
+[PRE29]
 
 # 定义一个简单的目标场景
 
@@ -732,11 +553,7 @@ Spring Security 使用有用的值对象来表示与这些概念实体相关的�
 
 我们将向`CalendarService.getEvents`方法添加一个注解，根据当前用户对事件的权限过滤每个事件：
 
-```java
-    src/main/java/com/packtpub/springsecurity/service/CalendarService.java
-    @PostFilter("hasPermission(filterObject, 'read')")
-    List<Event> getEvents();
-```
+[PRE30]
 
 你应该从`chapter12.00-calendar`开始。
 
@@ -746,55 +563,7 @@ Spring Security 使用有用的值对象来表示与这些概念实体相关的�
 
 我们在此章节的源代码中包括了以下`schema.sql`文件，该文件基于 Spring Security 参考附录中的架构文件，即*附加参考材料*：
 
-```java
-src/main/resources/schema.sql
--- ACL Schema --
-create table acl_sid (
-id bigint generated by default as identity(start with 100) not
-   null primary key,
-principal boolean not null,
-sid varchar_ignorecase(100) not null,
-constraint uk_acl_sid unique(sid,principal) );
-
-create table acl_class (
-id bigint generated by default as identity(start with 100) not
-   null primary key,
-class varchar_ignorecase(500) not null,
-constraint uk_acl_class unique(class) );
-
-create table acl_object_identity (
-id bigint generated by default as identity(start with 100) not
-   null primary key,
-object_id_class bigint not null,
-object_id_identity bigint not null,
-parent_object bigint,
-owner_sid bigint not null,
-entries_inheriting boolean not null,
-constraint uk_acl_objid
-   unique(object_id_class,object_id_identity),
-constraint fk_acl_obj_parent foreign
-   key(parent_object)references acl_object_identity(id),
-constraint fk_acl_obj_class foreign
-   key(object_id_class)references acl_class(id),
-constraint fk_acl_obj_owner foreign key(owner_sid)references
-   acl_sid(id) );
-
-create table acl_entry (
-id bigint generated by default as identity(start with 100) not
-   null primary key,
-acl_object_identity bigint not null,
-ace_order int not null,
-sid bigint not null,
-mask integer not null,
-granting boolean not null,
-audit_success boolean not null,
-audit_failure boolean not null,
-constraint uk_acl_entry unique(acl_object_identity,ace_order),
-constraint fk_acl_entry_obj_id foreign key(acl_object_identity)
-references acl_object_identity(id),
-constraint fk_acl_entry_sid foreign key(sid) references
-   acl_sid(id) );
-```
+[PRE31]
 
 前面的代码将导致以下数据库架构：
 
@@ -818,25 +587,11 @@ constraint fk_acl_entry_sid foreign key(sid) references
 
 我们还需要提供一个`o.s.s.access.expression.SecurityExpressionHandler`实现，使其知道如何评估权限。更新您的`SecurityConfig.java`配置，如下所示：
 
-```java
-    src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java 
- @EnableGlobalMethodSecurity(prePostEnabled = true)    @Import(AclConfig.class)
-    public class SecurityConfig extends WebSecurityConfigurerAdapter {
-```
+[PRE32]
 
 这是对我们在`AclConfig.java`文件中定义的`DefaultMethodSecurityExpressionHandler`对象的 bean 引用，如下所示：
 
-```java
-    src/main/java/com/packtpub/springsecurity/configuration/AclConfig.java
-    @Bean
-    public DefaultMethodSecurityExpressionHandler expressionHandler(){
-       DefaultMethodSecurityExpressionHandler dmseh =
-       new DefaultMethodSecurityExpressionHandler();
-      dmseh.setPermissionEvaluator(permissionEvaluator());
-       dmseh.setPermissionCacheOptimizer(permissionCacheOptimizer());
-       return dmseh; 
-    }
-```
+[PRE33]
 
 即使在我们 scenario 中有一个相对简单的 ACL 配置，也有许多必须设置的依赖项。如我们之前提到的，Spring Security ACL 模块默认包含一组组件，您可以组装这些组件以提供一套不错的 ACL 功能。请注意，以下图表中引用的所有组件都是框架的一部分：
 
@@ -846,44 +601,21 @@ constraint fk_acl_entry_sid foreign key(sid) references
 
 `DefaultMethodSecurityExpressionHandler` 对象有两个依赖。`AclPermissionCacheOptimizer` 对象用于用单个 JDBC 选择语句为对象集合的所有 ACL 填充缓存。本章包含的相对简单的配置可以按照如下方式进行检查：
 
-```java
-     src/main/java/com/packtpub/springsecurity/configuration/AclConfig.java
-     @Bean
-    public AclPermissionCacheOptimizer permissionCacheOptimizer(){
-       return new AclPermissionCacheOptimizer(aclService());
-    }
-```
+[PRE34]
 
 # 优化 AclPermission 缓存
 
 然后 `DefaultMethodSecurityExpressionHandler` 对象委派给一个 `PermissionEvalulator` 实例。在本章中，我们使用 ACL 以便我们使用的 bean `AclPermissionEvaluator`，它将读取我们在数据库中定义的 ACL。您可以查看提供的 `permissionEvaluator` 配置，如下所示：
 
-```java
-src/main/java/com/packtpub/springsecurity/configuration/AclConfig.java
-@Bean
-public AclPermissionEvaluator permissionEvaluator(){
-   return new AclPermissionEvaluator(aclService());
-}
-```
+[PRE35]
 
 # `JdbcMutableAclService` 对象
 
 在此点，我们看到了两次带有 `aclService` ID 的 `th` 引用。`aclService` ID 解析为一个负责将有关通过 ACL 受保护的对象的信息翻译成预期 ACE 的 `o.s.s.acls.model.AclService` 实现：
 
-```java
-src/main/java/com/packtpub/springsecurity/configuration/AclConfig.java
-@Autowired 
-private DataSource dataSource;
-@Bean
-public JdbcMutableAclService aclService(){
-```
+[PRE36]
 
-```java
-   return new JdbcMutableAclService(dataSource,
-                                     lookupStrategy(),
-                                     aclCache());
-}
-```
+[PRE37]
 
 我们将使用 `o.s.s.acls.jdbc.JdbcMutableAclService`，这是 `o.s.s.acls.model.AclService` 的默认实现。这个实现开箱即用，准备好使用我们在本练习的最后一步定义的架构。`JdbcMutableAclService` 对象还将使用递归 SQL 和后处理来理解对象和 `SID` 层次结构，并确保这些层次结构的表示被传递回 `AclPermissionEvaluator`。
 
@@ -891,17 +623,7 @@ public JdbcMutableAclService aclService(){
 
 `JdbcMutableAclService` 类使用了与我们定义的嵌入式数据库声明相同的 JDBC `dataSource` 实例，并且它还委派给 `o.s.s.acls.jdbc.LookupStrategy` 的一个实现，该实现专门负责实际执行数据库查询和解析 ACL 请求。Spring Security 提供的唯一 `LookupStrategy` 实现是 `o.s.s.acls.jdbc.BasicLookupStrategy`，如下定义：
 
-```java
-src/main/java/com/packtpub/springsecurity/configuration/AclConfig.java
-@Bean
-public LookupStrategy lookupStrategy(){
-   return new BasicLookupStrategy(
-           dataSource,
-           aclCache(),
-           aclAuthorizationStrategy(),
-           consoleAuditLogger());
-}
-```
+[PRE38]
 
 现在，`BasicLookupStrategy` 是一个相当复杂的生物。记住它的目的是将需要保护的 `ObjectIdentity` 声明列表翻译成实际适用的数据库中的 ACE 列表。由于 `ObjectIdentity` 声明可以是递归的，这证明是一个非常具有挑战性的问题，并且一个可能会经历大量使用的系统应考虑生成的 SQL 对数据库性能的影响。
 
@@ -925,75 +647,25 @@ public LookupStrategy lookupStrategy(){
 
 设置`Ehcache`很简单——我们只需声明`o.s.s.acls.domain.EhCacheBasedAclCache`以及从 Spring Core 中它的两个依赖 bean，这些 bean 管理`Ehcache`的实例化和暴露几个有用的配置属性。像我们的其他 bean 一样，我们在`AclConfig.java`中已经提供了以下的配置：
 
-```java
-src/main/java/com/packtpub/springsecurity/configuration/AclConfig.java
-@Bean
-public EhCacheBasedAclCache aclCache(){
-   return new EhCacheBasedAclCache(ehcache(),
-           permissionGrantingStrategy(),
-           aclAuthorizationStrategy()
-           );
-}
-
-@Bean
-public PermissionGrantingStrategy permissionGrantingStrategy(){
-   return new DefaultPermissionGrantingStrategy(consoleAuditLogger());
-}
-
-@Bean
-public Ehcache ehcache(){
-   EhCacheFactoryBean cacheFactoryBean = new EhCacheFactoryBean();
-   cacheFactoryBean.setCacheManager(cacheManager());
-   cacheFactoryBean.setCacheName("aclCache");
-   cacheFactoryBean.setMaxBytesLocalHeap("1M");
-   cacheFactoryBean.setMaxEntriesLocalHeap(0L);
-   cacheFactoryBean.afterPropertiesSet();
-   return cacheFactoryBean.getObject();
-}
-
-@Bean
-public CacheManager cacheManager(){
-   EhCacheManagerFactoryBean cacheManager = new EhCacheManagerFactoryBean();
-   cacheManager.setAcceptExisting(true);   cacheManager.setCacheManagerName(CacheManager.getInstance().getName());
-   cacheManager.afterPropertiesSet();
-return cacheManager.getObject();
-}
-```
+[PRE39]
 
 # `ConsoleAuditLogger`类
 
 悬挂在`o.s.s.acls.jdbc.BasicLookupStrategy`上的下一个简单依赖是一个`o.s.s.acls.domain.AuditLogger`接口的实现，该接口由`BasicLookupStrategy`类用于审计 ACL 和 ACE 查询。与`AclCache`接口类似，Spring Security 只提供了一个简单的日志到控制台的实现。我们将通过另一个单行 bean 声明来配置它：
 
-```java
-src/main/java/com/packtpub/springsecurity/configuration/AclConfig.java
-@Bean
-public ConsoleAuditLogger consoleAuditLogger(){
-   return new ConsoleAuditLogger();
-}
-```
+[PRE40]
 
 # `AclAuthorizationStrategyImpl`接口
 
 需要解决的最后依赖关系是对`o.s.s.acls.domain.AclAuthorizationStrategy`接口的实现，该接口在从数据库加载 ACL 时实际上没有任何直接的职责。相反，实现此接口负责确定是否允许对 ACL 或 ACE 进行运行时更改，具体取决于更改的类型。我们稍后会在讲解可变 ACL 时解释更多，因为逻辑流程既有点复杂，又与完成初始配置无关。最终的配置要求如下：
 
-```java
-src/main/java/com/packtpub/springsecurity/configuration/AclConfig.java
-@Bean
-public AclAuthorizationStrategy aclAuthorizationStrategy() {
-   return new AclAuthorizationStrategyImpl(
-           new SimpleGrantedAuthority("ROLE_ADMINISTRATOR")
-   );
-}
-```
+[PRE41]
 
 您可能想知道 ID 为`adminAuthority`的 bean 的引用是做什么的-`AclAuthorizationStrategyImpl`提供了指定在可变 ACL 上允许特定操作的`GrantedAuthority`的能力。我们将在本章后面覆盖这些内容。
 
 最后，我们需要更新我们的`SecurityConfig.java`文件，以加载我们的`AclConfig.java`文件，如下所示：
 
-```java
-src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-@Import(AclConfig.class) public class SecurityConfig extends WebSecurityConfigurerAdapter {
-```
+[PRE42]
 
 我们终于完成了 Spring Security ACL 实现的初始配置。下一步也是最后一步，要求我们将一个简单的 ACL 和 ACE 插入到 H2 数据库中并测试它！
 
@@ -1007,11 +679,7 @@ src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
 
 1.  首先，我们需要为任何或所有具有 ACL 规则的域对象类填充`ACL_CLASS`表-在我们示例的情况下，这仅仅是我们的`Event`类：
 
-```java
-        src/main/resources/data.sql
-        insert into acl_class (id, class) values (10, 
-        'com.packtpub.springsecurity.domain.Event');
-```
+[PRE43]
 
 我们选择为`ACL_CLASS`表使用主键 10 到 19 的数字，为`ACL_SID`表使用 20 到 29 的数字，以此类推。这将有助于更容易理解哪些数据与哪个表相关联。请注意，我们的`Event`表以主键 100 开始。这些便利措施仅为例证目的，不建议在生产环境中使用。
 
@@ -1019,15 +687,7 @@ src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
 
 1.  虽然角色的`SID`对象很简单，但用户的`SID`对象并不是那么清晰。对我们来说，用户名用于`SID`。要了解更多关于如何为角色和用户解析`SID`，请参阅`o.s.s.acls.domain.SidRetrievalStrategyImpl`。如果默认值不符合您的需求，可以将自定义的`o.s.s.acls.model.SidRetrievalStrategy`默认值注入到`AclPermissionCacheOptimizer`和`AclPermissionEvaluator`中。在我们的示例中，我们不需要这种自定义，但是如果需要，知道它是可用的：
 
-```java
-        src/main/resources/data.sql
-        insert into acl_sid (id, principal, sid) values (20, true,  
-        'user2@example.com');
-        insert into acl_sid (id, principal, sid) values (21, false, 
-        'ROLE_USER');
-        insert into acl_sid (id, principal, sid) values (22, false, 
-        'ROLE_ADMIN');
-```
+[PRE44]
 
 事情开始变得复杂的是`ACL_OBJECT_IDENTITY`表，该表用于声明个别域对象实例、其父（如果有）和所有者`SID`。例如，这个表代表了我们要保护的`Event`对象。我们将插入具有以下属性的行：
 
@@ -1039,29 +699,13 @@ src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
 
 表示具有`100`（生日事件）、`101`和`102` ID 的事件的 SQL 如下：
 
-```java
-    src/main/resources/data.sql
-    insert into acl_object_identity(id,object_id_identity,object_id_class,
-    parent_object,owner_sid,entries_inheriting)
-    values (30, 100, 10, null, 20, false);
-    insert into acl_object_identity(id,object_id_identity,object_id_class,
-    parent_object,owner_sid,entries_inheriting) 
-    values (31, 101, 10, null, 21, false);
-    insert into acl_object_identity(id,object_id_identity,object_id_class,
-    parent_object,owner_sid,entries_inheriting)
-    values (32, 102, 10, null, 21, false);
-```
+[PRE45]
 
 请记住，拥有的`SID`也可能代表一个角色-就 ACL 系统而言，这两种规则功能是相等的。
 
 最后，我们将向此对象实例添加一个与 ACE 相关的内容，声明`user2@example.com`被允许读取生日事件的权限：
 
-```java
-    src/main/resources/data.sql
-    insert into acl_entry
-   (acl_object_identity, ace_order, sid, mask, granting, audit_success, 
-   audit_failure) values(30, 1, 20, 1, true, true, true);
-```
+[PRE46]
 
 这里的`MASK`列代表一个位掩码，它用于授予分配给所述`SID`在问题对象上的权限。我们将在本章后面详细解释这一点-不幸的是，它可能没有听起来那么有用。
 
@@ -1069,12 +713,7 @@ src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
 
 如果您还没有弄清楚，您可以通过对`CalendarService`进行以下更新来保护直接访问事件：
 
-```java
-    src/main/java/com/packtpub/springsecurity/service/CalendarService.java
-    @PostAuthorize("hasPermission(filterObject, 'read') " +
-    "or hasPermission(filterObject, 'admin_read')")
-    Event getEvent(int eventId);
-```
+[PRE47]
 
 现在，我们已经有了基于 ACL 的安全性的基本工作设置（尽管是一个非常简单的场景）。让我们继续解释一下我们在这次演练中看到的概念，然后回顾一下在典型 Spring ACL 实现中你应该考虑的几个问题。
 
@@ -1120,12 +759,7 @@ src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
 
 如果你想用我们简单的场景来验证这一点，将我们授予`user2@example.com` SID 的`READ`权限更改为位掩码组合`Read`和`Write`，这翻译为一个值为`3`。这将在`data.sql`文件中更新，如下所示：
 
-```java
-    src/main/resources/data.sql
-    insert into acl_entry
-   (acl_object_identity, ace_order, sid, mask, granting, 
-   audit_success, audit_failure) values(30, 1, 20, 3, true, true, true);
-```
+[PRE48]
 
 你的代码应该看起来像`chapter12.02-calendar`。
 
@@ -1137,101 +771,36 @@ src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
 
 1.  第一步是扩展`BasePermission`类，用我们自己的`com.packtpub.springsecurity.acls.domain.CustomPermission`类，如下所示：
 
-```java
-        package com.packtpub.springsecurity.acls.domain;
-        public class CustomPermission extends BasePermission {
-           public static final Permission ADMIN_READ = new 
-           CustomPermission(1 << 5, 'M'); // 32
-           public CustomPermission(int mask, char code) {
-               super(mask, code);
-           }
-        }
-```
+[PRE49]
 
 1.  接下来，我们需要配置`o.s.s.acls.domain.PermissionFactory`默认实现，`o.s.s.acls.domain.DefaultPermissionFactory`，以注册我们的自定义权限逻辑值。`PermissionFactory`的作用是将权限位掩码解析为逻辑权限值（在其他应用程序区域中可以通过常量值或名称，如`ADMIN_READ`来引用）。`PermissionFactory`实例需要任何自定义权限都向其注册以进行正确的查找。我们已包含以下配置，注册了我们的`CustomPermission`类，如下所示：
 
-```java
-        src/main/java/com/packtpub/springsecurity/configuration/
-        AclConfig.java
-        @Bean
-        public DefaultPermissionFactory permissionFactory(){
-         return new DefaultPermissionFactory(CustomPermission.class);
-        }
-```
+[PRE50]
 
 1.  接下来，我们需要覆盖我们`BasicLookupStrategy`和`AclPermissionEvaluator`接口的默认`PermissionFactory`实例，使用自定义的`DefaultPermissionFactory`接口。请按照以下步骤更新您的`security-acl.xml`文件：
 
-```java
-src/main/java/com/packtpub/springsecurity/configuration/AclConfig.java
-@Bean
-public AclPermissionEvaluator permissionEvaluator(){
-   AclPermissionEvaluator pe = new
-                               AclPermissionEvaluator(aclService());
- pe.setPermissionFactory(permissionFactory());   return pe;
-}
-@Bean
-public LookupStrategy lookupStrategy(){
-   BasicLookupStrategy ls = new BasicLookupStrategy(
-                                       dataSource,
-                                       aclCache(),
-                                      aclAuthorizationStrategy(),
-                                      consoleAuditLogger());
- ls.setPermissionFactory(permissionFactory());   return ls;
-}
-```
+[PRE51]
 
 1.  我们还需要添加 SQL 查询，以利用新权限向`admin1@example.com`授予对会议电话（`acl_object_identity ID 为 31`）事件的访问权限。请对`data.sql`进行以下更新：
 
-```java
-        src/main/resources/data.sql
-        insert into acl_sid (id, principal, sid) values (23, true,   
-        'admin1@example.com');
-        insert into acl_entry (acl_object_identity, ace_order, sid, 
-        mask, granting, audit_success, audit_failure) 
-        values(31, 1, 23, 32, true, true, true);
-```
+[PRE52]
 
 我们可以看到，新的整数位掩码值`32`已在 ACE 数据中引用。这故意对应于我们在 Java 代码中定义的新`ADMIN_READ ACL`权限。在`ACL_OBJECT_IDENTITY`表中，会议电话事件通过其主键（存储在`object_id_identity`列）值`31`来引用。
 
 1.  最后一步是更新我们的`CalendarService 的 getEvents()`方法，以利用我们的新权限，如下所示：
 
-```java
-        @PostFilter("hasPermission(filterObject, 'read') " + "or    
-        hasPermission(filterObject, 'admin_read')")
-        List<Event> getEvents();
-```
+[PRE53]
 
 在所有这些配置就绪之后，我们可以重新启动网站并测试自定义 ACL 权限。根据我们配置的示例数据，当各种可用用户点击类别时，会发生以下情况：
 
 | **用户名/密码** | **生日派对事件** | **电话会议事件** | **其他事件** |
 | --- | --- | --- | --- |
-| ``` |
-| ``` |
-| ``` |
-
-我们可以看到，即使在我们使用简单示例的情况下，我们现在也能够在非常有限的方式上扩展 Spring ACL 功能，以说明这个细粒度访问控制系统的力量。
-
-你的代码应该看起来像`chapter12.03-calendar`。
-
-# 启用 ACL 权限评估
-
-我们在第二章中看到了 Spring Security JSP 标签库提供了将认证相关数据暴露给用户的功能，以及基于多种规则限制用户能看到的内容。在这本书中，我们一直使用的是建立在 Spring Security 之上的 Thymeleaf 安全标签库。
-
-这个相同的标签库也可以与 ACL 启用的系统无缝交互！从我们的简单实验中，我们已经围绕主页上的前两个类别配置了一个简单的 ACL 授权场景。让我们来看看以下步骤，学习如何在 Thymeleaf 页面中启用 ACL 权限评估：
-
-1.  首先，我们需要从我们的`CalendarService`接口中的`getEvents()`方法移除`@PostFilter`注解，以便给我们的 JSP 标签库一个过滤掉不允许显示的事件的机会。现在就移除`@PostFilter`，如下所示：
-
-```java
+| [PRE54] |
+| [PRE55]java
         src/main/java/com/packtpub/springsecurity/service/
         CalendarService.java
         List<Event> getEvents();
-```
-
-1.  现在我们已经移除了`@PostFilter`，我们可以使用`<sec:authorize-acl>`标签来隐藏用户实际上没有访问权限的事件。回顾一下前一部分的表格，作为对我们迄今为止配置的访问规则的刷新！
-
-1.  我们将用**`<sec:authorize-acl>`**标签包裹每个事件的显示，声明要检查的对象的权限列表：
-
-```java
+[PRE56]java
         src/main/resources/templates/events/list.html
         <tr th:each="event : ${events}"
  sec:authorize-acl="${event} :: '1,32'">           <td th:text="${#calendars.format(event.when, 
@@ -1241,23 +810,10 @@ public LookupStrategy lookupStrategy(){
            <td><a th:href="@{'/events/{id}'(id=${event.id})}"
            th:text="${event.summary}"></a></td>
         </tr>
-```
-
-1.  思考一下这里想要发生的事情-我们想要用户只看到他们实际具有`READ`或`ADMIN_READ`（我们的自定义权限）访问的项。然而，为了使用标签库，我们需要使用权限掩码，该掩码可以从以下表格中引用：
-
-| ``` |
+[PRE57] |
 | --- |
-| ``` |
-| ``` |
-| ``` |
-
-在幕后，标签实现利用了本章早些时候讨论过的相同的`SidRetrievalStrategy`和`ObjectIdentityRetrievalStrategy`接口。因此，访问检查的计算遵循与 ACL 启用的方法安全投票相同的 workflow。正如我们即将看到的，标签实现还将使用相同的`PermissionEvaluator`。
-
-我们已经用一个引用`DefaultMethodSecurityExpressionHandler`的`expressionHandler`元素配置了我们的`GlobalMethodSecurityConfiguration`。`DefaultMethodSecurityExpressionHandler`实现认识我们的`AclPermissionEvaluator`接口，但我们还必须让 Spring Security 的 web 层认识`AclPermissionEvaluator`。如果你仔细思考，这种对称性是合理的，因为保护和 HTTP 请求是保护两种非常不同的资源。幸运的是，Spring Security 的抽象使这一切变得相当简单。
-
-1.  添加一个引用我们已经定义的 ID 为`permissionEvaluator`的 bean 的`DefaultWebSecurityExpressionHandler`处理器：
-
-```java
+| [PRE58] |
+| [PRE59]java
         src/main/java/com/packtpub/springsecurity/configuration/
         AclConfig.java
         @Bean
@@ -1266,11 +822,7 @@ public LookupStrategy lookupStrategy(){
               setPermissionEvaluator(permissionEvaluator());
           }};
         }
-```
-
-1.  现在，更新`SecurityConfig.java`以引用我们的`webExpressionHandler`实现，如下所示：
-
-```java
+[PRE60]java
         src/main/java/com/packtpub/springsecurity/configuration/
         SecurityConfig.java
         @Autowired
@@ -1281,47 +833,7 @@ public LookupStrategy lookupStrategy(){
              .expressionHandler(webExpressionHandler);
            ...
         }
-```
-
-你可以看到这些步骤与我们向方法安全添加权限处理的方式非常相似。这次简单一些，因为我们能够重用已经配置的具有`PermissionEvaluator` ID 的相同 bean。
-
-启动我们的应用程序，并以不同的用户身份尝试访问所有事件页面。你会发现，不允许用户查看的事件现在使用我们的标签库隐藏，而不是`@PostFilter`注解。我们知道，直接访问事件会让用户看到它。然而，这可以通过将本章中学到的内容与本章中学到的关于`@PostAuthorize`注解的内容相结合轻松实现。
-
-你的代码应该看起来像`chapter12.04-calendar`。
-
-# 可变 ACL 和授权
-
-尽管 JBCP 日历应用程序没有实现完整的用户管理功能，但您的应用程序很可能会有常见功能，例如新用户注册和行政用户维护。到目前为止，这些功能的缺失（我们通过在应用程序启动时使用 SQL 插入解决了这个问题）并没有阻止我们演示 Spring Security 和 Spring ACL 的许多功能。
-
-然而，正确处理声明 ACL 的运行时更改，或系统中的用户添加或删除，对于维护 ACL 基础授权环境的完整性和安全性至关重要。Spring ACL 通过可变 ACL（`o.s.s.acls.model.MutableAcl`）的概念解决了这个问题。
-
-扩展标准 ACL 接口，`MutableAcl`接口允许在运行时操纵 ACL 字段，以改变特定 ACL 的内存表示。这包括创建、更新或删除 ACE 的能力，更改 ACL 所有者，以及其他有用功能。
-
-我们可能期望，Spring ACL 模块会默认提供一种将运行时 ACL 更改持久化到 JDBC 数据存储的方法，的确如此。可以使用`o.s.s.acls.jdbc.JdbcMutableAclService`类来创建、更新和删除数据库中的`MutableAcl`实例，以及执行 ACL 的其他支持表的一般维护（处理`SIDs`、`ObjectIdentity`和域对象类名）。
-
-在本书的早期部分提到，`AclAuthorizationStrategyImpl`类允许我们为可变 ACL 上的操作指定管理角色。这些是在 bean 配置中作为构造函数的一部分提供的。构造函数参数及其含义如下：
-
-| **参数编号** | **它做什么？** |
-| --- | --- |
-| 1 | 表示主体需要具有的权限，以在运行时获取 ACL 保护对象的所有权 |
-| 2 | 表示主体需要具有的权限，以在运行时更改 ACL 保护对象的审计 |
-| 3 | 表示主体需要具有的权限，以在运行时对 ACL 保护的对象进行任何其他类型的更改（创建、更新和删除） |
-
-可能会有所困惑，我们只指定了一个构造函数参数，尽管列出了三个参数。`AclAuthorizationStrategyImpl`类还可以接受一个`GrantedAuthority`，然后将其用于所有三个参数。如果我们要对所有操作使用相同的`GrantedAuthority`，这非常方便。
-
-`JdbcMutableAclService`接口包含用于在运行时操作 ACL 和 ACE 数据的一系列方法。尽管这些方法本身相对容易理解（`createAcl`、`updateAcl`和`deleteAcl`），但即使是高级 Spring Security 用户，配置和使用`JdbcMutableAclService`的正确方式也往往很难掌握。
-
-让我们修改`CalendarService`以创建新事件的新的 ACL。
-
-# 向新创建的事件添加 ACL
-
-目前，如果用户创建了一个新事件，它将不会在所有事件视图中显示给用户，因为我们使用`<sec:authorize-acl>`标签只显示用户有权访问的事件对象。让我们更新我们的`DefaultCalendarService`接口，以便当用户创建一个新事件时，他们被授予读取该事件的权限，并且它将显示在所有事件页面上。
-
-让我们来看看以下步骤，以将 ACL 添加到新创建的事件中：
-
-1.  第一步是更新我们的构造函数以接受`MutableAclService 和 UserContext`：
-
-```java
+[PRE61]java
         src/main/java/com/packtpub/springsecurity/service/
         DefaultCalendarService.java
         public class DefaultCalendarService implements CalendarService {
@@ -1337,11 +849,7 @@ public LookupStrategy lookupStrategy(){
                   this.aclService = aclService;
                   this.userContext = userContext;
                }
-```
-
-1.  然后，我们需要更新我们的`createEvent`方法，以也为当前用户创建 ACL。进行以下更改：
-
-```java
+[PRE62]java
         src/main/java/com/packtpub/springsecurity/service/
         DefaultCalendarService.java
         @Transactional

@@ -156,94 +156,43 @@ JWT 用于携带与持有令牌的客户端的身份和特征（声明）相关�
 
 JWT 的结构遵循以下三部分结构，包括头部、载荷和签名：
 
-```java
-    [Base64Encoded(HEADER)] . [Base64Encoded (PAYLOAD)] . [encoded(SIGNATURE)]
-```
+[PRE0]
 
 # 编码 JWT
 
 以下代码片段是基于客户端请求返回的完整编码`access_token`：
 
-```java
-     eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MDk2MTA2ODks
-    InVzZXJfbmFtZSI6InVzZXIxQGV4YW1wbGUuY29tIiwiYXV0aG9yaXRpZXMiOlsi
-    Uk9MRV9VU0VSIl0sImp0aSI6Ijc1NTRhZGM4LTBhMjItNDBhYS05YjQ5LTU4MTU2N
-    DBhNDUzNyIsImNsaWVudF9pZCI6Im9hdXRoQ2xpZW50MSIsInNjb3BlIjpb
-    Im9wZW5pZCJdfQ.iM5BqXj70ET1e5uc5UKgws1QGDv6NNZ4iVEHimsp1Pnx6WXuFwtpHQoerH_F-    
-    pTkbldmYWOwLC8NBDHElLeDi1VPFCt7xuf5Wb1VHe-uwslupz3maHsgdQNGcjQwIy7_U-  
-    SQr0wmjcc5Mc_1BWOq3-pJ65bFV1v2mjIo3R1TAKgIZ091WG0e8DiZ5AQase
-    Yy43ofUWrJEXok7kUWDpnSezV96PDiG56kpyjF3x1VRKPOrm8CZuylC57wclk-    
-    BjSdEenN_905sC0UpMNtuk9ENkVMOpa9_Redw356qLrRTYgKA-qpRFUpC-3g5
-    CXhCDwDQM3jyPvYXg4ZW3cibG-yRw
-```
+[PRE1]
 
 # 头部
 
 我们的`access_token` JWT 的编码头部是**base64**编码的，如下面的代码所示：
 
-```java
-    eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9
-```
+[PRE2]
 
 通过解码编码头部，我们得到以下载荷：
 
-```java
-    {
-      "alg": "RS256",
-       "typ": "JWT"
-    }
-```
+[PRE3]
 
 # 载荷
 
 我们的`access_token` JWT 的编码载荷是 base64 编码的，如下所示：
 
-```java
-    eyJleHAiOjE1MDk2MTA2ODksInVzZXJfbmFtZSI6InVzZXIxQGV4YW1wbGUuY29
-    tIiwiYXV0aG9yaXRpZXMiOlsiUk9MRV9VU0VSIl0sImp0aSI6Ijc1NTR
-    hZGM4LTBhMjItNDBhYS05YjQ5LTU4MTU2NDBhNDUzNyIsImNsaWVudF9pZCI6I
-    m9hdXRoQ2xpZW50MSIsInNjb3BlIjpbIm9wZW5pZCJdfQ
-```
+[PRE4]
 
 通过解码编码载荷，我们得到以下载荷声明：
 
-```java
-    {
-      "exp": 1509610689,  
-      "jti": "7554adc8-0a22-40aa-9b49-5815640a4537",
-      "client_id": "oauthClient1",
-      "authorities": [
-         "ROLE_USER"
-        ],
-         "scope": [
-        "openid"
-       ],
-      "user_name": "user1@example.com"
-    }
-```
+[PRE5]
 
 # 签名
 
 授权服务器使用私钥对我们的`access_token`进行了编码，如下面的代码所示：
 
-```java
-    iM5BqXj70ET1e5uc5UKgws1QGDv6NNZ4iVEHimsp1Pnx6WXuFwtpHQoerH_F-          
-    pTkbldmYWOwLC8NBDHElLeDi1VPFCt7xuf5Wb1VHe-uwslupz3maHsgdQNGcjQwIy7_U-   
-    SQr0wmjcc5Mc_1BWOq3-pJ65bFV1v2mjIo3R1TAKgIZ091WG0e8DiZ5AQaseYy43ofUWrJEXok7kUWDpn
-    SezV96PDiG56kpyjF3x1VRKPOrm8CZuylC57wclk-    
-    BjSdEenN_905sC0UpMNtuk9ENkVMOpa9_Redw356qLrRTYgKA-qpRFUp
-    C-3g5CXhCDwDQM3jyPvYXg4ZW3cibG-yRw
-```
+[PRE6]
 
 以下是创建 JWT 签名的伪代码：
 
-```java
-    var encodedString = base64UrlEncode(header) + ".";
-    encodedString += base64UrlEncode(payload);
-    var privateKey = "[-----PRIVATE KEY-----]";
-    var signature = SHA256withRSA(encodedString, privateKey);
-    var JWT = encodedString + "." + base64UrlEncode(signature);
-```
+[PRE7]
 
 # Spring Security 中的 OAuth 2 支持
 
@@ -257,50 +206,23 @@ Spring Security OAuth 项目提供了使用 Spring Security 进行 OAuth 2 授�
 
 `@EnableResourceServer`注解表示容器应用程序的意图，启用一个 Spring Security 过滤器，该过滤器通过传入的 OAuth2 令牌来验证请求：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/
-    OAuth2ResourceServerConfig.java
-
-    @EnableResourceServer
-    public class OAuth2ResourceServerConfig
-    extends ResourceServerConfigurerAdapter {...}
-```
+[PRE8]
 
 `@EnableResourceServer`注解表示容器应用程序的意图，启用一个`OAuth2AuthenticationProcessingFilter`过滤器，该过滤器通过传入的 OAuth 2 令牌来验证请求。`OAuth2AuthenticationProcessingFilter`过滤器需要使用`@EnableWebSecurity`注解在应用程序中的某个位置启用 web 安全。`@EnableResourceServer`注解注册了一个硬编码`@Order`为`3`的自定义`WebSecurityConfigurerAdapter`类。由于 Spring Framework 的技术限制，目前无法更改这个`WebSecurityConfigurerAdapter`类的顺序。为了解决这个限制，建议不要使用其他顺序为`3`的安全适配器，否则 Spring Security 会在你设置相同顺序的一个时提出抗议：
 
-```java
-//o.s.s.OAuth 2.config.annotation.web.configuration.ResourceServerConfiguration.class
-
-    @Configuration
-    public class ResourceServerConfiguration
-       extends WebSecurityConfigurerAdapter implements Ordered {
- private int order = 3;           ...
-        }
-```
+[PRE9]
 
 # 授权服务器
 
 为了启用授权服务器功能，我们在配置中包含了`@EnableAuthorizationServer`注解。添加此注解将在上下文中放入`o.s.s.OAuth 2.provider.endpoint.AuthorizationEndpoint`接口和`o.s.s.OAuth 2.provider.endpoint.TokenEndpoint`接口。开发者需要负责使用`@EnableWebSecurity`配置保护`AuthorizationEndpoint`（`/oauth/authorize`）。`TokenEndpoint`（`/oauth/token`）将基于 OAuth 2 客户端凭据自动使用 HTTP 基本身份验证进行保护：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/
-    OAuth2AuthorizationServerConfig.java
-
-    @Configuration
-    @EnableAuthorizationServer
-    public class OAuth 2AuthorizationServerConfig {...}
-```
+[PRE10]
 
 # RSA JWT 访问令牌转换器密钥对
 
 为了创建一个安全的 JWT 编码签名，我们将创建一个自定义 RSA `keystore`，我们将其用于创建自定义`o.s.s.OAuth 2.provider.token.storeJwtAccessTokenConverter`接口：
 
-```java
-$ keytool -genkey -alias jbcpOAuth 2client -keyalg RSA \
--storetype PKCS12 -keystore jwtConverterStore.p12 \
--storepass changeit \
--dname "CN=jwtAdmin1@example.com,OU=JBCP Calendar,O=JBCP,L=Park City,S=Utah,C=US"
-```
+[PRE11]
 
 这将创建一个名为`jwtConverterStore.p12`的`PKCS12`证书，需要将其复制到`./src/main/resources/key`目录中。
 
@@ -308,80 +230,29 @@ $ keytool -genkey -alias jbcpOAuth 2client -keyalg RSA \
 
 我们希望通过提供`keyPair`属性来外部化配置我们的 JWT 资源，包括`keystore`、`alias`和`storePassword`，正如你在我们的`application.yml`文件中看到的，位于`src/main/resources/application.yml`：
 
-```java
-    # OAuth 2 Configuration:
-    security:
-    OAuth 2:
-       # Resource Config:
-       resource:
-         jwt:
- keyPair: keystore: keys/jwtConverterStore.p12 alias: jbcpOAuth 2client storePassword: changeit
-```
+[PRE12]
 
 # OAuth 2 客户端配置属性
 
 我们需要为客户端认证、授权和 OAuth 2 范围配置客户端详细信息，正如你在`application.yml`文件中所看到的，位于`src/main/resources/application.yml`：
 
-```java
-# OAuth 2 Configuration:
-security:
-OAuth 2:
-   # Client Config:
-   client:
-     # Basic Authentication credentials for OAuth 2
- clientId: oauthClient1 clientSecret: oauthClient1Password authorizedGrantTypes: password,refresh_token scope: openid
-```
+[PRE13]
 
 # JWT 访问令牌转换器
 
 创建 JWT 令牌的最后一步是创建一个自定义`JwtAccessTokenConverter`，它将使用生成的 RSA 证书为我们的 JWT 签名。为此，我们需要拉取我们的 keyPair 配置，并配置一个自定义`JwtAccessTokenConverter`，正如在 OAuth2AuthorizationServerConfig.java 文件中所看到的：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/
-    OAuth2AuthorizationServerConfig.java
-
-    public class OAuth2AuthorizationServerConfig {
-       @Value("${security.OAuth 2.resource.jwt.keyPair.keystore}")
-       private String keystore;
-       @Value("${security.OAuth 2.resource.jwt.keyPair.alias}")
-       private String keyPairAlias;
-     @Value("${security.OAuth 2.resource.jwt.keyPair.storePassword}")
-       private String keyStorePass;
-       @Bean
-       public JwtAccessTokenConverter jwtAccessTokenConverter() {
-           JwtAccessTokenConverter converter = new
-           JwtAccessTokenConverter();
-           KeyPair keyPair = new KeyStoreKeyFactory
-           (new ClassPathResource(keystore),
-           keyStorePass.toCharArray() ).getKeyPair(keyPairAlias);
-           converter.setKeyPair(keyPair);
-           return converter;
-       }
-    }
-```
+[PRE14]
 
 # 用户详情服务对象
 
 我们将使用`CalendarUser`凭据为客户端分配一个授权的`GrantedAuthority`。为了做到这一点，我们必须要么配置我们的`CalendarUserDetailsService`类，要么通过在下面的`CalendarUserDetailsService.java`文件中指定名称`userDetailsService`来实现，正如你所看到的：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/core/userdetails/
-    CalendarUserDetailsService.java
- @Component("userDetailsService")    public class CalendarUserDetailsService
-    implements UserDetailsService {...}
-```
+[PRE15]
 
 为我们的`@Component`注解定义自定义名称的另一个替代方案是定义一个`@Bean`声明，我们可以通过在`SecurityConfig.java`文件中使用以下条目来实现：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Bean
-    public CalendarUserDetailsService userDetailsService
-    (CalendarUserDao calendarUserDao) {
-       return new CalendarUserDetailsService(calendarUserDao);
-    }
-```
+[PRE16]
 
 # 运行 OAuth 2 服务器应用程序
 
@@ -399,131 +270,25 @@ OAuth 2:
 
 当我们初次请求令牌时，我们应该得到一个类似于以下的成功响应：
 
-```java
-    $ http -a oauthClient1:oauthClient1Password -f POST
-    localhost:8080/oauth/token     
-    grant_type=password username=user1@example.com password=user1 
-    HTTP/1.1 200
-    Cache-Control: no-cache, no-store, max-age=0, must-revalidate
-    Cache-Control: no-store
-    Content-Type: application/json;charset=UTF-8
-    Date: Thu, 09 Nov 2017 20:29:26 GMT
-    Expires: 0
-    Pragma: no-cache
-    Pragma: no-cache
-    Transfer-Encoding: chunked
-    X-Application-Context: application:default
-    X-Content-Type-Options: nosniff
-    X-Frame-Options: DENY
-    X-XSS-Protection: 1; mode=block 
-    {
- "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MT
-    AzMDI1NjYsInVzZXJfbmFtZSI6InVzZXIxQGV4YW1wbGUuY29tIiwiYXV0aG9yaXRpZ
-    XMiOlsiUk9MRV9VU0VSIl0sImp0aSI6ImYzNzYzMWI4LWI0OGEtNG
-    Y1MC1iNGQyLTVlNDk1NTRmYzZjZSIsImNsaWVudF9pZCI6Im9hdXRoQ
-    2xpZW50MSIsInNjb3BlIjpbIm9wZW5pZCJdfQ.d5I2ZFX9ia_43eeD5X3JO6i_uF1Zw-    
-    SaZ1CWbphQlYI3oCq6Xr9Yna5fvvosOZoWjb8pyo03EPVCig3mobhO6AF
-    18802XOlBRx3qb0FGmHZzDoPw3naTDHlhE97ctlIFIcuJVqi34T60cvii
-    uXmcE1tJ-H6-7AB04-wZl_WaucoO8-K39GvPyVabWBfSpfv0nbhh_XMNiB
-    PnN8u5mqSKI9xGjYhjxXspRyy--    
-    zXx50Nqj1aYzxexy8Scawrtt2F87o1IesOodoPEQGTgVVieIilplwkMLhMvJfxhyMOt
-    ohR63XOGBSI4dDz58z3zOlk9P3k2Uq5FmkqwNNkduKceSw","expires_in": 43199,
-    "jti": "f37631b8-b48a-4f50-b4d2-5e49554fc6ce","refresh_token":    
-    "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJ1c2VyM
-    UBleGFtcGxlLmNvbSIsInNjb3BlIjpbIm9wZW5pZCJdLCJhdGkiOiJmMzc2MzF
-    iOC1iNDhhLTRmNTAtYjRkMi01ZTQ5NTU0ZmM2Y2UiLCJleHAiOjE1MTI4NTEzNjYs
-    ImF1dGhvcml0aWVzIjpbIlJPTEVfVVNFUiJdLCJqdGkiOiJjODM2OGI4NS0xNTk5L
-    TQ0NTgtODQ2Mi1iNGFhNDg1OGIzY2IiLCJjbGllbnRfaWQiOiJvYXV0aENsaWVudDEifQ.
-    RZJ2GbEvcmFbZ3SVHmtFnSF_O2kv- 
-    TmN56tddW2GkG0gIRr612nN5DVlfWDKorrftmmm64x8bxuV2CcFx8Rm4SSWuoYv
-    j4oxMXZzANqXWLwj6Bei4z5uvuu00g6PtJvy5Twjt7GWCvEF82PBoQL-  
-    bTM3RNSKmPnYPBwOGaRFTiSTdKsHCcbrg-   
-    H84quRKCjXTl7Q6l8ZUxAf1eqWlOYEhRiGHtoULzdOvL1_W0OoWrQds1EN5g
-    AuoTTSI3SFLnEE2MYu6cNznJFgTqmVs1hYmX1hiXUhmCq9nwYpWei-  
-    bu0MaXCa9LRjDRl9E6v86vWJiBVzd9qQilwTM2KIvgiG7w", "scope": "openid",
-    "token_type": "bearer"
-    }
-```
+[PRE17]
 
 具体来说，我们已经获得了一个可以在后续请求中使用的访问令牌。以下是我们将用作持有者的`access_token`：
 
-```java
- eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MTAzMDI1
-    NjYsInVzZXJfbmFtZSI6InVzZXIxQGV4YW1wbGUuY29tIiwiYXV0aG9yaXRpZXM
-    iOlsiUk9MRV9VU0VSIl0sImp0aSI6ImYzNzYzMWI4LWI0OGEtNGY1MC1iNGQyL
-    TVlNDk1NTRmYzZjZSIsImNsaWVudF9pZCI6Im9hdXRoQ2xpZW50MSIsInNjb
-    3BlIjpbIm9wZW5pZCJdfQ.d5I2ZFX9ia_43eeD5X3JO6i_uF1Zw-   
-    SaZ1CWbphQlYI3oCq6Xr9Yna5fvvosOZoWjb8pyo03EPVCig3mobhO6AF18802XO
-    lBRx3qb0FGmHZzDoPw3naTDHlhE97ctlIFIcuJVqi34T60cviiuXmcE1tJ-H6-7AB04-wZl_WaucoO8-   
-    K39GvPyVabWBfSpfv0nbhh_XMNiBPnN8u5mqSKI9xGjYhjxXspRyy--   
-    zXx50Nqj1aYzxexy8Scawrtt2F87o1IesOodoPEQGTgVVieIilplwkMLhMvJfxhyMOto
-    hR63XOGBSI4dDz58z3zOlk9P3k2Uq5FmkqwNNkduKceSw
-```
+[PRE18]
 
 现在我们将使用`access_token`，并使用该令牌以以下格式初始化对服务器的额外请求：
 
-```java
-$ http localhost:8080/ "Authorization: Bearer [access_token]"
-```
+[PRE19]
 
 当我们添加第一次请求中收到的`access_token`时，我们应该得到以下请求：
 
-```java
- $ http localhost:8080/ 'Authorization: Bearer    
-    eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MTAzMD
-    I1NjYsInVzZXJfbmFtZSI6InVzZXIxQGV4YW1wbGUuY29tIiwiYXV0aG9yaXRp
-    ZXMiOlsiUk9MRV9VU0VSIl0sImp0aSI6ImYzNzYzMWI4LWI0OGEtNGY1MC1iNGQyLT
-    VlNDk1NTRmYzZjZSIsImNsaWVudF9pZCI6Im9hdXRoQ2xpZW50MSIsInNjb3BlIjpb
-    Im9wZW5pZCJdfQ.d5I2ZFX9ia_43eeD5X3JO6i_uF1Zw-    
-    SaZ1CWbphQlYI3oCq6Xr9Yna5fvvosOZoWjb8pyo03EPVCig3mobhO6AF18802XOl
-    BRx3qb0FGmHZzDoPw3naTDHlhE97ctlIFIcuJVqi34T60cviiuXmcE1tJ-H6-7AB04-wZl_WaucoO8-   
-    K39GvPyVabWBfSpfv0nbhh_XMNiBPnN8u5mqSKI9xGjYhjxXspRyy--   
-    zXx50Nqj1aYzxexy8Scawrtt2F87o1IesOodoPEQGTgVVieIilplwkMLhMvJf  
-    xhyMOtohR63XOGBSI4dDz58z3zOlk9P3k2Uq5FmkqwNNkduKceSw'    HTTP/1.1 200
-    Cache-Control: no-cache, no-store, max-age=0, must-revalidate
-    Content-Length: 55
-    Content-Type: text/plain;charset=UTF-8
-    Date: Thu, 09 Nov 2017 20:44:00 GMT
-    Expires: 0
-    Pragma: no-cache
-    X-Application-Context: application:default
-    X-Content-Type-Options: nosniff
-    X-Frame-Options: DENY
-    X-XSS-Protection: 1; mode=block
-    {'message': 'welcome to the JBCP Calendar Application'}
-```
+[PRE20]
 
 我们可以继续使用相同的`access_token`进行后续请求，例如获取当前用户的日历事件：
 
-```java
-    $ http localhost:8080/events/my 'Authorization: Bearer    
-    eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MTAzMDI1NjYsI
-    nVzZXJfbmFtZSI6InVzZXIxQGV4YW1wbGUuY29tIiwiYXV0aG9yaXRpZXMiOlsiU
-    k9MRV9VU0VSIl0sImp0aSI6ImYzNzYzMWI4LWI0OGEtNGY1MC1iNGQyLTVlNDk1NT
-    RmYzZjZSIsImNsaWVudF9pZCI6Im9hdXRoQ2xpZW50MSIsInNjb3BlIjpbIm9wZW5pZ
-    CJdfQ.d5I2ZFX9ia_43eeD5X3JO6i_uF1Zw-    
-    SaZ1CWbphQlYI3oCq6Xr9Yna5fvvosOZoWjb8pyo03EPVCig3mobhO6AF18802XO
-    lBRx3qb0FGmHZzDoPw3naTDHlhE97ctlIFIcuJVqi34T60cviiuXmcE1tJ-H6-7AB04-wZl_WaucoO8-   
-    K39GvPyVabWBfSpfv0nbhh_XMNiBPnN8u5mqSKI9xGjYhjxXspRyy--  
-    zXx50Nqj1aYzxexy8Scawrtt2F87o1IesOodoPEQGTgVVieIilplwkMLhMvJfxhyMOtohR63
-    XOGBSI4dDz58z3zOlk9P3k2Uq5FmkqwNNkduKceSw'
-    HTTP/1.1 200
-    Cache-Control: no-cache, no-store, max-age=0, must-revalidate
-    Content-Type: application/json;charset=UTF-8
-    Date: Thu, 09 Nov 2017 20:57:17 GMT
-    Expires: 0
-    Pragma: no-cache
-    Transfer-Encoding: chunked
-    X-Application-Context: application:default
-    X-Content-Type-Options: nosniff
-    X-Frame-Options: DENY
-    X-XSS-Protection: 1; mode=block
- { "currentUser": [ { "description": "This is going to be a great birthday", "id": 100, "summary": "Birthday Party", 
-```
+[PRE21]
 
-```java
- "when": 1499135400000 } ] }
-```
+[PRE22]
 
 现在我们已经准备好为客户端发放`access_tokens`的 OAuth 2 服务器，我们可以创建一个微服务客户端来与我们的系统交互。
 
@@ -533,107 +298,25 @@ $ http localhost:8080/ "Authorization: Bearer [access_token]"
 
 1.  我们需要设置一些将在以下`JavaConfig.java`文件中用于配置客户端的属性：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/JavaConfig.java
-
-    @Configuration
- @EnableOAuth 2Client    public class JavaConfig {
-       @Value("${oauth.token.uri}")
-       private String tokenUri;
-       @Value("${oauth.resource.id}")
-       private String resourceId;
-       @Value("${oauth.resource.client.id}")
-       private String resourceClientId;
-       @Value("${oauth.resource.client.secret}")
-       private String resourceClientSecret;
-      @Value("${oauth.resource.user.id}")
-      private String resourceUserId;
-      @Value("${oauth.resource.user.password}")
-      private String resourceUserPassword;
-      @Autowired
-      private DataSource dataSource;
-     ...
-    }
-```
+[PRE23]
 
 1.  除了我们需要执行 OAuth 2 RESTful 操作的几个标准属性外，我们还需要创建一个`dataSource`来保存将在初始请求时检索并在后续操作中使用的给定资源的`oauth_client_token`。现在让我们为管理`oauth_client_token`创建一个`ClientTokenServices`，如以下`JavaConfig.java`文件所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/JavaConfig.java
-
-    @Bean
-   public ClientTokenServices clientTokenServices() {
-     return new JdbcClientTokenServices(dataSource);
-    }
-```
+[PRE24]
 
 1.  现在我们创建一个`OAuth2RestTemplate`，它将管理 OAuth2 通信。我们将从创建一个`ResourceOwnerPasswordResourceDetails`来持有资源连接详细信息开始，然后构建一个`OAuth2RestTemplate`作为客户端请求的`OAuth2RestOperations`使用：
 
-```java
-//src/main/java/com/packtpub/springsecurity/configuration/JavaConfig.java
-
-@Bean
-public OAuth2RestOperationsOAuth2RestOperations() {
-   ResourceOwnerPasswordResourceDetails resource =
-                     new ResourceOwnerPasswordResourceDetails();
-   resource.setAccessTokenUri(tokenUri);
-   resource.setId(resourceId);
-   resource.setClientId(resourceClientId);
-   resource.setClientSecret(resourceClientSecret);
-   resource.setGrantType("password");
-   resource.setScope(Arrays.asList("openid"));
-   resource.setUsername(resourceUserId);
-   resource.setPassword(resourceUserPassword);
-   return new OAuth 2RestTemplate(resource);
-}
-```
+[PRE25]
 
 # 配置 OAuth 2 客户端
 
 自从我们启用了`@EnableOAuth2Client`注解并设置了一个`ResourceOwnerPasswordResourceDetails`对象后，我们需要配置用于连接资源服务器和认证服务器的属性：
 
-```java
-    //src/main/resources/application.yml
-
-    oauth:
-    url: ${OAUTH_URL:http://localhost:8080}
-    token:
-       uri: ${OAUTH_URL:http://localhost:8080}/oauth/token
-    resource:
-       id: microservice-test
-       # Client BASIC Authentication for Authentication Server
-       client:
-         id: ${OAUTH_CLIENT_ID:oauthClient1}
-         secret: ${OAUTH_CLIENT_SECRET:oauthClient1Password}
-       # Resource Password Credentials
-       user:
-         id: ${OAUTH_USER_ID:user1@example.com}
-         password: ${OAUTH_USER_PASSWORD:user1}
-```
+[PRE26]
 
 现在我们已经有了这些组件，可以开始使用`OAuth2RestOperations`对象发送请求。我们将首先创建一个`RestController`来拉取远程详细信息，并将其作为 RESTful 请求的结果显示，正如我们在`OAuth2EnabledEventsController.java`文件中所展示的那样：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/web/controllers/
-    OAuth2EnabledEventsController.java
-
-    @RestController
-    public class OAuth2EnabledEventsController {
-       @Autowired
-       private OAuth2RestOperations template;
-       @Value("${base.url:http://localhost:8888}")
-       private String baseUrl;
-       @Value("${oauth.url:http://localhost:8080}")
-       private String baseOauthUrl;
-       @GetMapping("/events/my")
-      public String eventsMy() {
-          @SuppressWarnings("unchecked")
-          String result = template.getForObject(baseOauthUrl+"/events/my",
-          String.class);
-          return result;
-       }
-    }
-```
+[PRE27]
 
 现在我们应为客户端应用拥有相同的代码库。
 
@@ -641,18 +324,7 @@ public OAuth2RestOperationsOAuth2RestOperations() {
 
 我们需要确保`chapter16.01-calendar`应用正在运行，并准备好接收来自客户端的 OAuth 2 请求。然后我们可以启动`chapter16.01-calendar-client`应用，该应用将暴露几个 RESTful 端点，包括一个访问配置用户事件（位于远程资源上的`/events/my`）的端点，并通过运行`http://localhost:8888/events/my`返回以下结果：
 
-```java
-    {
-    "currentUser": [
-   {
-     "id": 100,
-     "summary": "Birthday Party",
-     "description": "This is going to be a great birthday",
-     "when": 1499135400000
-   }
-    ]
-    }
-```
+[PRE28]
 
 # 摘要
 

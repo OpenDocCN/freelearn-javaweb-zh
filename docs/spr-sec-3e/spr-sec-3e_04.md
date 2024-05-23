@@ -24,16 +24,7 @@
 
 下面的代码片段定义了本章所需的依赖项，包括 Spring Security 和 JDBC 依赖项：
 
-```java
-    //build.gradle
-
-    dependencies {
-    ...
-    // Database:
- compile('org.springframework.boot:spring-boot-starter-jdbc') compile('com.h2database:h2')    // Security:
- compile('org.springframework.boot:spring-boot-starter-security') testCompile('org.springframework.security:spring-security-test')       ....
-    }
-```
+[PRE0]
 
 # 使用 H2 数据库
 
@@ -51,18 +42,7 @@
 
 为了配置 H2 嵌入式数据库，我们需要创建一个`DataSource`并运行 SQL 来创建 Spring Security 的表结构。我们需要更新在启动时加载的 SQL，以包括 Spring Security 的基本模式定义、Spring Security 用户定义以及用户权限映射。你可以在以下代码片段中找到`DataSource`定义和相关更新：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/DataSourceConfig.java
-
-    @Bean
-    public DataSource dataSource() {
-    return new EmbeddedDatabaseBuilder()
-       .setName("dataSource")
- .setType(EmbeddedDatabaseType.H2)       .addScript("/database/h2/calendar-schema.sql")
-       .addScript("/database/h2/calendar-data.sql")
- .addScript("/database/h2/security-schema.sql") .addScript("/database/h2/security-users.sql") .addScript("/database/h2/security-user-authorities.sql")       .build();
-    }
-```
+[PRE1]
 
 记住，`EmbeddedDatabaseBuilder()`方法只在内存中创建数据库，所以你不会在磁盘上看到任何东西，也无法使用标准工具来查询它。然而，你可以使用嵌入在应用程序中的 H2 控制台与数据库进行交互。你可以通过查看我们应用程序的欢迎页面的说明来学习如何使用它。
 
@@ -70,16 +50,7 @@
 
 我们将修改`SecurityConfig.java`文件，声明我们使用 JDBC`UserDetailsManager`实现，而不是我们在第二章，*开始使用 Spring Security*中配置的 Spring Security 内存中的`UserDetailsService`实现。这是通过简单地更改`UserDetailsManager`声明来完成的，如下所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    ¦
-    @Bean
-    @Override
-    public UserDetailsManager userDetailsService() {
- JdbcUserDetailsManager manager = new JdbcUserDetailsManager(); manager.setDataSource(dataSource); return manager;    }
-    ¦
-```
+[PRE2]
 
 我们将替换之前的`configure(AuthenticationManagerBuilder)`方法及其所有子元素，使用如前一个代码片段所示的`userDetailsService()`方法。
 
@@ -87,58 +58,19 @@
 
 让我们来看看用于初始化数据库的每个 SQL 文件。我们添加的第一个脚本包含了默认的 Spring Security 用户及其权限的架构定义。接下来的脚本已从 Spring Security 的参考资料中改编，列在附录中的*附加参考资料*，以具有明确命名的约束，使故障排除更容易：
 
-```java
-    //src/main/resources/database/h2/security-schema.sql
-
-    create table users(
-       username varchar(256) not null primary key,
-       password varchar(256) not null,
-       enabled boolean not null
-    );
-    create table authorities (
-       username varchar(256) not null,
-       authority varchar(256) not null,
-       constraint fk_authorities_users
-           foreign key(username) references users(username)
-    );
-    create unique index ix_auth_username on authorities (username,authority);
-```
+[PRE3]
 
 # 定义用户
 
 下一个脚本是负责定义我们应用程序中的用户。包含的 SQL 语句创建了到目前为止在整个书中使用的相同用户。该文件还添加了一个额外的用户`disabled1@example.com`，由于我们指示用户为禁用状态，因此该用户将无法登录：
 
-```java
-    //src/main/resources/database/h2/security-users.sql
-
-    insert into users (username,password,enabled)
-       values ('user1@example.com','user1',1);
-    insert into users (username,password,enabled)
-       values ('admin1@example.com','admin1',1);
-    insert into users (username,password,enabled)
-       values ('user2@example.com','admin1',1);
-    insert into users (username,password,enabled)
-       values ('disabled1@example.com','disabled1',0);
-```
+[PRE4]
 
 # 定义用户权限
 
 您可能已经注意到没有指示用户是管理员还是普通用户。下一个文件指定了用户与相应权限的直接映射。如果一个用户没有映射到权限，Spring Security 将不允许该用户登录：
 
-```java
-    //src/main/resources/database/h2/security-user-authorities.sql
-
-    insert into authorities(username,authority)
-       values ('user1@example.com','ROLE_USER');
-    insert into authorities(username,authority)
-      values ('admin1@example.com','ROLE_ADMIN');
-    insert into authorities(username,authority)
-       values ('admin1@example.com','ROLE_USER');
-    insert into authorities(username,authority)
-       values ('user2@example.com','ROLE_USER');
-    insert into authorities(username,authority)
-       values ('disabled1@example.com','ROLE_USER');
-```
+[PRE5]
 
 在将 SQL 添加到嵌入式数据库配置之后，我们应该能够启动应用程序并登录。尝试使用`disabled1@example.com`作为`username`和`disabled1`作为`password`登录新用户。注意 Spring Security 不允许用户登录并提供错误消息`Reason: User is disabled`。
 
@@ -196,97 +128,27 @@ GBAC 是市场上几乎所有受保护的操作系统或软件包中常见的做
 
 默认情况下，Spring Security 不使用 GBAC。因此，我们必须指导 Spring Security 启用组的使用。修改`SecurityConfig.java`文件以使用`GROUP_AUTHORITIES_BY_USERNAME_QUERY`，如下所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    private static String GROUP_AUTHORITIES_BY_USERNAME_QUERY = " "+
- "select g.id, g.group_name, ga.authority " + "from groups g, group_members gm, " + "group_authorities ga where gm.username = ? " + "and g.id = ga.group_id and g.id = gm.group_id";    @Override
-    public void configure(AuthenticationManagerBuilder auth) throws Exception {
- auth .jdbcAuthentication() .dataSource(dataSource) .groupAuthoritiesByUsername( GROUP_AUTHORITIES_BY_USERNAME_QUERY );    }
-```
+[PRE6]
 
 # 使用 GBAC JDBC 脚本
 
 接下来，我们需要更新在启动时加载的脚本。我们需要删除`security-user-authorities.sql`映射，以便用户不再通过直接映射来获取他们的权限。然后我们需要添加两个额外的 SQL 脚本。更新`DataSource`bean 配置以加载 GBAC 所需的 SQL，如下所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/DataSourceConfig.java
-
-    @Bean
-    public DataSource dataSource() {
-       return new EmbeddedDatabaseBuilder()
-         .setName("dataSource")
-         .setType(EmbeddedDatabaseType.H2)
-         .addScript("/database/h2/calendar-schema.sql")
-         .addScript("/database/h2/calendar-data.sql")
-         .addScript("/database/h2/security-schema.sql")
-         .addScript("/database/h2/security-users.sql")
- .addScript("/database/h2/security-groups-schema.sql") .addScript("/database/h2/security-groups-mappings.sql")         .build();
-    }
-```
+[PRE7]
 
 # 基于组的模式
 
 可能很显然，但我们添加的第一个 SQL 文件包含了对模式的支持以支持基于组的授权的更新。您可以在以下代码片段中找到文件的正文：
 
-```java
-    //src/main/resources/database/h2/security-groups-schema.sql
+[PRE8]
 
-    create table groups (
-    id bigint generated by default as identity(start with 0) primary key,
-    group_name varchar(256) not null
-    );
-    create table group_authorities (
-      group_id bigint not null,
-      authority varchar(256) not null,
-      constraint fk_group_authorities_group
-      foreign key(group_id) references groups(id)
-    );
-    create table group_members (
-      id bigint generated by default as identity(start with 0) primary key,
-      username varchar(256) not null,
-      group_id bigint not null,\
-```
-
-```java
-      constraint fk_group_members_group
-      foreign key(group_id) references groups(id)\
-    );
-```
+[PRE9]
 
 # 组权限映射
 
 现在我们需要将我们的现有用户映射到组，并将组映射到权限。这在`security-groups-mappings.sql`文件中完成。基于组的映射很方便，因为通常，组织已经有了出于各种原因的逻辑用户组。通过利用现有用户分组，我们可以大大简化我们的配置。这就是间接层如何帮助我们。我们在以下组映射中包括了组定义、组到权限的映射以及几个用户：
 
-```java
-    //src/main/resources/database/h2/security-groups-mappings.sql
-
-    -- Create the Groups
-
-    insert into groups(group_name) values ('Users');
-    insert into groups(group_name) values ('Administrators');
-
-    -- Map the Groups to Roles
-
-    insert into group_authorities(group_id, authority)
-    select id,'ROLE_USER' from groups where group_name='Users';
-    insert into group_authorities(group_id, authority)
-    select id,'ROLE_USER' from groups where
-    group_name='Administrators';
-    insert into group_authorities(group_id, authority)
-    select id,'ROLE_ADMIN' from groups where
-    group_name='Administrators';
-
-    -- Map the users to Groups
-
-    insert into group_members(group_id, username)
-    select id,'user1@example.com' from groups where
-    group_name='Users';
-    insert into group_members(group_id, username)
-    select id,'admin1@example.com' from groups where
-    group_name='Administrators';
-    ...
-```
+[PRE10]
 
 启动应用程序，它将表现得和以前一样；然而，用户和角色之间的额外抽象层简化了大量用户组的管理。
 
@@ -316,19 +178,7 @@ GBAC 是市场上几乎所有受保护的操作系统或软件包中常见的做
 
 我们需要初始化具有自定义架构的`DataSource`，而不是使用 Spring Security 的默认架构。按照以下方式更新`DataSourceConfig.java`文件：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/DataSourceConfig.java
-
-    @Bean
-    public DataSource dataSource() {
-    return new EmbeddedDatabaseBuilder()
-       .setName("dataSource")
-     .setType(EmbeddedDatabaseType.H2)
-       .addScript("/database/h2/calendar-schema.sql")
-       .addScript("/database/h2/calendar-data.sql")
- .addScript("/database/h2/calendar-authorities.sql")       .build();
-    }
-```
+[PRE11]
 
 请注意，我们已经移除了所有以`security`开头的脚本，并将它们替换为`calendar-authorities.sql`。
 
@@ -336,30 +186,7 @@ GBAC 是市场上几乎所有受保护的操作系统或软件包中常见的做
 
 您可以在以下代码片段中查看`CalendarUser`权限映射：
 
-```java
-    //src/main/resources/database/h2/calendar-authorities.sql
-
-    create table calendar_user_authorities (
-       id bigint identity,
-       calendar_user bigint not null,
-       authority varchar(256) not null,
-    );
-    -- user1@example.com
-    insert into calendar_user_authorities(calendar_user, authority)
-       select id,'ROLE_USER' from calendar_users where
-       email='user1@example.com';
-    -- admin1@example.com
-    insert into calendar_user_authorities(calendar_user, authority)
-       select id,'ROLE_ADMIN' from calendar_users where     
-       email='admin1@example.com';
-    insert into calendar_user_authorities(calendar_user, authority)
-       select id,'ROLE_USER' from calendar_users where
-       email='admin1@example.com';
-    -- user2@example.com
-    insert into calendar_user_authorities(calendar_user, authority)
-       select id,'ROLE_USER' from calendar_users where
-     email='user2@example.com';
-```
+[PRE12]
 
 请注意，我们使用`id`作为外键，这比使用用户名作为外键（如 Spring Security 所做的那样）要好。通过使用`id`作为外键，我们可以允许用户轻松地更改他们的用户名。
 
@@ -367,30 +194,7 @@ GBAC 是市场上几乎所有受保护的操作系统或软件包中常见的做
 
 当我们添加一个新的`CalendarUser`类时，我们需要更新`DefaultCalendarService`以使用我们的自定义架构为用户插入权限。这是因为虽然我们重用了用户定义的架构，但我们在现有的应用程序中没有定义自定义权限。按照以下方式更新`DefaultCalendarService`：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/service/DefaultCalendarService.java
-
-    import org.springframework.jdbc.core.JdbcOperations;
-    ...
-    public class DefaultCalendarService implements CalendarService {
-       ...
-       private final JdbcOperations jdbcOperations;
-       @Autowired
-          public DefaultCalendarService(EventDao eventDao, 
-          CalendarUserDao userDao, JdbcOperations jdbcOperations) {
-           ...
-           this.jdbcOperations = jdbcOperations;
-       }
-       ...
-       public int createUser(CalendarUser user) {
-           int userId = userDao.createUser(user);
-           jdbcOperations.update(
-             "insert into calendar_user_authorities(calendar_user,authority) 
-             values(?,?)", userId, "ROLE_USER");
-           return userId;
-       }
-    }
-```
+[PRE13]
 
 您可能注意到了用于插入我们用户的`JdbcOperations`接口。这是 Spring 提供的一个方便的模板，它有助于管理诸如连接和事务处理之类的样板代码。有关详细信息，请参阅本书附录*附加参考资料*，以找到 Spring 参考资料。
 
@@ -398,16 +202,7 @@ GBAC 是市场上几乎所有受保护的操作系统或软件包中常见的做
 
 为了使用我们非标准架构的自定义 SQL 查询，我们只需更新我们的`userDetailsService()`方法以包括新的查询。这和启用 GBAC 支持的过程非常相似，只不过我们这次不使用默认的 SQL，而是使用我们修改后的 SQL。注意我们移除了我们旧的`setGroupAuthoritiesByUsernameQuery()`方法调用，因为在这个例子中我们不会使用它，以保持事情的简单性：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
- private static String CUSTOM_USERS_BY_USERNAME_QUERY = ""+ "select email, password, true " + "from calendar_users where email = ?"; private static String CUSTOM_AUTHORITIES_BY_USERNAME_QUERY = ""+ "select cua.id, cua.authority " + "from calendar_users cu, calendar_user_authorities "+ "cua where cu.email = ? "+ "and cu.id = cua.calendar_user";    @Override
-    public void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth
-       .jdbcAuthentication()
-       .dataSource(dataSource)
- .usersByUsernameQuery(USERS_BY_USERNAME_QUERY) .authoritiesByUsernameQuery( AUTHORITIES_BY_USERNAME_QUERY );    }
-```
+[PRE14]
 
 这是使用 Spring Security 从现有的非默认架构中读取设置所需的所有配置！启动应用程序并确保一切正常运行。
 
@@ -447,14 +242,7 @@ GBAC 是市场上几乎所有受保护的操作系统或软件包中常见的做
 
 Spring Security 中的密码散列是由`o.s.s.authentication.encoding.PasswordEncoder`接口的实现定义的。通过`AuthenticationManagerBuilder`元素中的`passwordEncoder()`方法配置密码编码器是简单的，如下所示：
 
-```java
-    auth
-       .jdbcAuthentication()
-       .dataSource(dataSource)
-       .usersByUsernameQuery(CUSTOM_USERS_BY_USERNAME_QUERY)
-       .authoritiesByUsernameQuery(CUSTOM_AUTHORITIES_BY_USERNAME_QUERY)
- .passwordEncoder(passwordEncoder());
-```
+[PRE15]
 
 您会高兴地了解到，Spring Security 随带有一系列`passwordEncoder`的实现，适用于不同的需求和安全要求。
 
@@ -480,14 +268,7 @@ Spring Security 中的密码散列是由`o.s.s.authentication.encoding.PasswordE
 
 首先，我们将声明一个`PasswordEncoder`实例作为一个普通的 Spring bean，如下所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Bean
-    public ShaPasswordEncoder passwordEncoder(){
-       return new ShaPasswordEncoder(256);
-    }
-```
+[PRE16]
 
 您会注意到我们使用的是`SHA-256` `PasswordEncoder`实现。这是一个高效的单向加密算法，通常用于密码存储。
 
@@ -495,21 +276,7 @@ Spring Security 中的密码散列是由`o.s.s.authentication.encoding.PasswordE
 
 我们需要配置 Spring Security 以引用`PasswordEncoder`，这样它可以在用户登录时对呈现的密码进行编码和比较。只需添加一个`passwordEncoder`方法，并参考我们在上一步定义的 bean ID：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Override
-    public void configure(AuthenticationManagerBuilder auth) 
-    throws Exception {
-    auth
-       .jdbcAuthentication()
-       .dataSource(dataSource)
-       .usersByUsernameQuery(CUSTOM_USERS_BY_USERNAME_QUERY)
-       .authoritiesByUsernameQuery(
-           CUSTOM_AUTHORITIES_BY_USERNAME_QUERY)
- .passwordEncoder(passwordEncoder())     ;
-    }
-```
+[PRE17]
 
 如果您在此时尝试应用程序，您会发现之前有效的登录凭据现在被拒绝。这是因为存储在数据库中的密码（使用`calendar-users.sql`脚本加载）不是以与密码编码器匹配的`hash`形式存储。我们需要将存储的密码更新为哈希值。
 
@@ -521,68 +288,23 @@ Spring Security 中的密码散列是由`o.s.s.authentication.encoding.PasswordE
 
 这意味着用户无法登录我们的应用程序。为了解决这个问题，我们将更新在启动时加载的 SQL，以将密码更新为哈希值。如下更新`DataSourceConfig.java`文件：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/DataSourceConfig.java
-
-    @Bean
-    public DataSource dataSource() {
-    return new EmbeddedDatabaseBuilder()
-       .setName("dataSource")
-       .setType(EmbeddedDatabaseType.H2)
-       .addScript("/database/h2/calendar-schema.sql")
-       .addScript("/database/h2/calendar-data.sql")
-       .addScript("/database/h2/calendar-authorities.sql")
- .addScript("/database/h2/calendar-sha256.sql")       .build();
-    }
-```
+[PRE18]
 
 `calendar-sha256.sql`文件简单地将现有密码更新为其预期的哈希值，如下所示：
 
-```java
-   update calendar_users set password =      
-   '0a041b9462caa4a31bac3567e0b6e6fd9100787db2ab433d96f6d178cabfce90' 
-   where email = 'user1@example.com';
-```
+[PRE19]
 
 我们是如何知道要更新密码的值的？我们已经提供了`o.s.s.authentication.encoding.Sha256PasswordEncoderMain`，以展示如何使用配置的`PasswordEncoder`接口来散列现有的密码。相关代码如下：
 
-```java
-    ShaPasswordEncoder encoder = new ShaPasswordEncoder(256); 
-    String encodedPassword = encoder.encodePassword(password, null);
-```
+[PRE20]
 
 # 散列新用户的密码
 
 如果我们尝试运行应用程序并创建一个新用户，我们将无法登录。这是因为新创建的用户的密码还没有被散列。我们需要更新`DefaultCalendarService`以散列密码。确保新创建用户的密码被散列，请进行以下更新：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/service/DefaultCalendarService.java
+[PRE21]
 
-    import org.springframework.security.authentication.encoding.PasswordEncoder;
-    // other imports omitted
-    public class DefaultCalendarService implements CalendarService {
-       ...
-       private final PasswordEncoder passwordEncoder;
-       @Autowired
-       public DefaultCalendarService(EventDao eventDao, 
-       CalendarUserDao userDao, JdbcOperations jdbcOperations, 
-       PasswordEncoder passwordEncoder) {
-       ...
-       this.passwordEncoder = passwordEncoder;
-       }
-       ...
-       public int createUser(CalendarUser user) {
-           String encodedPassword = passwordEncoder.
-           encodePassword(user.getPassword(), null);
-           user.setPassword(encodedPassword);
-```
-
-```java
-           ...
-          return userId;
-       }
-    }
-```
+[PRE22]
 
 # 不太安全
 
@@ -635,14 +357,7 @@ Spring Security 3.1 提供了一个新的加密模块，该模块包含在`sprin
 
 可以通过更新 Spring Security 配置来实现。删除旧的`ShaPasswordEncoder`编码器，并添加新的`StandardPasswordEncoder`编码器，如下所示：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-       return new StandardPasswordEncoder();
-    }
-```
+[PRE23]
 
 # 迁移现有密码
 
@@ -650,51 +365,17 @@ Spring Security 3.1 提供了一个新的加密模块，该模块包含在`sprin
 
 1.  我们需要更新我们现有的密码，使其使用新`PasswordEncoder`类产生的值。如果您想生成自己的密码，可以使用以下代码片段：
 
-```java
-        StandardPasswordEncoder encoder = new StandardPasswordEncoder();
-        String encodedPassword = encoder.encode("password");
-```
+[PRE24]
 
 1.  删除之前使用的`calendar-sha256.sql`文件，并按照以下方式添加提供的`saltedsha256.sql`文件：
 
-```java
-      //src/main/java/com/packtpub/springsecurity/configuration/
-      DataSourceConfig.java
-
-      @Bean
-      public DataSource dataSource() {
-      return new EmbeddedDatabaseBuilder()
-         .setName("dataSource")
-         .setType(EmbeddedDatabaseType.H2)
-         .addScript("/database/h2/calendar-schema.sql")
-         .addScript("/database/h2/calendar-data.sql"
-         .addScript("/database/h2/calendar-authorities.sql")
- .addScript("/database/h2/calendar-saltedsha256.sql")         .build();
-      }
-```
+[PRE25]
 
 # 更新 DefaultCalendarUserService
 
 我们之前定义的`passwordEncoder()`方法足够智能，可以处理新的密码编码器接口。然而，`DefaultCalendarUserService`需要更新到新的接口。对`DefaultCalendarUserService`类进行以下更新：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/service/DefaultCalendarService.java
-
-    import org.springframework.security.authentication.encoding.PasswordEncoder;
-    import org.springframework.security.crypto.password.PasswordEncoder;
-
-    // other imports omitted
-
-    public class DefaultCalendarService implements CalendarService {
-    ...      
-    public int createUser(CalendarUser user) {
-       String encodedPassword = passwordEncoder.encode(user.getPassword());
-       user.setPassword(encodedPassword);
-       ...
-       return userId;
-    }
-    }
-```
+[PRE26]
 
 # 尝试使用加盐密码
 
@@ -704,11 +385,7 @@ Spring Security 3.1 提供了一个新的加密模块，该模块包含在`sprin
 
 现在 Spring Security 会生成一个随机的`salt`，然后将其与密码结合后再进行哈希处理。接着，它将这个随机的`salt`添加到明文密码的前面，以便进行密码校验。存储的密码可以总结如下：
 
-```java
-    salt = randomsalt()
-    hash = hash(salt+originalPassword)
-    storedPassword = salt + hash
-```
+[PRE27]
 
 这是对新创建密码进行哈希处理的伪代码。
 
@@ -718,12 +395,7 @@ Spring Security 3.1 提供了一个新的加密模块，该模块包含在`sprin
 
 以下是对加盐密码进行验证的伪代码：
 
-```java
-    storedPassword = datasource.lookupPassword(username)
-    salt, expectedHash = extractSaltAndHash(storedPassword)
-    actualHash = hash(salt+inputedPassword)
-    authenticated = (expectedHash == actualHash)
-```
+[PRE28]
 
 # 总结
 

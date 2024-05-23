@@ -34,15 +34,7 @@ Spring Security 在本章提供了以下两种不同的策略，我们将在此�
 
 基于令牌的记住我部分除了第第二章 *Spring Security 入门*中的基本设置外，不需要其他依赖项。然而，如果你正在使用基于持久性的记住我功能，你需要在你的`pom.xml`文件中包含以下额外的依赖项。我们已经在章节的示例中包含了这些依赖项，所以不需要更新示例应用程序：
 
-```java
-    //build.gradle
-
-    dependencies {
-    // JPA / ORM / Hibernate:
- compile('org.springframework.boot:spring-boot-starter-data-jpa')    // H2 RDBMS
- runtime('com.h2database:h2')       ...
-    }
-```
+[PRE0]
 
 # 基于令牌的记住我功能
 
@@ -56,32 +48,13 @@ Spring Security 提供了记住我功能的两种不同实现。我们将首先�
 
 请查看以下代码片段：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/configuration/
-        SecurityConfig.java
-
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-           ...
-           http.rememberMe().key("jbcpCalendar")
-           ...
-        }
-```
+[PRE1]
 
 你应该从`chapter07.00-calendar`开始。
 
 1.  如果我们现在尝试运行应用程序，我们会发现流程中没有不同。这是因为我们还需要在登录表单中添加一个字段，允许用户选择此功能。编辑`login.html`文件，并添加一个复选框，如下面的代码片段所示：
 
-```java
-        //src/main/resources/templates/login.html
-
-        <input type="password" id="password" name="password"/>
- <label for="remember-me">Remember Me?</label> <input type="checkbox" id="remember-me" name="remember_me" value="true"/>
-        <div class="form-actions">
-           <input id="submit" class="btn" name="submit" type="submit" 
-           value="Login"/>
-        </div>
-```
+[PRE2]
 
 您的代码应该看起来像`chapter07.01-calendar`。
 
@@ -154,9 +127,7 @@ MD5 是几种著名的加密散列算法之一。加密散列算法计算具有�
 
 生产应用程序中的一个示例键值可能与以下内容相似：
 
-```java
-    prodJbcpCalendar-rmkey-paLLwApsifs24THosE62scabWow78PEaCh99Jus
-```
+[PRE3]
 
 `tokenValiditySeconds`方法用于设置记住我令牌在自动登录功能中不再被接受的时间秒数，即使它本身是一个有效的令牌。相同的属性也用于设置用户浏览器上记住我 cookie 的最大生命周期。
 
@@ -184,17 +155,7 @@ MD5 是几种著名的加密散列算法之一。加密散列算法计算具有�
 
 假设我们想要限制尝试访问 H2 `admin` 控制台的用户只能是使用用户名和密码认证的管理员。这与其他主要面向消费者的商业网站的行为类似，这些网站在输入密码之前限制对网站高级部分的访问。请记住，每个网站都是不同的，所以不要盲目地将此类规则应用于您的安全网站。对于我们的示例应用程序，我们将专注于保护 H2 数据库控制台。更新`SecurityConfig.java`文件以使用关键词`fullyAuthenticated`，确保尝试访问 H2 数据库的记住用户被拒绝访问。这显示在下面的代码片段中：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-       ...
-       http.authorizeRequests()
- .antMatchers("/admin/*") .access("hasRole(ADMIN) and isFullyAuthenticated()")       ...
-       http.rememberMe().key("jbcpCalendar")
-    }
-```
+[PRE4]
 
 现有的规则保持不变。我们增加了一条规则，要求查询账户信息时必须拥有适当的`GrantedAuthority` of `ROLE_ADMIN`，并且用户已经完全认证；也就是说，在这个认证会话期间，他们实际上提供了一个用户名和密码或其他合适的凭据。注意这里 SpEL 逻辑运算符的语法-`AND`，`OR`和`NOT`用于 SpEL 中的逻辑运算符。SpEL 设计者考虑得很周到，因为`&&`运算符在 XML 中表示起来会很不方便，尽管前面的例子是使用基于 Java 的配置！
 
@@ -216,52 +177,19 @@ Spring Security 提供了通过利用`RememberMeServices`接口的不同实现�
 
 我们将包含预期模式的 SQL 文件放在了`resources`文件夹中，位置与第三章 *自定义认证*中的位置相同。您可以在下面的代码片段中查看模式定义：
 
-```java
-    //src/main/resources/schema.sql
-
-    ...
-    create table persistent_logins (
-       username varchar_ignorecase(100) not null,
-       series varchar(64) primary key,
-       token varchar(64) not null,
-       last_used timestamp not null
-    );
-    ...
-```
+[PRE5]
 
 # 使用记住我模式初始化数据源
 
 Spring Data 将自动使用`schema.sql`初始化嵌入式数据库，如前一部分所述。请注意，但是，对于 JPA，为了创建模式并使用`data.sql`文件来种子数据库，我们必须确保设置了`ddl-auto`到 none，如下面的代码所示：
 
-```java
-    //src/main/resources/application.yml
-
-    spring:
-    jpa:
-       database-platform: org.hibernate.dialect.H2Dialect
-       hibernate:
- ddl-auto: none
-```
+[PRE6]
 
 # 配置基于持久化的记住我功能
 
 最后，我们需要对`rememberMe`声明进行一些简要的配置更改，以指向我们正在使用的数据源，如下面的代码片段所示：
 
-```java
-   //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-   @Autowired
-   @SuppressWarnings("SpringJavaAutowiringInspection")
- private DataSource dataSource;    @Autowired
- private PersistentTokenRepository persistentTokenRepository;    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-       ...
-       http.rememberMe()
-           .key("jbcpCalendar")
- .tokenRepository(persistentTokenRepository)       ...
-    }
- @Bean public PersistentTokenRepository persistentTokenRepository() { JdbcTokenRepositoryImpl db = new JdbcTokenRepositoryImpl(); db.setDataSource(dataSource); return db; }
-```
+[PRE7]
 
 这就是我们需要做的，以便切换到基于持久化的记住我认证。大胆地启动应用程序并尝试一下。从用户的角度来看，我们感觉不到任何区别，但我们知道支持这个功能的实现已经发生了变化。
 
@@ -293,109 +221,19 @@ Spring Data 将自动使用`schema.sql`初始化嵌入式数据库，如前一�
 
 1.  首先，让我们创建一个领域对象来保存持久登录，如下面的代码片段所示：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/domain/
-        PersistentLogin.java 
-
-        import org.springframework.security.web.authentication.rememberme.
-        PersistentRememberMeToken;
-        import javax.persistence.*;
-        import java.io.Serializable;
-        import java.util.Date;
-        @Entity
-        @Table(name = "persistent_logins")
-        public class PersistentLogin implements Serializable {
-           @Id
-           private String series;
-           private String username;
-           private String token;
-           private Date lastUsed;
-           public PersistentLogin(){}
-           public PersistentLogin(PersistentRememberMeToken token){
-               this.series = token.getSeries();
-               this.username = token.getUsername();
-               this.token = token.getTokenValue();
-               this.lastUsed = token.getDate();
-           }
-          ...
-```
+[PRE8]
 
 1.  接下来，我们需要创建一个`o.s.d.jpa.repository.JpaRepository`仓库实例，如下面的代码片段所示：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/repository/
-        RememberMeTokenRepository.java
-
-        import com.packtpub.springsecurity.domain.PersistentLogin;
-        import org.springframework.data.jpa.repository.JpaRepository;
-        import java.util.List;
-        public interface RememberMeTokenRepository extends  
-        JpaRepository<PersistentLogin, String> {
-            PersistentLogin findBySeries(String series);
-            List<PersistentLogin> findByUsername(String username);
-        }
-```
+[PRE9]
 
 1.  现在，我们需要创建一个自定义的`PersistentTokenRepository`接口来替换`Jdbc`实现。我们必须重写四个方法，但代码应该相当熟悉，因为我们所有操作都将使用 JPA：
 
-```java
-         //src/main/java/com/packtpub/springsecurity/web/authentication/
-         rememberme/JpaPersistentTokenRepository.java:
-
-         ...
-         public class JpaPersistentTokenRepository implements 
-         PersistentTokenRepository {
-               private RememberMeTokenRepository rememberMeTokenRepository;
-               public JpaPersistentTokenRepository
-               (RememberMeTokenRepository rmtr) {
-                  this.rememberMeTokenRepository = rmtr;
-           }
-           @Override
-           public void createNewToken(PersistentRememberMeToken token) {
-               PersistentLogin newToken = new PersistentLogin(token);
-               this.rememberMeTokenRepository.save(newToken);
-           }
-          @Override
-          public void updateToken(String series, String tokenValue, 
-          Date lastUsed) {
-               PersistentLogin token = this.rememberMeTokenRepository
-               .findBySeries(series);
-               if (token != null) {
-                   token.setToken(tokenValue);
-                   token.setLastUsed(lastUsed);
-                   this.rememberMeTokenRepository.save(token);
-               }
-           }
-        @Override
-           public PersistentRememberMeToken 
-           getTokenForSeries(String seriesId) {
-               PersistentLogin token = this.rememberMeTokenRepository
-               .findBySeries(seriesId);
-               return new PersistentRememberMeToken(token.getUsername(),
-               token.getSeries(), token.getToken(), token.getLastUsed());
-           }
-           @Override
-         public void removeUserTokens(String username) {
-             List<PersistentLogin> tokens = this.rememberMeTokenRepository
-             .findByUsername(username);
-              this.rememberMeTokenRepository.delete(tokens);
-           }
-        }
-```
+[PRE10]
 
 1.  现在，我们需要在`SecurityConfig.java`文件中做些修改，以声明新的`PersistentTokenTokenRepository`接口，但其余的配置与上一节保持不变，如下面的代码片段所示：
 
-```java
-            //src/main/java/com/packtpub/springsecurity/configuration/
-            SecurityConfig.java
-
-            //@Autowired
-            //@SuppressWarnings("SpringJavaAutowiringInspection")
-            //private DataSource dataSource;
-            @Autowired
- private PersistentTokenRepository persistentTokenRepository;            ...
- @Bean public PersistentTokenRepository persistentTokenRepository( RememberMeTokenRepository rmtr) { return new JpaPersistentTokenRepository(rmtr); }
-```
+[PRE11]
 
 1.  这就是我们将 JDBC 更改为基于 JPA 的持久化记住我认证所需要做的一切。现在启动应用程序并尝试一下。从用户的角度来看，我们并没有注意到任何区别，但我们知道支持这一功能的实现已经发生了变化。
 
@@ -407,26 +245,7 @@ Spring Data 将自动使用`schema.sql`初始化嵌入式数据库，如前一�
 
 在下一节中，我们将把我们的现有`PersistentTokenRepository`接口包装在`PersistentTokenBasedRememberMeServices`中，并使用`rememberMeServices`方法将其连接到我们的记住我声明：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-    //@Autowired
-    //private PersistentTokenRepository persistentTokenRepository;
-    @Autowired
-    private RememberMeServices rememberMeServices;
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-       ...
-       http.rememberMe()
-           .key("jbcpCalendar")
- .rememberMeServices(rememberMeServices)       ...
-    }
- @Bean public RememberMeServices rememberMeServices
-    (PersistentTokenRepository ptr){ PersistentTokenBasedRememberMeServices rememberMeServices = new 
-       PersistentTokenBasedRememberMeServices("jbcpCalendar", 
-userDetailsService, ptr);
- rememberMeServices.setAlwaysRemember(true); return rememberMeServices; }
-```
+[PRE12]
 
 你的代码应该看起来像`chapter07.05-calendar`。
 
@@ -442,54 +261,11 @@ userDetailsService, ptr);
 
 为了简洁起见，我们显示一个不执行验证或错误处理的版本，如下面的代码片段所示。你可以在本章的示例代码中查看完整版本：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/web/authentication/rememberme/
-    JpaTokenRepositoryCleaner.java
-
-    public class JpaTokenRepositoryImplCleaner
-    implements Runnable {
-       private final RememberMeTokenRepository repository;
-       private final long tokenValidityInMs;
-       public JpaTokenRepositoryImplCleaner(RememberMeTokenRepository 
-       repository, long tokenValidityInMs) {
-           if (rememberMeTokenRepository == null) {
-               throw new IllegalArgumentException("jdbcOperations cannot 
-               be null");
-           }
-           if (tokenValidityInMs < 1) {
-               throw new IllegalArgumentException("tokenValidityInMs 
-               must be greater than 0\. Got " + tokenValidityInMs);
-           }
-           this. repository = repository;
-           this.tokenValidityInMs = tokenValidityInMs;
-       }
-           public void run() {
-           long expiredInMs = System.currentTimeMillis() 
-           - tokenValidityInMs;             
-              try {
-               Iterable<PersistentLogin> expired = 
-               rememberMeTokenRepository
-               .findByLastUsedAfter(new Date(expiredInMs));
-               for(PersistentLogin pl: expired){
-                   rememberMeTokenRepository.delete(pl);
-               }
-           } catch(Throwable t) {...}
-       }
-    }
-```
+[PRE13]
 
 本章的示例代码还包括一个简单的 Spring 配置，每十分钟执行一次清理器。如果你不熟悉 Spring 的任务抽象并且想学习，那么你可能想阅读更多关于它在 Spring 参考文档中的内容：[`docs.spring.io/spring/docs/current/spring-framework-reference/html/scheduling.html`](https://docs.spring.io/spring/docs/current/spring-framework-reference/html/scheduling.html)。你可以在以下代码片段中找到相关的配置。为了清晰起见，我们将这个调度器放在`JavaConfig.java`文件中：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/
-    JavaConfig.java@Configuration
-
-    @Import({SecurityConfig.class})
- @EnableScheduling    public class JavaConfig {
- @Autowired private RememberMeTokenRepository rememberMeTokenRepository; @Scheduled(fixedRate = 10_000) public void tokenRepositoryCleaner(){ Thread trct = new Thread(new JpaTokenRepositoryCleaner(
- rememberMeTokenRepository, 60_000L));
- trct.start(); }    }
-```
+[PRE14]
 
 请记住，此配置不是集群友好的。因此，如果部署到集群，清理器将针对应用程序部署到的每个 JVM 执行一次。
 
@@ -531,81 +307,27 @@ userDetailsService, ptr);
 
 请查看以下代码片段：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/web/authentication/rememberme/
-    IpAwarePersistentTokenRepository.java
-
-    private String ipSeries(String series) {
-    ServletRequestAttributes attributes = (ServletRequestAttributes)
-    RequestContextHolder.getRequestAttributes();
-    return series + attributes.getRequest().getRemoteAddr();
-    }
-```
+[PRE15]
 
 我们可以在此基础上构建方法，强制保存的令牌中包含在系列标识中的 IP 地址，如下所示：
 
-```java
-    public void createNewToken(PersistentRememberMeToken token) {
-      String ipSeries = ipSeries(token.getSeries());
-      PersistentRememberMeToken ipToken = tokenWithSeries(token, ipSeries);
-      this.delegateRepository.createNewToken(ipToken);
-    }
-```
+[PRE16]
 
 你可以看到我们首先创建了一个新的系列，并将其与 IP 地址连接起来。`tokenWithSeries`方法只是一个创建具有所有相同值的新令牌的助手，除了新的系列。然后我们将包含 IP 地址的新系列标识的新令牌提交给`delegateRepsository`，这是`PersistentTokenRepository`的原始实现。
 
 无论何时查找令牌，我们都要求将当前用户的 IP 地址附加到系列标识上。这意味着用户无法获取不同 IP 地址的用户的令牌：
 
-```java
-    public PersistentRememberMeToken getTokenForSeries(String seriesId) {
-       String ipSeries = ipSeries(seriesId);
-       PersistentRememberMeToken ipToken = delegateRepository.
-       getTokenForSeries(ipSeries);
-       return tokenWithSeries(ipToken, seriesId);
-    }
-```
+[PRE17]
 
 剩余的代码非常相似。内部我们构建的系列标识将附加到 IP 地址上，外部我们只展示原始系列标识。通过这样做，我们实施了这样的约束：只有创建了记住我令牌的用户才能使用它。
 
 让我们回顾一下本章示例代码中包含的 Spring 配置，用于`IpAwarePersistentTokenRepository`。在以下代码片段中，我们首先创建了一个`IpAwarePersistentTokenRepository`声明，它包装了一个新的`JpaPersistentTokenRepository`声明。然后通过实例化`OrderedRequestContextFilter`接口来初始化一个`RequestContextFilter`类：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/web/configuration/WebMvcConfig.java
-
-    @Bean
-    public IpAwarePersistentTokenRepository 
-    tokenRepository(RememberMeTokenRepository rmtr) {
-       return new IpAwarePersistentTokenRepository(
-               new JpaPersistentTokenRepository(rmtr)
-       );
-    }
-    @Bean
-    public OrderedRequestContextFilter requestContextFilter() {
-       return new OrderedRequestContextFilter();
-    }
-```
+[PRE18]
 
 为了让 Spring Security 使用我们的自定义`RememberMeServices`，我们需要更新我们的安全配置以指向它。接着，在`SecurityConfig.java`中进行以下更新：
 
-```java
-    //src/main/java/com/packtpub/springsecurity/configuration/SecurityConfig.java
-
-     @Override
-     protected void configure(HttpSecurity http) throws Exception {
-       ...
-       // remember me configuration
-      http.rememberMe()
-           .key("jbcpCalendar")
- .rememberMeServices(rememberMeServices);     }
-    @Bean
- public RememberMeServices rememberMeServices
-    (PersistentTokenRepository ptr){
-       PersistentTokenBasedRememberMeServices rememberMeServices = new 
-       PersistentTokenBasedRememberMeServices("jbcpCalendar", 
-       userDetailsService, ptr);
-       return rememberMeServices;
-    }
-```
+[PRE19]
 
 现在，大胆尝试启动应用程序。您可以使用第二台计算机和插件（如 Firebug），来操作您的 remember-me cookie。如果您尝试从一个计算机使用 remember-me cookie 在另一台计算机上，Spring Security 现在将忽略 remember-me 请求并删除相关 cookie。
 
@@ -619,39 +341,15 @@ userDetailsService, ptr);
 
 1.  首先，我们可以在`rememberMe`方法中添加额外的方法，如下所示：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/configuration/
-        SecurityConfig.java
-
-        http.rememberMe()
-               .key("jbcpCalendar")
- .rememberMeParameter("jbcpCalendar-remember-me") .rememberMeCookieName("jbcpCalendar-remember-me");
-```
+[PRE20]
 
 1.  此外，既然我们已经将自定义的`RememberMeServices`实现声明为 Spring bean，我们只需定义更多的属性来更改复选框和 cookie 名称，如下所示：
 
-```java
-        //src/main/java/com/packtpub/springsecurity/configuration/
-        SecurityConfig.java
-
-        @Bean
-        public RememberMeServices rememberMeServices
-        (PersistentTokenRepository ptr){
-           PersistentTokenBasedRememberMeServices rememberMeServices = new 
-           PersistentTokenBasedRememberMeServices("jbcpCalendar", 
-           userDetailsService, ptr);
- rememberMeServices.setParameter("obscure-remember-me"); rememberMeServices.setCookieName("obscure-remember-me");           return rememberMeServices;
-        }
-```
+[PRE21]
 
 1.  不要忘记将`login.html`页面更改为设置复选框`form`字段的名称，并与我们声明的参数值相匹配。接着，按照以下内容更新`login.html`：
 
-```java
-        //src/main/resources/templates/login.html
-
-        <input type="checkbox" id="remember" name=" obscure-remember-me" 
-        value="true"/>
-```
+[PRE22]
 
 1.  我们鼓励您在此处进行实验，以确保您了解这些设置之间的关系。大胆尝试启动应用程序并尝试一下。
 
