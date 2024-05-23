@@ -1,3 +1,4 @@
++   [Spring5 学习手册](README.md)
 +   [第一章。Spring 概览](lrn-spr5_01.md)
 +   [第二章：依赖注入](lrn-spr5_02.md)
 +   [第三章。使用 Spring DAO 加速](lrn-spr5_03.md)
