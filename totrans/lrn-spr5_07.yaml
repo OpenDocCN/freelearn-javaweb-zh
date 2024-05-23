@@ -1,0 +1,1630 @@
+- en: Chapter 7. Be assured take a test drive
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'The application development is a lengthier, time consuming and expensive process.
+    The development is depending upon the requirements collected from the clients
+    and market requirements. But what if after the completion of the work, something
+    goes wrong and everything gets collapsed. The collision is not because of the
+    incorrect solution, but because it''s based on wrong assumptions which developers
+    assumed before the start of the work. This collision occurred just before the
+    date of delivery to the client. Now nothing can be recovered! Let''s not go into
+    the details of why and what went wrong. But I am interested in, can this be avoided?
+    Is there something which can be done to prevent this last moment collision? We
+    always heard ''prevention is better than cure''. This phrase is applicable to
+    application development as well. The situation of failure can be avoided with
+    bit of extra efforts taken by the developers step by step. The cross checking
+    of the code developed is according to the requirements helps developers to be
+    assured of correct working of the code. This cross checking is called as testing
+    of the application. In this chapter, we will discuss in depth about the testing
+    with the help of following points:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Why testing?
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Problems in testing of Spring Controllers.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Mock testing.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Spring TestContext Framework.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Using Mokitoto test Spring Controller.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Introduction to Spring Controller testing using Arquillian
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '''Testing'' an important step'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The application development is an expensive and time consuming process. The
+    errors and mistakes occurred at the final deployment leads to very serious consequences.
+    The coding is done by the developers according to the requirements, is based on
+    the rules which may be based on few assumptions. Being a human we may make mistakes
+    in either collection of requirement or making up the assumptions. If this is the
+    work done by us, who can better understand it than us? The unit testing tests
+    the code and helps in assuring it is working.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The developers did development. Their development was based on some assumption
+    and they may leave out few blind spots as well. The development is followed by
+    the testing by them. It's a high risk to carry out the tests by the same person
+    as they may repeat the same mistakes. Ideally someone else should do the check
+    assuring they know what they are testing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Following are the few major factors which makes the testing as one of the unforgettable
+    part in application development,
+  prefs: []
+  type: TYPE_NORMAL
+- en: It helps in early detection of the defect and errors which has been done while
+    development.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: It assures least failures in application executions
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: It helps in improving the consistency of an application
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: It helps in assuring better application quality
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: It helps in improving the security by checking authentication and authorization
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Helps in saving money and more importantly time
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Each application undergoes rigorous testing before it is released to ensure
+    the application is matching the requirements and the correctness of all its functionalities.
+    Unit testing, Integration testing, System testing and Acceptance testing are four
+    major stages through which each application needs to pass.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Unit Testing
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Unit testing focuses on the unit of the component ensuring the correctness of
+    the function. The unit can be referred to an individual function or a procedure.
+    The unit testing mainly aims to make sure the unit is working as per the design.
+    It allows the raised issues to be resolved quickly. As the unit is the very smallest
+    part of the application the code can be modified easily. It's generally done by
+    the developer who had developed the code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Integration Testing
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Once the unit testing is successfully carried out, most of the issues occurred
+    while testing the unit has been changed to match the requirements. The integration
+    testing gives the opportunity to test the group of these units within a program
+    execution. It helps in determining how multiple units are running together. The
+    unit may work fine, but the same unit when combined with other unit may leads
+    to some side effects which need to be resolved. The integration test helps in
+    catching such errors giving an opportunity to correct it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: System Testing
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In previous two stages the individual unit or interaction of two units with
+    one another has been tested. This is the first stage where for the first time
+    the complete application will be tested. The system testing is generally done
+    by the independent tester and in a close to production environment. The system
+    testing makes sure whether all functional and business requirements for which
+    the application developed has been mate or not.
+  prefs: []
+  type: TYPE_NORMAL
+- en: User Acceptance Testing
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: This is the final stage in testing which determines whether the system is ready
+    for the final release. The acceptance test is generally carried out by the end
+    users to determine the application is meeting the requirements and have covered
+    all the necessary functionalities to give the final acceptance. It gives the feel
+    of final application in the production environment.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In this chapter we will carry out Unit testing, Integration testing and System
+    Testing in three phases. But before moving ahead let's have an overview about
+    the testing tools available in market.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Testing Tools
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Following are the available test tools for Java platform,
+  prefs: []
+  type: TYPE_NORMAL
+- en: JTest
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: JTest is automated software testing, coding standard compliance tool for Java
+    platform developed by Parasoft since 1997\. The tool leverages unit as well as
+    integration testing. The tool facilitates analysing the classes, generation and
+    execution of test cases in the same format as that of JUnit test cases.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Following are the features JTest:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Along with testing, it covers and exposes the runtime exceptions which normally
+    a developer doesn't catch.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The tool also verifies if the class is following **Design by Contract**(**DbC**)
+    basis.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: It ensures the code follows 400 standard rules of coding and checks the code
+    against 200 violation rules.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: It also can identify the problems like functional errors, memory leakage, and
+    security vulnerabilities.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Jcontract** is tools from JTest which verifies the functionality requirements
+    during the integration testing without hampering the performance of the application.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Grinder
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Grinder is **load testing tool** for Java programming language available underthe
+    BSD-style open source licence. It aims to simplify the running of a distributed
+    testing using load injector machines. It has the capabilities to do load testing,
+    capability testing, functional testing and stress testing. It has minimum system
+    resource requirements along with it manages its own thread in test context which
+    can split over the process if required.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Following are the features Grinder:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Easy to use Java Swing based user interface
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: It can be used for load testing of anything which has Java API. It can be used
+    for Web servers, web services based on SOAP and Rest API, application servers
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The Jython and Clojure languages supports in writing flexible, dynamic test
+    scripts.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: It manages client connections as well as cookies
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: JWalk
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: JWalk is one more unit testing tool for Java platform supporting the Lazy Systematic
+    Unit testing paradigm. It has been developed by Anthony Simons. JWalk tests a
+    single class and produces the test report by notions of 'lazy specification' and
+    'systematic testing'. It is more favourable for agile development where no formal
+    specification needs to be produced. It saves lots of time and efforts by constructing
+    and presenting the automatic test cases.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Following are the features of JWalk:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Systematic proposal of all probable test cases.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: No need to confirm the sub set of the test out come by tester.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Can predict test outcomes.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Generates new test can if the class has been modified.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Suits for TDD for extreme programming in software development.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: PowerMock
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: PowerMock is open source created as an extension of the EasyMock and Mokito
+    frameworks by adding few methods and annotations. It facilitates creation mock
+    objects of the implementations from Java code. Sometimes the architecture of the
+    application is design in such a way that it uses final classes, private methods
+    or static methods to design the classes. Such methods or classes cannot be tested
+    as their mocks can't be created. The developer has the choice to choose between
+    a good design or testability. The PowerMock facilitates the mock creation of static
+    methods and final classes by using custom classloader and bytecode manipulation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: TestNG
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: TestNG a powerful testing framework inspired by JUnit and NUnit testing useful
+    unit testing, functional testing, integration testing. It facilitates a parameterised
+    testing which is not possible by JUnit. It is empowered with many useful annotations
+    like before and after )every test method(@BeforeMethod, @AfterMethod) and before
+    and after class(@BeforeClass, @AfterClass) to carry out pre or post data processing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Following are the features of TestNG:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Easy testcase writing
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: It can generate HTML report
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: It can generate logs
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Good integration test support
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Arquillian Framework
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Arquillian is a testing framework for Java based applications. The framework
+    facilitates the developers to deploy the application in the runtime environment
+    to execute the test cases using JUnit and TestNG. The management of the runtime
+    environment from within the test is made possible as Arquillian manages the following
+    things in management of test the life cycle:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: It can manages more than one containers
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: It bundles the classes, resources and the test cases using ShrinkWrap
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: It deploys the archive to the container
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Executes the test case inside the container
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Returns the result to the test runner
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The ShrinkWrap
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The framework comprises of three major components,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Test Runners
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: To execute the test case JUnit or TestNG uses Arquillian test runner. This facilitates
+    the use of component model in the test case. It also manages the container life
+    cycle and dependency injections which make the model available to use.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Java Container
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: Java containers are the major components of the test environment. Arquillian
+    tests can be executed in any compatible container. The Arquillian selects the
+    container to choose which container adapter is made available in the classpath.
+    These container adapters controls and helps in communicating with the containers.
+    Arquillian test cases even can be executed without JVM based container also. We
+    can use the annotation **@RunsClientto** execute the test cases outside of the
+    Java Container.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Integration of test cases into the Java container
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: The framework has external dependency to use known as ShrinkWrap. It helps in
+    defining the deployments and descriptors of the application to be loaded in the
+    Java Container. The test cases run against these descriptors. Shrinkwrap supports
+    to generate dynamic Java archive files of type JAR, WAR and EAR. It also can be
+    used for addition of deployment descriptor as well as creation of the DD programmatically.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Arquillian can be suits to use in the following scenarios,
+  prefs: []
+  type: TYPE_NORMAL
+- en: The part of your application to test needs deployment of application within
+    embedded server
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The test to be executed on hourly, after certain interval or when someone commits
+    the code
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Automation of acceptance test of the application through external tools
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: JUnit
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: JUnit is the most popular open source framework for Java in test driven development.
+    The JUnit helps in unit testing of the component. It also widely support for tools
+    such as ANT, Maven, Eclipse IDE. The unit test class is an ordinary class like
+    any other classes with a major difference of use of **@Test** annotation. The
+    @Test annotation lets the JUnit test runner that this annotated method needs to
+    be executed to perform testing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The class org.junit.Assertprovides a series of static assertXXX() methods which
+    performs the testing by comparing the actual output to the assumed output of the
+    method under test. If the comparison of the test returns normally, it indicates
+    the test has passed. But if the comparison fails the execution stops indicating
+    test has failed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The unit test class normally called as Unit Test Case. The Test case can have
+    multiple methods which will be executed one after another in the order in which
+    they have written. The JUnit facilitates setting up the test data for a public
+    unit under testing and does the testing against it. The initialization of data
+    can be done in setUp() method or in the method which has been annotated by @Before
+    annotation. By default it uses JUnit runner to run the test case. But, it has
+    Suite, Parameterised, and Categories as few more built in runners. Along with
+    these runner JUnit also support third party runners like SpringJUnit4ClassRunner,
+    MokitoJUnitRunner, HierarchicalContextRunner.It also facilitates the use of @RunWithwhich
+    facilitates using the custom runners.We will discuss in depth about the annotation
+    along with Spring testing framework shortly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Following are few assertion methods which facilitates the testing using comparison,
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'assertEquals : The method tests the equality of two objects with the help of
+    equals() method.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'assertTrue and assertFalse : It is used to test boolean values against true
+    or false conditions.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'assertNull and assetNotNull : The method tests the value to be either null
+    or not null.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'assertSame and assertNotSame : It is used to test the two references passed
+    as an argument point to the same object or not.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'assertArrayEquals : It is used to test the two array contains equal elements
+    and each element from one of the array is equal to the element from other array
+    with the same index.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'assertThat : It tests the object matches to an object of org.harmcrest.Matcher
+    or not.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Pase I Unit testingDAO Unit testing by JUnit
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Now, it's time to write the actual test case. We will start unit testing DAO
+    layer. Following are general steps to write an annotation based test case,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a class having the name of the class under test prefixed by 'Test'.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Write `setUp()` and `testDown()` methods for initializing the data we needed
+    and releasing the resourced used by us respectively.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The methods where test will be conducted name them as name of the method under
+    test prefixed by 'test'.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '`4\.` The method which the test runner should recognized need to be annotated
+    by `@Test`'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Use `assertXXX()` methods as per the data under test to compare the values.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Let's write the tests for the DAO layer which we developed in third chapter.
+    We will use Ch03_JdbcTemplates as base project. You can create the new project
+    or can use Ch03_JdbcTemplates by adding only test package. Let's follow the steps.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create base application.
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Create Ch07_JdbcTemplates_Testing as Java project.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add all the required jars for spring core, spring jdbc and JDBC which we already
+    added for Ch03_JdbcTemapltes project.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Copy com.packt.ch03.beans and com.packt.ch03.dao package from base project.
+    We will only carry out testing for BookDAO_JdbcTemplate class.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Copy connection_new.xml in classpath
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Performing testing
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Create com.packt.ch07.tests package
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Use JUnit test case template from Eclipse IDE as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Enter the name of test case as TestBookDAO_JdbcTemplate
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Select checkboxes for setUp and teardown for initializing and releasing the
+    test case components.
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Click on browse button and select BookDAO_JdbcTemplate as class under test
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Click on next button
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: In the Test methods Dialogue box select all the methods from BookDAO_JdbcTemplate
+    class.
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Click on finish.
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: A Dialogue will appear asking to add JUnit4 on build path. Click on Ok button.
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The steps can be summarized as shown in the figure below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_07_001.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'After Clicking Next Button you will get the next dialogue:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_07_002.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: In the test case declare a data member as `BookDAO_Jdb`c Template.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Update the `setUp()` method to initialize the data member of test case using
+    ApplicationContext container.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Update `tearDown()` to release the resources.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Update `testAddBook()` as,
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create an object of type Book with some values, make sure the value of the ISBN
+    is not available in the Book table.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Invoke `addBook()` from `BookDAO_JdbcTemplate` class
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Test the result using `assertEquals()`method as shown in the code below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: Select the `testAddBook()` method and run it as JUnit test.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The JUnit window will be shown with a green mark indicating the code has passed
+    the unit test as shown in figure below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_07_003.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The ISBN is a Primary Key in Book table, if you rerun the same `testAddBook()`
+    it will fail showing red color instead of green. Still it proves out code is working
+    as per logic. If one of the test conditions is failed the test case execution
+    stops by showing AssertionError.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Try to write test condition which will always pass.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s add `TestAddBook_Negative ()`to test what happens if we try to add book
+    with same ISBN. Don''t forget to annotate the method by `@Test`. The code will
+    be as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: On adding duplicate key, the code will throwDuplicateKeyException.In the @Test
+    annotation we had added `DuplicateKey`Exception as expected result indicating
+    to the JUnit Runner as it's expected behavior.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In the same way let''s add the code to other test methods as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: The above code constructsfew objects such `as BookDAO_JdbcTemplate`, which have
+    constructed using Spring container. In the code we consumed an object of `BookDAO_JdbcTemplate`
+    which we obtained in `setUp()` using Spring Container.Can't we have better choice
+    instead of doing it manually? Yes, we can do it by using custom runner provided
+    by Spring. The SprinJUnit4ClassRunner is a custom runner which is an extension
+    of class JUnit4Runner provides a facility to use Spring TestContext Framework
+    implicitly taking out the complexity out.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring TestContext Framework
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Spring empowers developers with rich Spring TestContext Framework which provides
+    a strong support for unit as well as integration testing. It supports both API
+    based and annotation based test case creation. The framework supports strongly
+    JUnit and TestNG as testing frameworks. The TestContext encapsulates the spring
+    context in which the test cases will be executed. It can also be used to load
+    ApplicationContext, if requested. The TestContextManager is the main component
+    which manages TestContext. The event publication is done by the TestContextManager
+    and the TestExecutionListener provides the action to be taken for a published
+    event.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The class level annotation @RunWith instructs the JUnit to invoke the class
+    it is referencing to run the test cases rather than using the built in runner.
+    The Spring provided SpringJUnit4ClassRunner facilitates the JUnit to use the functionalities
+    provided by Spring Test Framework using TestContextManager. The org.springframework.test.context
+    package provides annotation driven support of the testing. Following annotations
+    are used to initialize the context,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '@ContextConfiguration'
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'The class level annotation loads the definition to build the Spring container.The
+    context is built either by referring a class or XML files. Let''s discuss them
+    one by one:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Using single XML file:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Using configuration class:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Using configuration class as well as XML file:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Using context initializer:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: '@WebAppConfiguration'
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'The class level annotation is used to instruct how to load the ApplicationContext
+    and used by the WebApplicationContext(WAC) from default location as "file:/src/main/webapp".
+    The following snippet shows loading of resource to initialize WebApplicationContext
+    to be used for testing:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: Earlier developed test case was using explicit Spring Context initialization.
+    In this demo we will discuss how to use SprinJUnit4ClassRunner and @RunWith.We
+    will use Ch07_JdbcTemplates_Testing project and test methods of BookDAO_JdbcTemplates
+    using following steps,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Download spring-test-5.0.0.M1.jar file to use Spring testing APIs.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create SpringRunner_TestBookDAO_JdbcTemplate in com.packt.ch07.tests package
+    as as a JUnit Test case. Select BookDAO_JdbcTemplate as class under test and all
+    of its methods under testing.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Annotate the class by @RunWith and @ContextConfiguration annotation as shown
+    in the code below.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add a data member of type BookDAO and apply the annotation for autowiring as
+    shown in the code below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `@RunWith` annotation accepts the `SpringJUnit4ClassRunner`. The `@ContextConfiguration`
+    accepts the file to initialize the container. Also we use annotation based auto
+    wiring for BookDAO, instance instead of using Spring API in `setUp()` method as
+    we did in earlier demo.The code for testing in `testAddBook()` remains same as
+    we are not changing the logic.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Execute it as JUnit test and if your ISBN is not already available in the Book
+    table the test will pass.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: In the above code we did the testing against the actual database, which makes
+    it slower and it always will be. These tests are not isolated from the environment
+    and they will always be dependent upon the external dependencies, in our case
+    on the database. The unit test casesalways arewritten based on few assumptions
+    according to the real time values. To understand the problem and complexity while
+    dealing with the real time values.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We have a function for updating the book details. To update the book the function
+    is having two arguments, first to accept ISBN and second to update the price of
+    the book with specified ISBN as specified below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We wrote the test case to find whether the book is updated or not as shown
+    below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: We assumed ISBN exists in the database to update the book details.So, the test
+    case executed successfully. But, what if in between someone changes the ISBN or
+    someone deletes the row with that ISBN? The test case written by us will fail.The
+    problem is not in our test case, the only problem is we are assuming the ISBN
+    exists.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Another thing is, sometimes the real time environment may not be accessible.
+    The controller layer testing is highly dependent upon request and response object.
+    These request and response will be initialized by the container once the application
+    is deployed to the server. Either the server may not be available for deployment
+    or the layers on which the controller coding isdependent has not be developed
+    yet. All such problems made testing more and more difficult. These problems will
+    easily be solved using Mock object testing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Mock Testing
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Mock testing deals in testing with fake objects, these are not real objects.
+    These fake objects returns the data required to conduct the test. It is helpful
+    to save lots of work while carrying out actual object. The fake objects are usually
+    called as 'Mock object'. The mock objects are used to replace the actual objects
+    to avoid unnecessary complications and dependencies like database connections.
+    These mock objects are isolated from the environment leading to the faster execution.
+    The mock objects are created by setting up the data and then specifying the behavior
+    of the method. The behavior includes the data to be returned on a particular scenario.
+    Mockito is one of the famous testing frameworks usingthe mock objects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Mockito
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Mockito is an open source testing framework for Java base applications which
+    has released under the MIT Licence. It allows the developers to create mock objects
+    for **Test Driven Development**(**TDD**) which are isolated from the framework.
+    It uses Java Reflection API for creating mock objects and has simple APIs for
+    writing test cases. It also facilitates the developers to have a check on the
+    order in which the methods are getting invoked.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Mockito has static `mock()` method, which can be used for creating mock objects.
+    It also facilitates creation of mock objects by using @Mock annotation. The `methodMockitoAnnotations.initMocks(this`)
+    instructs to initialize all the annotated fields which has annotated by @Mock.
+    If we forget to do sothe objects would be null. The @RunWith(MokitoJUnitRunner.class)
+    also does the same. The MockitoJUnitRunner is the custom runner which is used
+    by the JUnit.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Mockito works on the principle of returning predefined values when a function
+    is called,**Mokito**,when() method facilitates to provide the information about
+    which method will be called and Mokito,thenXXX() is used to specify what values
+    the function will return.Following are the methods which is used to specify what
+    values to be returned,
+  prefs: []
+  type: TYPE_NORMAL
+- en: thenReturn - used to return a specified value
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: thenThrow- throws specified exception
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: then and thenAnswer returns an answer by the user defined code
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: thenCallRealMethod- gives a call to the real method
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Mock testing is simple three step process as,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Initialization the dependencies byMock object for the class under test
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Execute the operation to test
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Write test condition to check whether the operation gives expected result or
+    not
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Let's use Mockito to create mock object of the BookDAO and use it in testing
+    step by step as,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Download mokito-all-1.9.5.jar and add it to the In Ch07_JdbeTemplate_Testing
+    project which we use as our base project.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create `Spring_Mokito_TestBookDAO_JdbcTemplate` as Junit test case in com.packt.ch07.unit_tests
+    package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add a data member of type `BookDAO` and annotate it with @Mock annotation.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'To initialize the mock object invoke `initiMoks()` method of the Mockito in
+    `setup()` method as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Let''s now add code to test addBook() where we will first define the values
+    which we are expecting the function under test to return. Then we will use assertXXX()
+    methods to test the behavior as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: Execute the test case and test the behavior. We will get all test case executed
+    successfully.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Let''s add the code for other findAllBooks(String) and deleteBook()methods
+    as well:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: In the previous demo, we discussed about unit testing of DAO layer in both real
+    time environment as well as using mock objects. Let's now test the controller
+    using Spring MVC test framework in the following sections.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring MVC controller testing using Spring TestContext framework
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'The Mockito facilitates the developers to create mock objects of the DAO layer
+    in the earlier discussion. We were not having DAO object but even without it the
+    testing was made possible. The Spring MVC layer testing without mock objects is
+    not possible as they are highly dependent upon the request and response object
+    which gets initialized by the container. The spring-test module supports creation
+    of mock object for Servlet API which makes testing of the web component without
+    the actual container deployment. The following table shows the list of packages
+    which has been provided by Spring TestContext framework for mock creation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| **Package name** | **Provides mock implemenetation of** |'
+  prefs: []
+  type: TYPE_TB
+- en: '| org.springframework.mock.env | Environment and PropertySource |'
+  prefs: []
+  type: TYPE_TB
+- en: '| org.springframework.mock.jndi | JNDI SPI |'
+  prefs: []
+  type: TYPE_TB
+- en: '| org.springframework.mock.web | Servlet API |'
+  prefs: []
+  type: TYPE_TB
+- en: '| org.springframework.mock.portlet | Portlet API |'
+  prefs: []
+  type: TYPE_TB
+- en: 'The org.springframework.mock.web provides the MockHttpServletRequest ,MockHttpServletResponse,
+    MockHttpSessionas mock objects for HttpServeltRequest, HttpServletResponse and
+    HttpSession for use. It also provides the class ModelAndViewAssert to test the
+    ModelAndView objects from Spring MVC framework. Let''s test our SearchBookController
+    step by step as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Add spring-test.jar to the `ReadMyBooks` application which we will use for testing.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create `com.packt.ch06.controllers.test_controllers` package to add test cases
+    for the controllers.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create `TestSearchBookController` as JUnit case in the package created in earlier
+    step.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Annotate it by `@WebAppConfiguration`.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Declare data members of type SearchBookController and autowire it as shown
+    in the code below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Let''s test add testSearchBookByAuthor() to test searchBookByAuthor() method.
+    The method accepts author''s name entered by the user in the web form and returns
+    list of the books written by the author. The code will be written as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Initialize the data required by the method under testing
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Invoke the method under test
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Assert the values.
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The final code will be as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: We are testing the name of the view 'display' which has been written from the
+    controller method.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The Spring facilitates ModelAndViewAssert which provides the method to test
+    ModelAndView returned by the controller method as shown in the code below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: Execute the test case, the green colour indicates the test case has passed.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: We successfully tests the SearchBookController which has easy coding without
+    any form submission, form model attribute binding, form validation and many more.
+    Such complex code testing becomes more complex with mock objects which we just
+    handled.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Spring MockMvc
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'Spring provides the MockMVC, as the main entry point which is empowered with
+    methods to start with the server side testing. The implementation of the MockMVCBuilder
+    interface will be used to create a MockMVC object. The MockMVCBuilders provides
+    the following static methods which gives opportunity to get implementation of
+    the MockMVCBuilder:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'xmlConfigSetUp(String ...configLocation) - will be used when the application
+    context is configured using XML configuration files as shown below:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'annotationConfigSetUp(Class ... configClasses) - will be used when we are using
+    Java class to configure the application context. The following code shows how
+    to use the MyConfig.java as a configuration class:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'standaloneSetUp(Object ... controllers) - will be used when developers configured
+    the test controllers and its required MVC components. The following code shows
+    using MyController for the configuration:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'webApplicationContextSetUp(WebApplicationContext context) - will be used when
+    the developers already had fully initialized WebApplicationContext instance. The
+    following code shows how to use the method:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: MockMvc has `perform()`method which accept the instance of RequestBuilder and
+    returns the ResultActions. The `MockHttpServletRequestBuilderis` an implementation
+    of RequestBuilderwho has methods to build the request by setting request parameters,
+    session. The following table shows the methods which facilitates building the
+    request,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| **Method name** | **The data method description** |'
+  prefs: []
+  type: TYPE_TB
+- en: '| accept | Helps in setting the ''Accept'' header to the given media type |'
+  prefs: []
+  type: TYPE_TB
+- en: '| buildRequest | Helps in building the MockHttpServletRequest |'
+  prefs: []
+  type: TYPE_TB
+- en: '| createServletRequest | Based on the ServletContext, the method creates a
+    new MockHttpServletRequest |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Param | Helps in setting request parameter to the MockHttpServletRequest.
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: '| principal | Helps in setting the principal of the request. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| locale . | Helps in setting the locale of the request. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| requestAttr | Helps in setting a request attribute. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Session, sessionAttr, sessionAttrs | Helps in setting session or session
+    attributes to the request |'
+  prefs: []
+  type: TYPE_TB
+- en: '| characterEncoding | Helps in setting character encoding to the request |'
+  prefs: []
+  type: TYPE_TB
+- en: '| content and contentType | Helps in setting the body and content type header
+    of request |'
+  prefs: []
+  type: TYPE_TB
+- en: '| header and headers | Helps in adding one or all headers to the request. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| contextPath | Helps in specifying the part of requestURI which represents
+    the context path |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Cookie | Helps in adding cookies to the request |'
+  prefs: []
+  type: TYPE_TB
+- en: '| flashAttr | Helps in setting input flash attribute. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| pathInfo | Helps to specify the part of the requestURI that represents the
+    pathInfo. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Secure | Helps in setting the secure property of the ServletRequest such
+    as HTTPS. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| servletPath | Helps to specify the part of the requestURIwhich represents
+    the path to which the Servlet is mapped. |'
+  prefs: []
+  type: TYPE_TB
+- en: 'The `perfom()` method of MockMvc return the ResultActions facilitates the assertions
+    of the expected result by following methods:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| **Method name** | **Description** |'
+  prefs: []
+  type: TYPE_TB
+- en: '| andDo | It takes a general action. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| andExpect | It takes the expected action |'
+  prefs: []
+  type: TYPE_TB
+- en: '| annReturn | It return the result of the expected request which can be directly
+    accessed. |'
+  prefs: []
+  type: TYPE_TB
+- en: 'Let''s use MockMvc to test AddBookControllerstep by step:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Add TestAddBookController as JUnit test case in `com.packt.ch06.controllers.test_controllers
+    package`.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Annotate the class by `@WebAppConfiguration` , `@ContextConfiguration` and `@RunWith`
+    as we did in earlier code.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add the data members of type WebApplicationContextand `AddBookController`. Annotate
+    both by `@Autowired`.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add data member of type MockMvc and initialize it in setup() method and release
+    memory in teardown() method as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Lets add the code to test the addBook() method in testAddBook() as:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Initialize the request by setting values of:'
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: model attribute 'book' with default values
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: content-type as the form submission results in method invocation
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: URI on which the method will be invoked
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: request parameters of the form
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: test the result by checking,
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: view name
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: model attribute name
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: use andDo() to print the result of test actions on cosole
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The code for testAddBook() method is as shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE22]'
+  prefs: []
+  type: TYPE_PRE
+- en: The matching of the expected behavior in the andExpect( )is facilitated by ResultMatcher.
+    The MockMvcResultMatcheris an implementation of the ResultMatcherprovides the
+    methods to match the view, cookie,header, model,request and many other parameters.
+    The andDo() method prints the MvcResult to the OutputStream.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Run the test case and surprisingly it will fail. The part of the output is
+    as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_07_004.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: It shows the validation error, but we had given all input as per the validation
+    rules. Which validation has failed is not clear from the output. No, no need to
+    panic and to check the validation one by one.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Instead of creating more confusion let''s add test code for validation using
+    attributeHasErrors() as shown below by underlined statement:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE23]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The test runs successfully proving the input has validation error. We can get
+    the field whose validation failed on console output in the ''errors'' as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE24]'
+  prefs: []
+  type: TYPE_PRE
+- en: Though the description has characters within the specified limit of 10 to 40\.
+    Let's find out the rule to get what mistake we did in Validator2.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The code in the validate method for setting validation rule for publication
+    is:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE25]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Yes, we set the validation for publicationlength as less than 40 which lead
+    to failure. We made mistake. Let''s change the code to set rules as length greater
+    than 40 will not be allowed. The updated code is as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE26]'
+  prefs: []
+  type: TYPE_PRE
+- en: Now rerun the testAddController to find what happens.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The test case passes successfully. This is why we are carrying out the test
+    cases.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Let''s now add the code to test field validations in the testAddBook_Form_validation().as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE27]'
+  prefs: []
+  type: TYPE_PRE
+- en: Run the test case where validation errors failed.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The Controllers and DAOs are working fine.The service layer is using DAOs, so
+    let's conduct the integration testing of service layer. You can conduct mock object
+    testing of service layer as per we discussed and did in DAO layer testing. We
+    will move on to integration testing of the service as next phase.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pase II Integration testing
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Integration testing of Service and DAO layer
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Let''s carry out integration testing of the application,Ch05_Declarative_Transaction_Management
+    step by step as follow:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create com.packt.ch05.service.integration_tests package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create JUnit test caseTestBookService_Integration by considering BookServiceImpl
+    as class under test. Select all of its methods to test.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Declare the data member of type BookService, annotate it by @Autowired annotations
+    as shown in code below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE28]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Let''s test addBook() method, as we did in JUnit testing earlier. You can refer
+    the code below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE29]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can run the test case which will run successfully.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: All other test methods from BookService can be referred from the source code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Both the layers developed by us are working as we want them to.We developed
+    controllers, services and DAOs separately and tested as well. Now, we will combine
+    them in single application so as one complete application will be with us and
+    then using integration testing we will check whether it is working as per expectation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Integration testing of Controller and Service Layer
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Let''s combine the three layers together in ReadMyBooks from Ch05_Declarative_Transaction_Management
+    as stated by steps below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Add jars for jdbc and spring-jdbc and other required jars in lib folder of ReadMyBooks.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Copy the com.packt.ch03.dao and com.packt.ch05.service packages from Ch05_Declarative_Transaction_Management
+    to ReadMyBooks application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Copy connection_new.xml in the class path of ReadMyBooks application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: In the Book class for Form Submission we had commentated the default constructor,
+    the logic in addBook of service is to check against 98564567las default value.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Change the BookService as shown below by underline keeping rest of the code
+    untouched:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE30]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The controllers needs to be updated to get a talk with under lying layer as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add autowired data member of type BookService in the controllers.
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Invoke the methods of service layer in method of controllers as per business
+    logic requirements.
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'The addBook() method will be updated as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE31]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In the same way we can update all the methods from the controller. You can refer
+    the complete source code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let's execute the test case TestAddBookController.java to get the result.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The code will execute and gives success message. Also in the table one row with
+    the ISBN and other values which we specified gets added.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We had done testing of all the components successfully. We can now directly
+    start with SystemTesting.
+  prefs: []
+  type: TYPE_NORMAL
+- en: But have patience as we will discuss about the new entry to the testing framework
+    'Arquillian'.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pase III System testing
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: All the layers are working as per expectations now it's time to test the application
+    by using the web i.e. will check one by one functionalities by taking at most
+    care to go step by step and not only the result but the presentation also will
+    be observed which will be close to the actual deployment environment . Let's deploy
+    the application to check all the functions are working and giving the correct
+    results both on data base side as well as presentation side by either of the ways
+    as discussed below.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using Eclipse IDE for deployment
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'In eclipse once you are finished with development, configure the server and
+    select the project from the Project Explorer to choose **`Run on server`** option
+    as shown by the arrows below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_07_005.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The IDE will package the application in the war file and will deploy it to the
+    container. Now you can check the functionalities one by one to make sure each
+    and everything is as per the expectation or not. We will take care of presentation,
+    look and feel as well as accuracy of the data which is displayed by the presentation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Manually deploying the application
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'To manually deploy the application can be by the following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'First of all we need to get the jar file of it. We can use the Eclipse IDE
+    to get the war file for deployment easily by right clicking the application and
+    selecting **`Export`** as shown by arrows below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_07_006.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Select the destination where the war you want to create the war file. If you
+    want you can change the war file name. I will keep ReadMyBooks as it is.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Click on **`finish`** to complete the process. You will get a war file on the
+    selected destination.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Copy the WAR file which we created in earlier step and paste it in 'webapps'
+    folder under Tomcat directory.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Start tomcat by clicking `startup.bat` file from **`bin`** folder
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Once the tomcat started, open the browser and type home url in the folrmat of
+    [http://host_name:port_number_of_tomcat/war_file_name](http://host_name:port_number_of_tomcat/war_file_name).
+    in our case it is [http://locathost:8080/ReadMyBooks](http://locathost:8080/ReadMyBooks).
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Before moving ahead make sure the database parameters are correctly set otherwise
+    the application will fail.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The home page will open where we can test the application for the functionalities
+    and look and feel.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Summary
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In this chapter we disussed about what is testing and why it is so important.
+    We also had a discussion about the unit testing, integration testing and User
+    acceptance test as phases of testing. There are many testing tools available in
+    market, we had taken an over view of these tools so that the choice of tool can
+    be wisely done by you. One of the very important tool of testing is 'Junit testing',
+    which we used to carry out unit testing of the DAO layer which was the starting
+    of testing phase1\. But JUnit uses realtime database, we discuss the difficulties
+    in testing upon the external parameters. We resolve the issue by using mock objects.
+    Mokito is one of the Mock object creation tool which we explore to test the DAO
+    layer. After DAO layer we tested Web layer which also was having dependency upon
+    the web container whi initializes request and response objects. We discuss in
+    depth about Spring TestContext framework whose MockMVC module facilitates creation
+    of Mock objects of the web related components like request and responses. We used
+    the the framework for testing the form validation as well. After Unit testing
+    we carry out the integration testing of DAO and service layer and then web and
+    service layers. The story wont ends here we carry out successful deployment and
+    final checking of the product by carrying out System Testing. All the components
+    developed by us are working fine and we had proved it by successfully executing
+    the System Testing !!
+  prefs: []
+  type: TYPE_NORMAL
+- en: In next chapter we will go one step ahead and discuss about the role of security
+    in an application along with the ways provided by Spring framework to implement
+    security. Keep reading!!!!
+  prefs: []
+  type: TYPE_NORMAL

@@ -1,0 +1,913 @@
+- en: 'Chapter 5. Be Consistent: Transaction Management'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'In previous chapter we discuss in depth about Aspect Oriented Programming using
+    logging mechanism as a cross cutting technology. Transaction management is another
+    cross cutting technology which plays a very important role in application while
+    dealing with persistency. In this chapter we explore transaction management by
+    discussing the following points:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: What is transaction management?
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Importance of transaction management.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Types of transaction management
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Spring and transaction management
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Annotation based transaction management in Spring framework
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Number of developers frequently talk about the fancy term transaction management.
+    How many of us find our self comfortable working with it or its customization.
+    Is it really so difficult to understand? Does adding transaction to the code needs
+    to add lots of complex code? No!! Actually, it's the easiest thing to understand
+    as well as to develop. The transaction management is very much common while discussing,
+    designing, developing a 'persistence layer' which deals with the handling of data
+    to and from the database. The 'transaction' is a unit of sequential multiple database
+    operations where either all the operations in it executed successfully or none
+    of them. Transaction management is the technique which handles transaction by
+    managing its parameters. The transaction maintains the consistency of the database
+    depending upon given transaction parameters so that by either the transactional
+    unit will be successful or failure. The transaction can never ever be partially
+    successful or failed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Now you may be thinking what's a big deal if anyone of them fails? And why it's
+    been so important? Let's take a real time scenario to understand transaction.
+    We want to open a account in one of the website for online shopping. We need to
+    fill up the form giving some personal information and need to select the username
+    using which we will do our online shopping. The information will be collected
+    by the application and then saved in two tables. One, for the users with has username
+    as Primary Key and the second user_info where user's personal information will
+    be stored. After collection of data from user, the developers perform insertion
+    operation for user's information in user_info, followed by inserting the data
+    in users table. Now consider a scenario the data collected from user gets inserted
+    in user_info table successfully but unfortunately the username was already existing
+    in the table so the second operation failed. The database is in inconsistent state.
+    Logically the data should be either added in both the tables or in none of them.
+    But in our case data got inserted in one table but not in second. This happened
+    because without checking whether the row got inserted or not we performed insertion
+    operation permanently which now cannot be undo even on the failure of second operation.
+    The transaction management helps the developers to maintain the consistency and
+    the integrity of the database by either making all the operation reflected correctly
+    in the database tables or none of them. If any operation in the unit fails, all
+    the changes made before that will be cancelled. Off course, it won't happen automatically
+    but the developers need to play a key role in that. In JDBC, instead of going
+    with auto committing the operations developers choose to go with committing the
+    transaction or rollback if any operation within it fails. These two are very important
+    terms when it comes to transaction management. The commit reflects the changes
+    in the database permanently. The rollback undoes all the changes made by all the
+    previous operations before the failure happens and making the database back to
+    its original state.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Following are the ACID properties which in 1970''s Jim Gray defined to describe
+    a transaction. The properties are later on known as ACID properties. Gray also
+    describes the ways to achieve ACID properties. Let''s discuss them one by one:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Atomicity**: While carrying out multiple operations one after another on
+    the database either all the operations will be executed successfully or none of
+    them. The developers can take the control on their hand to decide whether to change
+    the database permanently by committing them or to rollback them. The rollback
+    will undo all the changes done by the operations. Once the data is committed it
+    can''t be rolled back again.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Consistency**: To save the data in properly arranged and easily maintainable
+    format the rules, data types, associations and triggers has been set when table
+    is created in the database. Consistency makes sure that when getting data transited
+    from one state to another it will be changed keeping all the rules intact set
+    on it.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Isolation**: In concurrency multiple transactions take place leading to the
+    problem of data mismanagement. Isolation helps to keep the data in consistent
+    state by locking mechanism. Unless one of the transaction is dealing with data
+    is not getting completed it will keep the lock on it. Once the transaction completes
+    its operations another transaction is allowed to use the data.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Following are the isolation levels defined by ANSI or ISO standards:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Dirty read:** Let''s consider two transactions A and B, running on the set
+    of data. Transaction A does some changes but yet not committed them. Meanwhile
+    transaction B read the data along with the uncommitted changed data. If transaction
+    A successfully completes its operation, both the transaction has same state of
+    data. But if transaction A fails the data changed by it will be rolled back. The
+    set of data with A and that with B will be different as B read the uncommitted
+    data. The transaction B is using stale data leading to failure of the business
+    logic of the application.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Non repeatable read:** Let''s again consider transaction A and B which are
+    running to complete few operations. Both of them reads the data, transaction A,
+    changes some of the values and committed them successfully. Transaction B is still
+    working on the previous set of the data which is stale leading to the undesirable
+    effect. The situation can be avoided by keeping the lock on the data unless the
+    first transaction is not completed.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Phantom read:** Transaction A and B has the set of data. With one of the
+    criteria transaction A has performed searching operation. Let''s say, A is searching
+    data based on the name of the book. There are 8 rows in the database which has
+    been returned to the transaction A. Meanwhile transaction B inserted a row in
+    the table having the same value for the name which A was searching. A got stale
+    data as in actual there are 9 rows the table but A got just 8.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Serializable:** This is the highest isolation level which locks the selected
+    used data so that the problem occurred in phantom read will be avoided.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Following are the default isolation levels supported by databases:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '| Database | Default isolation level |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Oracle | READ_COMMITTED |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Microsoft SQL Server | READ_COMMITTED |'
+  prefs: []
+  type: TYPE_TB
+- en: '| MySQL | REPEATABLE_READ |'
+  prefs: []
+  type: TYPE_TB
+- en: '| PostgerSQL | READ_COMMITTED |'
+  prefs: []
+  type: TYPE_TB
+- en: '| DB2 | CURSOR STABILITY |'
+  prefs: []
+  type: TYPE_TB
+- en: '**Durability**: The transaction keeps on changing by numerous operations simultaneously.
+    Durability specifies once the data in the database is changed, added or updated
+    it must be permanent.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Once we know the properties which describes transaction, knowing the stages
+    in the progress of transaction helps us to use transaction management effectively.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Life cycle of transaction management
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Following diagram shows the stages in the progress of each transaction:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_05_001.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'The newly started transaction will progress through the following stages:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Active**: The transaction has just been stated and progressing ahead.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '**Partially committed**: Once the operation has been performed successfully
+    the generated values during it will be stored in the volatile storage.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '**Failed**: The values generated before the failure are no longer required
+    and will to be removed from the volatile storage area by rollback them.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '**Aborted**: The operation has been failed and is no longer continued further.
+    It will be stopped or aborted.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '**Committed**: All the operations successfully performed and all the temporary
+    values generated during the operation will be stored permanently once the transaction
+    is committed.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '**Terminated**: When the transaction is committed or aborted, it reaches to
+    its final stage the termination.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: To handle transaction along with lifecycle steps and properties, one cannot
+    neglect very important fact to know types of transaction. A transaction can be
+    divided into either local transaction or global transaction
+  prefs: []
+  type: TYPE_NORMAL
+- en: Local transaction
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The local transaction allows the application to connect to a single database
+    and once all the operations in the transactions are completed successfully, it
+    will be committed. The local transactions are specific to the resource and don't
+    need any server to handle them. The configured DataSource object will return the
+    connection object. This connection object further allows the developers to perform
+    database operation as required. By default, such connections are auto committed.
+    To take the control in hands, the developers can manually handle transactions
+    using commit or rollback. The JDBC connection is the best example of local transactions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Global or distributed transaction
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The global transactions are managed by the application servers like Weblogic,
+    WebSphere. Global transaction facilitates to handle more than one resource and
+    servers. The global transaction is comprises of many local transactions who access
+    the resource. EJB's container managed transaction uses global transactions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring and Transaction management
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The Spring framework excellently supports the integration of transaction managers.
+    It supports Java Transaction API, JDBC, Hibernate and Java Persistent APIs. The
+    framework supports abstract transaction management known as transaction strategy.
+    The transaction strategy is defined through service provider interface (SPI) through
+    PlatformTransactionManager interface. The interface has the methods to commit
+    and rollback the transaction. It also has the method to get the transaction specified
+    by the TransactionDefinition. All of these methods throws TransactionException
+    which is a runtime exception.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The getTransaction() method returns TransactionStatus depending upon the TransactionDefinition
+    parameters. The TransactionStatus returned by the method represent a new transaction
+    or the existing one. Following parameters can be specified to define the TransactionDefinition:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Propagation**: The propagation behaviour comes in discussion when one transactional
+    method invokes other. In such invocation propagation behaviour states what transaction
+    behaviour it will be performed. The invoking method may have started transaction,
+    what the invoked method should do in such cases? Whether the invoked method start
+    a new transaction, used the current one or it doesn''t support transaction? The
+    propagation behaviour can be specified using following values:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**REQUIRED**: It says the transaction is must. If No transaction exists it
+    will create a new one.'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**REQUIRES_NEW**: It specifies to have a new transaction every time. The current
+    transaction will be suspended. If no transaction exists it will create a new.'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**MANDATORY**: It states the current transaction will be supported but if in
+    case of no ongoing transaction an exception will be thrown.'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**NESTED**: It states, if the current transaction exists the method will be
+    executed within a nested transaction. If no transaction exists it will act as
+    PROPAGATION_REQUIRED.'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**NEVER**: The transaction is not supported and if it exists an exception will
+    be thrown.'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**NOT_SUPPORTED**: It states the transaction is not supported. If transaction
+    exists opposite to NEVER it won''t throw exception but suspends it.'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Isolation**: We already had discussed in depth about isolation levels.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Timeout**: The timeout value for transaction mentioned in seconds.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Read only**: The attribute states the transaction will allowed to only read
+    the data and no operation leading to updating the data will be supported.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Following are the advantages of using Spring framework's transaction management.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Spring facilitates the use of Transaction management by two ways as follow:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Programmatic transaction management.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Declarative transaction management.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Whether we are using Programmatic transaction or Declarative transaction the
+    foremost important component is to define the `PlatformTransactionManager` using
+    Dependency Injection(DI). One should have a clear idea to use local transaction
+    or global as it is essential to define `PlatformTransactionManager`. Following
+    are the few configuration which can be used to define `PlatformTransactionManager`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Using DataSource PlatformTransactionManager can be defines as:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Using JNDI and JTA to define PlatformTransactionManager as shown below:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Using HibernateTransactionManager defines PlatformTransactionManager as:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Let's start with using the transaction management in Spring one by one,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Programmatic Transaction management
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The programmatic transaction management in Spring can be done by using either
+    TransactionTemplate or PlatformTransactionManager.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using PlatformTransactionManager
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: The PlatformTransactionManager is at the centre of while discussing Spring's
+    transaction management API. It has the functionalities to commit, rollback. It
+    also provides a method which returns the currently active transaction. As it's
+    an interface it can easily mocked or stubbed whenever required. Spring provides
+    DataSourceTransactionManager, HibernateTransactionManager, CciLocalTransactionManager,
+    JtaTransactionManager and OC4JJtaTransactionManager as few of the implementation
+    of PlatformTransactionManager. To use PlatformTransactionManager any implementation
+    of it can be injected in the bean to use for transaction management. Further,
+    the objects of TransactionDefinition and TransactionStatus can be used to rollback
+    or commit the transaction.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Before heading ahead, we need to discuss a very important point. Generally the
+    application requirement decides whether to apply transaction to service layer
+    or to DAO. But still it's a debatable question whether to apply transaction to
+    DAO layer or to service layer. Applying transaction to DAO layer though keeps
+    the transaction shorter, the biggest problem will occur of multiple transactions.
+    And the concurrency has to make with very much care and unnecessarily the complexity
+    will increase. The transaction when applied to service layer the DAO's will be
+    using a single transaction. We will apply the transaction to service layer in
+    our application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To apply transaction management in application we can think about the following
+    points,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Whether to apply transaction to DAO layer or Service layer?
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Decide whether to use Declarative transaction or Programmatic transaction Management
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Define the PlatformtransactionManager to use in beans configuration.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Decide Transaction attributes as Propagation Behaviour, Isolation level, Read
+    Only, Timeout etc to be defined for the transaction.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: According to programmatic or declarative transaction management add the attributes
+    to the transaction either in code.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Let's use transaction for better understanding. We will use JDBC operations
+    in Ch03_JdbcTemplate application developed in the third chapter as our base application.
+    Let's follow the steps to use transaction using PlatformTransactionManager,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a new Java application named Ch05_PlatformTransactionManager and add
+    all the required jar for Spring core, Spring-jdbc, Spring-transaction, Spring-aop,
+    commons-logging and mysql-connector.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Copy or create Book.java in com.packt.ch03.beans package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Copy or create BookDAO.java and BookDAO_JdbcTemplate.java in com.packt.ch03.dao
+    package. The final outline of application will be as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_05_002.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'We will add a new method in BookDAO to search the book as before adding it
+    will be important to find out is there any book in the ''Book'' table with the
+    same ISBN. If it''s already exists, we don''t want to unnecessary go ahead for
+    adding it again. The newly added method will be as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The BookDAO_JdbcTemplate.java needs to override the newly added method in the
+    interface as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: We have added an anonymous inner class which is implementing RowMapper to bind
+    object the fetched data from the database using queryForObject()method to the
+    data members of the Book object. The code is searching for the book and then the
+    column values from ResultSet will be bounded to the Book object. We returned an
+    object with default values just for our business logic.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add BookService interface as a service layer in com.packt.ch05.service package
+    with following method signatures:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Create BookServiceImpl implementing BookService. As it's for service annotate
+    the class with @Service.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add two data members to the class first of type PlatformTransactionManager to
+    handle transactions and second of type BookDAO to perform JDBC operations. For
+    dependency injection annotate both of them by @Autowired.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Let''s first off all develop searchBook() method of service layer for handling
+    read-only transaction in two steps as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create an instance of TransactionDefinition().
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Create an instance of TransactionStatus obtained from TransactionManager who
+    uses an instance of TransactionDefinition created in previous step. The TransactionStatus
+    will provide the status information of transaction which will be used to commit
+    or .rollback the transaction.
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Here make the transaction read-only by setting the property to true as we just
+    want to search the book and don''t want to perform any updating on the DB side.
+    The code developed till this step will be as:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: The way we updated read-only property of transaction, we can set other properties
+    as isolation level, propagation, timeout in the same way.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s add addBook() method to service layer to find out whether the book with
+    same ISBN already exist and if not insert a row in table. The code will be as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: '`transactionManager.commit()` will commit the data permanently to the book
+    table.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the same way let's add deleteBook and updateBook() methods as shown below,
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: Copy or create connection_new.xml for the bean configurations. Add a bean for
+    DataSourceTransactionManager as we had seen earlier while discussing how to configure
+    PlatformTransactionManager using DataSource.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Update package scanning from XML as we want to consider newly added package
+    as well. The updated configuration will be as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The final set will be to add Main code in MainBookService_operation.java which
+    will invoke methods from service layer using BookServiceImpl object as we did
+    earlier for BookDAO_JdbcTemplate object. The code will be as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: The TransactionTemplate
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: Use of thread safe TransactionTemplate helps developers to get rid from boilerplate
+    code as already discussed with JdbcTemplate. It make the programmatic transaction
+    management simple yet powerful with the help of callback methods. Using TransactionTemplate
+    becomes easy as it has different setter methods to customize various transaction
+    properties as isolation level, propagation behaviour etc. The first step to use
+    Transaction template will be to get it's instance by providing transaction manager.
+    The second step will be to get instance of TransactionCallback which will be passed
+    to the execute method. The following example will demonstrate how to use the template
+    where we don't have to create TransactionDefinition as we did in earlier application,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a Java application naming Ch05_TransactionTemplate and copy all the required
+    jar which we added in earlier application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: We will keep the outline of the application same as that of Ch05_PlatformTransactionManager
+    application so you can copy the beans, dao and service package as it is. The only
+    change which we will make is to use TransactionTemplate instead of using PlatformTransactionManager
+    in BookServiceImpl.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: From BookServiceImpl delete data member PlatformTransactionManager and add TransactionTemplate.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Annotate it with @Autowired to use DI.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'We will update the searchBook() method to use TransactionTemplate by setting
+    it as a read-Only transaction using setReadOnly(true). The TransactionTemplate
+    has a callback method as ''execute()'' where the business logic can be written
+    to execute. The method is expecting an instance of TrasnsactionCallback and it
+    will return searched book. The code will be as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: To perform the task, we have created instance of TransactionCallback by using
+    concept of inner class. The generic type specified here is, Book as it is the
+    return type of the searchBook() method. The class is overriding doInTransaction()method
+    to invoke the business logic from DAO's searchBook()method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: One more implementation of TransactionCallback can be written using TransactionCallbackWithoutResult.
+    It can be used in case where the service method is not returning anything or having
+    void as its return type.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s now add addBook(). The very first thing we have to find whether the
+    book exists in table or not using searchBook(). If Book doesn''t''s exist add
+    the book. But as searchBook() has made transaction read-only we need to change
+    the behavior. As Add book has boolean as its return type we will use TransactionCallBack
+    of Boolean type. The code will be as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: The code clearly shows the TransactionTemplate gives us the power of changing
+    the properties of the Transaction yet to internally managing the transaction without
+    writing the boilerplate code as PlatformTransactionManager has to.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the same way we can add the code for deleteBook and updateBook(). You can
+    find the complete code in source code.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Copy connection_new.xml from Ch05_PlatformTransactionmanager in classpath and
+    add a bean for TransactionTemplate as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: We already had a bean for transactionManager so we will not add it here again.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Copy MainBookService_operations.java in default package to test the code. We
+    will get the code executed successfully.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Before moving ahead just modify the code of doInTransaction() of searchBook()
+    method as follows;
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'On execution we will get the stack trace which denotes read-only operations
+    are not allowed to modify the data as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: Declarative transaction management
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The Spring framework uses AOP to facilitate declarative transaction management
+    The best things about declarative transaction is, it necessarily does not required
+    to be managed by application server and it can be applied to any class. The framework
+    also facilitates developers to customize the transactional behavior by using AOP.
+    The declarative transaction can either be XML based or annotation based configuration.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'XML based declarative transaction management:'
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: The framework offers the rollback rules to specify on which types of exception
+    the transaction will be rollback. The rollback rules can be specified in XML as
+    follows,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: The configuration can even specify attributes as,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '''**no-rollback-for**'' - to specify the exception when we don''t want the
+    transaction to rollback.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**propagation** - to specify the propagation bahavior of transaction with ''REQUIRED''
+    as its default value.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**isolation** - to specify the isolation level.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**timeout** - transaction timeout value in seconds with ''-1'' as default.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: As now a days we more tend to use Annotation based transaction management without
+    wasting time let's move on to annotation based transaction management.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Annotation based transaction management
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: The @Transaction annotation facilitates to develop annotation based declarative
+    transaction management which can be applied to interface level, class level as
+    well as method level. To enable the annotation based support one need to configure
+    the following configuration along with the transaction manager,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: The attribute 'transaction-manager' can be omitted if the bean written for PlatformTransactionManager
+    has the name as 'transactionManager'.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Following are the attributes which can be use to customize the behavior of transaction,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**value** - to specify the transaction manager to be used.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**propagation** - to specify the propagation behavior.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**isolation** - to specify the isolation levels.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**readonly** - to specify the read or write behavior.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**timeout** - to specify the transaction timeout.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**rollbackForClassName** - to specify the array of exception classes who causes
+    the transaction to rollback.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**rollbackFor** - to specify the array of exception classes who causes the
+    transaction to rollback.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**noRollbackFor** - to specify the array of exception classes who doesn''t
+    causes the transaction to rollback.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**noRollbackForClassName** - to specify the array of exception classes who
+    doesn''t causes the transaction to rollback.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Let''s use the @Transactional to demonstrate declarative transaction management
+    in the application instead of programmatic transaction management with the help
+    of following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create Ch05_Declarative_Transaction_Management and add the required jars as
+    we did in earlier application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Copy com.packt.ch03.beans and com.packt.ch03.dao from Ch05_PlatformTransactionManager
+    application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Copy the interface BookService.java in com.packt.ch05.service packages.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create a class BookServiceImpl in com.packt.ch05.service package and add a data
+    member of type BookDAO.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Annotate the data member of type BookDAO with @Autowired.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Annotate searchBook () with @Transactional(readOnly=true) and write the code
+    to search data using JdbcTemplate. The class will be as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: Copy connection_new.xml from Ch05_PlatformTransactionManager in the classpath.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Now, we need to tell the Spring to find out all the beans which has been annotated
+    by @Trasnactional. It will be simply done by adding the following configuration
+    in XML:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'To add the above configuration we first have to add ''tx'' as a namespace in
+    XML. Update the schema configuration from connection_new.xml as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Now, we can add the following configuration:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: Copy MainBookService_operation.java and execute it to get the output.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Now add the method addBook() to understand readOnly=true. The code will be
+    as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE22]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Execute the MainBookService_operation.java and execute it to get the following
+    output specifying read-only transaction not allowed to modify data:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE23]'
+  prefs: []
+  type: TYPE_PRE
+- en: Edit addBook() for remove read-only transaction by specifying read-only=false
+    which is default behavior of Transaction.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The main code will execute successfully performing the operations.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Use Programmatic transaction management if the application has few transaction
+    operations using TransactionTemplate. In case of having numerous transactional
+    operations to keep it simple and cohesive choose declarative transaction management.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Summary
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We discussed in this chapter about Transaction and why it is important. We also
+    discussed about transaction management and its life cycle. We discuss about transaction
+    attributes as read-only, isolation level, propagation behavior and time out. We
+    see declarative and programmatic as two ways to handle transaction where one gives
+    the other get rid from the plumbing code and other gives fine control of the operations.
+    We also discuss both these techniques with help of an application for better understanding.
+    Up till now we had discuss about how to handle the data which was imaginary. We
+    need a means to get this for the actual users.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the next chapter we will explore how to develop the web layer of an application
+    which facilitates us have to have user interaction.
+  prefs: []
+  type: TYPE_NORMAL

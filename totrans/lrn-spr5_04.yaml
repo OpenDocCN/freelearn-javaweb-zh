@@ -1,0 +1,1447 @@
+- en: Chapter 4. Aspect Oriented Programming
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'The previous chapter on Spring DAO gives good hands on practice about how Spring
+    handles JDBC API with loose coupling. But, we neither talked about JDBC Transactions
+    nor about how Spring handles Transactions. If you already handled transactions
+    you know the steps for it and more over, you are well aware of these steps which
+    are repetitive and spread all over the code. On one hand, we are saying use Spring
+    to stop duplication of code and on other hand we are writing such code. Java insist
+    to write modules which are highly cohesive. But writing transaction management
+    in our code won''t allow us to write cohesive modules. Also the transaction is
+    not the motive of writing the code. It just provides support so that the business
+    logic of application will not carry out any undesired effect. We haven''t discussed
+    about how to handle such supportive functionalities along with the main motive
+    of application development. Apart from transaction what else functionalities does
+    the work of providing support to application? This chapter will help us in writing
+    the highly cohesive modules without repetition of the code to handle such supportive
+    functionalities. In this chapter we will discuss the following points:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: What are cross cutting technologies?
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: What role do the cross cutting technologies play in application development?
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: We will discuss about AOP and how AOP plays an important role in handling cross
+    cutting technologies.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: We will explore in depth what are Aspects, Advices, PointCut in AOP.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The software application provides a reliable solution to a client's problem.
+    Though we say reliable, always there is a chance of getting some runtime problems.
+    So along with development, the maintenance of the software is also equally important.
+    Whenever a problem occurs in application the client gets back to the developers
+    for the solution. Unless and until the client is not able to state the accurate
+    reason of the problem the developers are helpless. The developers have to recreate
+    the same situation in order to prevent it's next occurrence. In enterprise application,
+    due to huge number of modules the recreation of the same problem becomes complex.
+    It will be great to have someone who keeps on tracking what the user is doing.
+    The trace of this tracker helps the developers to know why and what went wrong
+    or even using the trace so that they can recreate it easily. Yes, I am talking
+    about logging mechanism.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let's take another very common situation of Railway ticket reservation. At the
+    time of ticket reservation we select the available seat from the chart and proceed
+    for money transfer. Sometimes money gets transferred successfully as well as the
+    ticket gets booked. But unfortunately, sometime due to the time for money transaction,
+    delay in form filling or some server side issues may cause problems to transfer
+    of money without booking the ticket. The money gets deducted without issue of
+    the ticket. The customer will be unhappy and moreover tense for the refund. Such
+    situations need to be handled carefully with the help of transaction management
+    so that if the ticket is not issued the money should get deposited back into the
+    customer's account. Doing it manually will be tedious task instead transaction
+    management handles it elegantly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can write the workable code without logging or transaction management, as
+    both of these are not part of your business logic. The Java application revolves
+    around providing a customized, easy solution for an enterprise problem. The business
+    logic is at the centre to provide primary functionality of the application may
+    sometime referred as 'primary concern'. But it also has to be supported for some
+    other functionalities or services and it can't be neglected. These services play
+    vital role in the application. Either the migration of application becomes time
+    consuming or backtracking the problem occurred at run time will be difficult.
+    These concerns are scattered throughout the application mostly with repetitive
+    code. Such secondary concerns are called as 'cross cutting concerns' or sometimes
+    also called as 'horizontal concerns'. Logging, transaction management, security
+    mechanism are some of the cross cutting concerns which developers use in the application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The below diagram shows the way cross cutting concerns as logging and transaction
+    management are scattered in the application code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_04_001.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Aspect Oriented Programming (AOP)
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Similar to Object Oriented Programming, the Aspect Oriented Programming is also
+    a style of programming which allows developers to write cohesive code by separating
+    cross cutting concern from the business logic code. The AOP concepts have been
+    developed by Gregor KicZales and his colleagues. It provides different ways or
+    tools to write cross cutting concerns.
+  prefs: []
+  type: TYPE_NORMAL
+- en: AOP to handle Cross cutting concern is written at one place which helps in achieving
+    the following benefits,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Reduction in the duplication of the code to achieve writing clean code.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Helps in writing the loosely coupled modules.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Helps in achieving highly cohesive modules.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The developer can concentrate on writing the business logic
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Easy to change or modify the code for new functionalities without touching the
+    exiting code.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: To understand AOP we must be aware of the following common terminologies without
+    which we cannot imagine AOP.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Join Point
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The join points are the points in the application where an aspect can be plugged
+    in for some miscellaneous functionality without being the part of the actual business
+    logic. Each code has numerous opportunities, which can be treated as join point.
+    The class which is the smallest unit in an application has data members, constructors,
+    setters and getters, other functional classes. Each of them can be an opportunity
+    where the aspect can be applied. Spring supports only methods as join points.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pointcut
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The join points are the opportunities, but all of them are not considered where
+    the aspects can be applied. A pointcut is where the developers decide to apply
+    the aspect to perform a specific action for the cross cutting concern. The pointcut
+    will be written using the method names, class names, regular expressions to define
+    the matching packages, classes, methods where aspects can be applied.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Advice
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The action taken by the aspect at pointcuts is called as 'advice'. The advice
+    has the code which gets executed for the respective cross cutting concern. If
+    we consider the method as the join point, the aspect can be applied before or
+    after the method gets executed. It is also possible that method has exception
+    handling code where the aspect can be plugged. Following are the available advices
+    in the Spring framework.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Before
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The Before advice contains the implementation which will be applied before the
+    business logic method which matches the pointcut expression. It will continue
+    with the execution of the method unless the exception is not thrown. The @Before
+    annotation or<aop:before> configuration can be applied to a method to support
+    Before advice.
+  prefs: []
+  type: TYPE_NORMAL
+- en: After
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: In After advice the implementation will be applied after the business logic
+    method irrespective of whether the method executed successfully or exception is
+    thrown. The @After annotation or<aop:after> configuration can be used to support
+    Before advice by applying it to a method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: After returning
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The After Returning advice has the implementation which is applied only after
+    the successful execution of the business logic method takes place. The @AfterReturning
+    annotation or <aop:after-returning> configuration can be applied to a method to
+    support after returning advice. The after returning advice method can use the
+    value returned by the business logic method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: After throwing
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The After Throwng advice has the implementation which is applied after the execution
+    of the business logic method which has thrown an exception. The @AfterThrowing
+    annotation or<aop:throwing> configuration can be used to support After throwing
+    advice by applying it to a method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Around
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The Around advice is the most important among all the advices and the only one
+    which is applied on a method both before and after the execution of the business
+    logic method. It can be used to choose whether to proceed for the next join point
+    or not using the invocation of proceed() method of ProceedingJoinPoint. The proceed()
+    helps in choosing whether to proceed to the join point or not by returning its
+    own returned value. It can be used in scenarios where developers needs to perform
+    pre processing, post processing or both. The calculation of how much time taken
+    by the method for its execution is one of such scenario. The @Around annotation
+    or<aop:around> configuration can be used to support around advice by applying
+    it to a method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Aspect
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: An aspect defines the opportunities by the pointcuts expressions and the advices
+    to specify when and where the action will be taken. @Aspect annotation or<aop:aspect>
+    configuration is applied to a class to declare it as an aspect.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Introduction
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The Introduction helps in the declaration of additional methods, fields in the
+    existing class without changing the existing code. Spring AOP allows developers
+    to introduce a new interface to any class which has been advised by the aspect.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Target object
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The target objects are the objects of the classes on whom the aspects are applied.
+    Spring AOP creates proxy of target object at runtime. The method from the class
+    is overridden and the advice will be included to it to get the desired result.
+  prefs: []
+  type: TYPE_NORMAL
+- en: AOP proxy
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: By default the Spring AOP uses JDK's dynamic proxy to get the proxy of the target
+    classes. The use of CGLIB for the proxy creation is also very common. The target
+    object is always proxied using Spring AOP proxy mechanism.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Weaving
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: We as developers write business logic and the aspect code in two separate modules.
+    Then these two has to be combined as proxied target class. The process of plugging
+    the aspect in the business logic code is known as 'weaving'. The weaving can happen
+    at compile time, load time or at runtime. Spring AOP does weaving at runtime.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let's take a very simple example to understand the discussed terminologies.
+    My son loves watching drama. So we had gone to watch one. As we all aware we cannot
+    enter unless and until we have entry passes or tickets. Obviously we need to collect
+    them first. Once we have the ticket my son dragged me to the seat and showed me
+    the seat in excitement. The show started. It was a funny drama for kids. All kids
+    were laughing on the jokes, clapping on dialogues, getting excited on the dramatic
+    scenes. At interval most of the audience went to take pop corn, snacks and cold
+    drinks. Everyone enjoyed the drama and left happily from the exit. Now, we might
+    be thinking that we all know this. Why we are discussing this and what is its
+    relation to the aspect. Are we not going off the way from the discussion? No,
+    we are on the right track. Just wait for a while and you all also will be agreed.
+    Here watching the drama was our main task, let's say it's our business logic or
+    core concern. Purchasing the tickets, paying the money, entering in the theatre,
+    leaving it once the drama is over are the functionalities are the part of the
+    core concern. But we cannot just sit quietly, we react on what is going on? We
+    clap, laugh and sometimes even cry. But are these main concerns? No! But without
+    them we cannot imagine audience watching drama. These will be supportive functionalities
+    which each audience does spontaneously. Correct !!! These are the cross cutting
+    concerns. The audience won't get instructions for cross cutting concerns individually.
+    These reactions are the part of aspects having advices. Some will clap before
+    the drama and few after the drama and the most excited whenever they feel. These
+    are nothing but before, after or around advices of the aspect. If the audience
+    doesn't enjoy the drama they may leave in between similar to after throwing exception.
+    On very unfortunate day, the show may get cancelled or even stopped in between
+    which needs to be introduced by the organizers as an emergency. Hope you now know
+    the concepts as well as their practical approach. We will cover this and many
+    more in the demo shortly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Before moving on with the demonstration, let's first off all discuss about some
+    of the AOP frameworks in the market as follows.
+  prefs: []
+  type: TYPE_NORMAL
+- en: AspectJ
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: AspectJ is the easy to use and to learn Java compatible framework for integrating
+    cross cutting implementations. The AspectJ has been developed at PARC. Now a day,
+    it is one of the famous AOP framework due to its simplicity yet has power to support
+    component modularization. It can be used to apply AOP on fields which are static
+    or non static, constructors, methods which are private, public or protected.
+  prefs: []
+  type: TYPE_NORMAL
+- en: AspectWertz
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: AspectWertz is another Java compatible light weight powerful framework. It can
+    be used easily to integrate in new as well as existing application. The AspectWertz
+    supports both by XML as well as annotation based aspect writing and configuration.
+    It supports compile time, load time and runtime weaving. Since AspectJ5, it has
+    been merged in AspectJ.
+  prefs: []
+  type: TYPE_NORMAL
+- en: JBoss AOP
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The JBoss AOP supports writing of aspects and dynamic proxy target objects.
+    It can be used to apply AOP on fields which are static or non static, constructors,
+    methods which are private, public or protected using interceptors.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Dynaop
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The Dynaop framework is proxy based AOP framework. The framework helps in reducing
+    the dependencies and code reusability.
+  prefs: []
+  type: TYPE_NORMAL
+- en: CAESAR
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: CASER is Java compatible AOP framework. It supports implementation of abstract
+    component as well as their integration.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring AOP
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: It is Java compatible easy to use framework which is used to integrate AOP in
+    Spring framework. It provides a close integration of AOP implementation in components
+    taking advantages of Spring IoC. It is proxy based framework which can be used
+    on method execution.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Spring AOP fulfills maximum requirements for applying cross cutting concerns.
+    But following are few limitations where Spring AOP cannot be applied,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring AOP cannot be applied on fields
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: We cannot apply any other Aspect on one aspect
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Private and protected methods can't be advised
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Constructors cannot be advised
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Spring supports AspectJ and Spring AOP integration to use cross cutting concerns
+    with less coding. Both Spring AOP and AspectJ are used for implementation of cross
+    cutting technology but following are few points which helps the developers to
+    make the best choice to be used in implementation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring AOP is based on dynamic proxy which supports only method join points
+    but AspectJ can be applied on fields, constructors even they are private, public
+    or protected supporting a fine grained advise.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Spring AOP cannot be used on method which calls methods of the same class or
+    which is static or final but AspectJ can.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: AspectJ doesn't need Spring container to manage component while Spring AOP can
+    be used only with the components which are managed by Spring container.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Spring AOP supports runtime weaving based on proxy pattern and AspectJ supports
+    compile time weaving which does not required proxy creation. The proxy of the
+    objects will be created once the bean is asked by the application.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Aspects written by Spring AOP are Java based components but those written in
+    AspectJ are with language which is extension of Java, so the developers need to
+    learn it before use.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Spring AOP is easy to implement by annotating a class with @Aspect annotation
+    or by simple configuration. But to use AspectJ one need to create *.aj files.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Spring AOP doesn't required any special container but aspects needs as aspects
+    created using AspectJ needs to compile using AspectJ compiler.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: AspectJ is a best choice for the applications which already exists.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_IND
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: A simple class without final, static methods simply use Spring AOP otherwise
+    choose AspectJ to write the aspects.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Let's discuss in depth about Spring AOP and its ways of implementations. The
+    Spring AOP can be implemented using either XML based aspect configuration or AspectJ
+    style annotation based implementation. The XML based configuration can be split
+    up at several point making it bit complex. In XML we cannot define named pointcuts.
+    But the aspect written by annotations is within the single module which supports
+    writing named pointcuts. So, without wasting time let's start the XML based aspect
+    development.
+  prefs: []
+  type: TYPE_NORMAL
+- en: XML based aspect configuration
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Following are the steps need to be followed for developing XML based aspect,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Select the cross cutting concern to be implemented
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Write the aspect to fulfill the requirement of cross cutting concern.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Register the aspect as a bean in Spring context.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Write the aspect configuration as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '* Add AOP namespace in XML.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* Add aspect configuration which will have pointcut expressions and advises.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* Register the bean on whom the aspect can be applied.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the available join points the developers need to decide which to track
+    and then need to write pointcut using expression to target them. To write such
+    pointcuts the Spring framework uses AspectJ's pointcut expression language. We
+    can write point cuts with the help of following designators in the expression.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using method signatures
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'The method signature can be used to define the pointcuts from the available
+    join points. The expression can be written using the following syntax:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: Java supports private, public, protected and default as method scope but Spring
+    AOP supports only public methods while writing the pointcut expressions. The parameter
+    list is use to specify what data types will be considered when the method signature
+    is matched. Two dots(..) can be used by the developers, if they don't want to
+    specify wither number of arguments or their data types.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s consider the following expressions to understand writing of expressions
+    in depth to decide which join points will be advised:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`expression(* com.packt.ch04.MyClass.*(..)` - specifies all the methods with
+    any signature from MyClass within com.packt.cho3 package.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`expression(public int com.packt.ch04.MyClass.*(..)` - specifies all the methods
+    returning integer value from MyClass within com.packt.cho3 package.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`expression(public int com.packt.ch04.MyClass.*(int,..)` - specifies all the
+    methods returning integer and its first argument of integer type from MyClass
+    within com.packt.cho3 package.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`expression(* MyClass.*(..)` - specifies all the methods with any signature
+    from MyClass will be advised. It''s a very special kind of expression which can
+    be used only if the advise and the class belongs to the same package.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Using type
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'The type signature is used to match the join point having the specified types.
+    We can use the following syntax to specify type:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Here the type will be either the package or class name. Following are some
+    of the expressions which can be written to specify the join points:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`within(com.packt.ch04.*)` - specifies all the methods from all the classes
+    belonging to com.packt.ch04 package'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`within(com.packt.ch04..*)` - specifies all the methods from all the classes
+    belonging to com.packt.ch04 package and its sub packages. We specified two dots
+    instead of one to track the sub packages as well.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`within(com.packt.ch04.MyClass)` - specifies all the methods from the MyClass
+    belonging to com.packt.ch04 package'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`within(MyInterface+)` - specifies all the methods from all the classes which
+    are implementing MyInterface.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Using Bean name
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'Spring 2.5 onwards all versions supports use of bean name to be used in expression
+    to match the join point. We can use the following syntax:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Consider the following example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`bean(*Component)` - the expression specifies the join points to be match which
+    belongs to the bean whose name ends with Component. The expression can''t be used
+    with AspectJ annotations.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using this
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: '''this'' is used to match the join points where the bean reference is instance
+    of the specified type. It is used when the expression specifies name of class
+    instead of interface. It used when Spring AOP uses CGLIB for proxy creation.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.sing target
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The target is used to match the join points where the target object is an interface
+    of the specified type. It is used when Spring AOP uses JDK based proxy creation.
+    The target is used only if the target object is implementing an interface. The
+    developers even can configure property 'proxy target class' set to true.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s consider the following example to understand use of this and target
+    in expression:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We can write the expression to target the methods as:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`target( com.packt.ch04.MyInterface)` or'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`this(com.packt.ch04.MyClass)`'
+  prefs: []
+  type: TYPE_NORMAL
+- en: For annotation tracking
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The developers can write pointcut expressions which are not tracking the methods
+    but to track the annotations applied. Let's take following examples to understand
+    how to monitor annotations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Using with execution:**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: execution(@com.packt.ch03.MyAnnotation) - specifies to target the method or
+    class which has been annotated with MyAnnotation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: execution(@org.springframework.transaction.annotation.Transactional) - specifies
+    to target the method or class which has been annotated with Transactional.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Using with @target:**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: It is used to consider the join points where the class has been annotated with
+    specified annotation. The following example makes it clear,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '@target(com.packt.ch03.MyService) - used to consider the join point which has
+    been annotated by MyService annotation.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Using @args:**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The expression is used to specify the join points where the arguments have been
+    annotated with the given type.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '@args(com.packt.ch04.annotations.MyAnnotation)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The above expression is used to consider the join points whose accepts objects
+    annotated by @Myannotation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Using @within:**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The expression is used to specify the join points within types which have been
+    specified by the given annotation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '@within(org.springframework.stereotype.Repository)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The above expression helps in providing advise to the join points which has
+    been annotated by @Repository.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Using @annotation:**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '@annotation is used to match the join points which have been annotated by the
+    respective annotation.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '@annotation(com.packt.ch04.annotations.Annotation1)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The expression matches all the join points annotated by Annotation1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let's use pointcut expressions, advises to implement logging aspect to understand
+    the real time implementation. We will use application Ch03_JdbcTemplates developed
+    in previous chapter to integrate Log4j in it as a base. In first part we will
+    create a copy of the main application and part two integrate it with log4J and
+    in third part we will apply the customized logging aspect.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Part I : Creating application for the core concern(JDBC)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Follow the steps to create the base application:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a Java applicationCh04_JdbcTemplate_LoggingAspect and add to it jars
+    for Spring core, Spring JDBC, spring-aop, aspectjrt-1.5.3 and aspectjweaver-1.5.3.jar
+    files.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Copy the required source code files and configuration files in respective packages.
+    The final outline of the application is as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_04_002.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Copy connection_new.xml from Ch03_JdbcTemplates in classpath of the application
+    and edit it to remove bean with id as 'namedTemplate'.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'PartII: Integration of Log4J'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Log4j is the most simple thing to do. Let''s use following steps for the integration:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: To integrate Log4J we first of all have to add log4j-1.2.9.jar in the application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add log4j.xml in classpath with the following configuration to add Console
+    and File appenders:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can modify the configuration as per your requirement.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Now to log the messages we will add the code for getting logger and then logging
+    mechanism. We can add the code to BookDAO_JdbcTemplate.java as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Don't worry we will not add it in our application in each class and then in
+    methods as we already discuss the complexity and repetitive code let's move on
+    to write aspect for logging mechanism with the help of following steps to get
+    the same result as that of the code written above.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Part III: Writing Logging aspect.'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create MyLoggingAspect as Java class in com.packt.ch04.aspects package which
+    will have method for before advise.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add a data member of type org.apache.log4j.Logger in it.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add a method beforeAdvise( )in it. The signature of method can be anything,
+    Here we are adding JoinPoint as argument. Using this argument we can get the information
+    about the class where aspect is getting applied. The code will be as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The aspect now has to be configured in the XML in three steps:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '*Add namespace for AOP:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Now we can use AOP''s tags by using ''aop'' namespace:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '*Add a bean for aspect.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add the bean for aspect which we want to use in application in connection_new.xml
+    as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: '*Configure the Aspect.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Each <aop:aspect> enables us writing aspect inside <aop:config> tag.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Each aspect will have id and ref as attributes. The 'ref' which refers to the
+    bean whose methods will be invoked for providing advises.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Configure the advise for a pointcut expression and which method to be invoked
+    for the advise. The before advise can be configured inside<aop:aspect> using <aop:before>tag.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Let''s write before advise to apply for ''myLogger'' aspect which will be invoked
+    before the addBook() method of BookDAO. The configuration will be as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Execute MainBookDAO_operation.java to get the following output on console:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: Here BookDAO_JdbTemplate is working as target object whose proxy will be created
+    at runtime by weaving the code of addBook() and beforeAdvise() methods. Now once
+    we know the process let's add different pointcuts and the advises one by one in
+    the application with the help of following steps.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: More than one advises can be applied on the same joinpoint but for simplicity
+    to understand the pointcuts and advises, we will keep single advise each time
+    and comment already written.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Adding after advise.
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Let's add after advise for all the methods from BookDAO.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add a method afterAdvise()in MyLoggingAspect for after advise as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Configure the pointcut expression to target all the methods inside BookDAO
+    class and after advise in the connection_new.xml inside ''myLogger'' aspect as
+    shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Execute MainBookDAO_operations.java to get following output:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: The underlined statements makes it clear that the advise got invoked after all
+    the methods.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Adding after returning advise.
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Though we written the after advise but we are not able to get the value returned
+    from the business logic method. After-returning will help us to get the returned
+    value with the help of following steps.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add a method returnAdvise()in MyLoggingAspect which will get invoked for after
+    returning. The code is as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: The argument 'val' will hold the returned value.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Configure the advise under ''myLogger''. We don''t have to configure the pointcut
+    as we will be reusing alredy configured. In case if you want to use different
+    set of join point, first you need to configure a different pointcut expression.
+    Our configuration will be as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: where,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* returning - represents the attribute to specify the name of the parameter
+    to which the return value will be passes. In our case this name is ''val'' which
+    has bound in advice arguments .'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To make the output easy to understand comment before and after advise configuration
+    and then execute MainBookDAO_operations.java to get following lines on console
+    output:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: Each of the statements shows the value returned from the joinpoint.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Adding Around advise.
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'As we already discuss around advise is invoked both before and after the business
+    logic method, only if the execution is successful. Let''s add around advise in
+    application as:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add a method aroundAdvise () in MyLoggingAspect. This method must have one
+    of its argument as ProceedingJoinPoint to facilitate the flow of application to
+    join point. The code will be as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_04_003.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The part before proceed() will get invoked before B.L. method which we are referring
+    as 'Pre processing'. The ProceedJoinPoint's proceed() method take the flow to
+    the respective join point. If the join point executes successfully the part after
+    proceed will be executed which we are referring as 'Post processing'. Here we
+    are finding time taken to complete the process by taking the difference of time
+    at pre processing and post processing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The join point where we want to weave the aspect returns int so the aroundAdvise()
+    method is also returning value of the same type. If in case we add void instead
+    of int we will get the following exception:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: Let's now add around advise in 'myLogger' as shown below,
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: Execute the MainBookDAO to the following log on console while commenting the
+    advises configured previously,
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: Adding after throwing advise
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: As we know the after throwing advise will be triggered once the matching join
+    point will throw an exception. While performing JDBC operation if we try to add
+    the duplicate entry in the book table the DuplicateKeyException will be thrown
+    we just want to log it with the help of after throwing advise with the help of
+    following steps,
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add the method throwingAdvise() in MyLoggingAspect as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: The developers are free to choose the signature but as the join point method
+    is going to throw exception the method written for the advise will have one of
+    its argument of type Exception so that we can log it. We also are adding argument
+    of type JoinPoint as we want to deal with method signatures
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add the configuration in the connection_new.xml in ''myLogger'' configuration.
+    The configuration to add is:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The <aop:after- throwing> will take:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* **pointcut-ref** - name of pointcut-ref where we wamt to weave the joinpoints'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* **method** - name of method which will invoke if the exception is thrown'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* **throwing** - name of the argument to be bound from the advise method signature
+    to which the exception will be passes. The name of argument in the method signature
+    used by us is ''exception''.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Execute the MainBookDAO_operations and purposely add the book whose ISBN already
+    exists in the Book table. Before execution comment the previous configurations
+    added for other advises. We will get the following output:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE22]'
+  prefs: []
+  type: TYPE_PRE
+- en: If you add book with different ISBN which is not already in book table the above
+    log for ERROR will not be displayed as no exception no advise will be triggered.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The above demonstration gives clear picture about how the aspect will be written
+    and configured using XML. Let's move on to writing annotation based aspect.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Annotation based aspect.
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The aspect can be declared as a Java class annotated with AspectJ annotations
+    to support writing of pointcuts and advises. Spring AspectJ OP implementations
+    provide following annotations for writing aspect:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**@Aspect** - used to declare a Java class as an Aspect.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**@Pointcut** - used to declare point cut expression using AspectJ expression
+    language.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**@Before** - used to declare the before advise which is applied before the
+    business logic (B.L.) method. @Before supports following attribute,'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**value** - name of the method annotated by @Pointcut'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**argNames** - to specify the name of parameters at join point'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**@After** - used to declare the after advise which is applied after the B.L.
+    method before returning the result. @After also support same attributes as that
+    of @Before advise.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**@ AfterThrowing** - used to declare the after throwing advise which is applied
+    after the exception is thrown by the B.L. method. @ AfterThrowing supports following
+    attribute:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**pointcut**- the pointcut expression to select the join point'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**throwing**- the name of the argument which will be bound with exception thrown
+    by B.L. method.'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**@AfterReturning** - used to declare the after returning advise which is applied
+    after the B.L. method but before the result is returned. The advise helps in getting
+    the value of the result from B.L method. @AfterReturning supports following attribute,'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**pointcut**- the pointcut expression to select the join point'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**returning**- the name of the argument bounded with the value returned from
+    B.L. method.'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**@Around** - used to declare the around advise which is applied before as
+    well as after the B.L. method. @Around support same attribute as that of @Before
+    or @After advise.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'We must declare the configuration in the Spring context to unable proxy creation
+    of the bean. The AnnotationAwareAspectJAutoproxyCreatorclass helps in this. We
+    can register the class in simple way for @AspectJ support by including the following
+    configuration in the XML file:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE23]'
+  prefs: []
+  type: TYPE_PRE
+- en: Adding the namespace 'aop' in XML which already had discussed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We can follow the following steps to declare and use Annotation based aspect:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Declare a java class and annotate it by @Aspect.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add the method annotated by @Poincut to declare pointcut expression.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add the methods for advises and annotate them by @Before, @After, @Around etc
+    as per the requirements.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add the configuration for namespace 'aop'.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add the aspect in the configuration as a bean.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Unable the auto proxy support in the configuration.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Let''s add the annotation based aspect in the JdbcTemplate application. Follow
+    steps of part I and II to create base application named Ch04_JdbcTemplate_LoggingAspect_Annotation.
+    You can refer to the Ch04_JdbcTemplate_LoggingAspect application. Now use the
+    following steps to develop annotation based logging aspect:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create class MyLoggingAspect in com.packt.ch04.aspects package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Annotate it with @Aspect.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add a data member of type org.apache.log4j.Logger in it.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add the method beforeAdvise() for applying advise before the business logic
+    method addBook().Annotate it with @Before. The code will be as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE24]'
+  prefs: []
+  type: TYPE_PRE
+- en: Edit connection_new.xml to add 'aop' namespace if you already have not done
+    that.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add bean for MyLoggingAspect as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE25]'
+  prefs: []
+  type: TYPE_PRE
+- en: Alternative to the above configuration will annotating the MyLoggingAspect by
+    @Component annotation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Unable the AspectJ autoproxy by adding the configuration in connection_new.xml
+    as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE26]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Execute the MainBookDAO-operation.java to get the log on console as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE27]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'To write the pointcut expression for each advise may be a tedious and unnecessarily
+    repetitive task. We can declare the pointcut seperatly in a marker method as shown
+    below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE28]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'And then refer the above from the advise method. We can update the beforeAdvise
+    () method as:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE29]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Once we know the basis of Aspect declaration let''s now add the methods for
+    other aspect and pointcut as already discussed in aspect declaration using XML.
+    The aspect will be as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE30]'
+  prefs: []
+  type: TYPE_PRE
+- en: Execute MainBookDAO.java to get logging messages on console.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The class is implementing the interface by default JDK''s dynamic proxy mechanism
+    will be used for proxy creation. But sometime the target object will not implement
+    the interface then JDK''s proxy mechanism will fail. In such cases CGLIB can be
+    used to for proxy creation. To unable CGLIB proxies we can write the following
+    configuration:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE31]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Also, to force the AspectJ and auto proxy support we can write the following
+    configuration:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE32]'
+  prefs: []
+  type: TYPE_PRE
+- en: Introduction
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In enterprise application sometimes the developers come across the situations
+    where they need to introduce set of new functionalities but without changing the
+    existing code. Using introduction not necessarily all the interface implementations
+    needs to be changed as it becomes very complex. Sometimes developers work with
+    third party implementations where the source code is unavailable introduction
+    plays very important role. The developers may have an option to use decorator
+    or adapter design pattern so that the new functionalities can be introduced. But
+    method level AOP helps in achieving the introduction of new functionalities without
+    writing decorators or adapters.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Introduction is an advisor which allows introducing new functionalities
+    while handling the cross cutting concerns. Introduce the new implementation the
+    developers have to either use <aop:declare-partents> for schema based configuration
+    or @DeclareParents if using annotation based implementations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Using schema to add introduction the <aop:declare-parent> declares a new parent
+    for the bean which is being advised. The configuration will be as:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE33]'
+  prefs: []
+  type: TYPE_PRE
+- en: Where,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**types-matching**- specifies the matching type of the been getting advised'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**implement** - interface - the newly introduced interface'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**default-impl** - the class implementing newly introduced interface'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'In case of using annotations the developers can use @DeclareParents which is
+    equivalent to the <aop:declare-parents> configuration. @DecalreParents will be
+    applied to the property which is the new interface introduced. The syntax of @DeclarePrents
+    is as shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE34]'
+  prefs: []
+  type: TYPE_PRE
+- en: Where,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**value**- specifies the bean to be introduced with interface'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**defaultImpl** - is equivalent to default-impl of the <aop:declare-parent>''s
+    attribute which specifies the class that provides implementation of the interface'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Let''s use Introduction in the JdbcTemplate application. The BookDAO doesn''t
+    have the method to get description of the book so let''s add it. We will use Ch03_JdbcTemplate
+    as the base application. Follow the steps to use introduction:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a new Java application and name it as Ch04_Introduction.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add all the jar required for Spring core, Spring -jdbc, Spring AOP as we did
+    in earlier applications.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Copy com.packt.ch03.beans package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create or copy com.packt.ch03.dao with BookDAO.java and BookDAO_JdbcTemplate.java
+    classes.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Copy connection_new.xml in classpath and delete the bean having id as 'namedTemplate'.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Create new interface BookDAO_new in com.packt.ch03.dao package as shown below
+    to declare getDescription() method:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE35]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Create class BookDAO_new_Impl implementing BookDAO_new interface which will
+    deal with JDBC using JdbcTemplate. The code will be as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE36]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Create an aspect class MyIntroductionAspect in com.packt.ch04.aspects package
+    which will introduce the new interface to use getDescription() method. The code
+    is as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE37]'
+  prefs: []
+  type: TYPE_PRE
+- en: The annotation provides introduction of BookDAO_new which has additional methods
+    than those available in BookDAO interface. The default implementation to be used
+    for introduction is BookDAO-new_Impl.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Register the aspect in connection_new.xml as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE38]'
+  prefs: []
+  type: TYPE_PRE
+- en: Add the following configuration to enable autoproxy,
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE39]'
+  prefs: []
+  type: TYPE_PRE
+- en: The proxy-target-class is used to force the proxy to be subclass of our class.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Copy or create MainBookDAO_operation.java to test the code. Use getDescription()
+    method to find description of the code. The underline statements in the following
+    code are the additional statements to add:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE40]'
+  prefs: []
+  type: TYPE_PRE
+- en: As the BookDAO doesn't have getDescription() in order to use it, we need to
+    cast the obtained object to BookDAO_new.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'On execution we will get the output on console as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE41]'
+  prefs: []
+  type: TYPE_PRE
+- en: The output clearly show though we are able to introduce the getDescription()
+    method without changing BookDAO and its implementations.
+  prefs: []
+  type: TYPE_NORMAL

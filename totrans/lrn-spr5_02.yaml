@@ -1,0 +1,2754 @@
+- en: Chapter 2. Dependency Injection
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The previous chapter gave us over view of what is Spring framework and how it
+    helps the developers to make the development faster and easier. But the question
+    "how to use the framework?" is still unanswered. In this chapter we will discuss
+    the answer in all perspectives and try to find out all the probable answers for
+    it. The chapter is full of configuration and alternatives for the configuration.
+    It all depends on how the developer looks forward with these solutions in available
+    conditions and environmental setup of the application. We are aiming to cover
+    following points in depth.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We will start with Bean Life cycle management with custom initialization, InitializingBean,
+    DisposableBean, and Aware Interfaces, Use of annotations like @PostConstruct and
+    @PreDestroy in bean life cycle
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The dependency injection
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Setter and constructor Dependency injection
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: DI for references, inner beans, Inheritance and Collection
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Bean scope and configuring scopes as Singleton or Prototype
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Auto wiring and ways of achieving auto wiring
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Problems occurring while auto wiring and ways to overcome
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Lot many things to cover, so let's start with the very first 'the life of a
+    bean'.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The life of a bean
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The Spring IoC container hides the complex communication between the container
+    and the beans. The following figure gives an idea about the steps which container
+    follows to maintain the life of every bean:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_02_001.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Bean life cycle
+  prefs: []
+  type: TYPE_NORMAL
+- en: Loading the configuration
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: This is the most important phase in bean life cycle which initiates the life
+    cycle process. The container loads and reads the metadata information from the
+    bean configuration file and starts the next phase 'instantiation'.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Object creation
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Using Java Reflection API the Spring container creates an instance of a bean.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Setting the bean name
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Each bean contains a unique name configured in the configuration. This name
+    can be made available to the bean class by `setBeanName()`. If the bean class
+    implements `BeanNameAware` interface, its `setBeanName()` method gets invoked
+    to set the bean name.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Setting bean factory
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Sometimes the bean class may need to get information about the factory which
+    loaded it. If the bean class implements `BeanFactoryAware` its `setBeanFactory()`
+    method will get invoked passing the instance of the `BeanFactory` to it which
+    is may be an instance of `ApplicationContext` , `WebApplicationContext` ,etc.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Bean post processing with postProcessBeforeInitialization
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In some of the scenarios before the values of the objects gets populated some
+    pre initialization is required which cannot be done in the configuration files.
+    In such cases, if an object of BeanPostProcessor does this task. The BeanPostProcessors
+    are special kind of beans which get instantiates before any other beans are instantiate.
+    These BeanPostProcessor beans interact with new instance created by the container.
+    But, it will be done in two steps, once before the properties are set and second
+    once the properties got set. In this phase, BeanPostProcessor which is associated
+    with BeanFactory, it's PostProcessorBeforeInitiallization will be called to do
+    the pre initialization.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Property population
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The bean configuration may be specified with some bean properties. In this phase
+    all the values will get associated to the instance initialized in the previous
+    phase.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Initializing bean with
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The afterPropertiesSet() method
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: It may happen that, the bean configured in the configuration hasn''t set values
+    of all the properties. And once the properties get populated, using some business
+    logic or in some other way rest of the properties need to be set. `InitializingBean`
+    interface helps in the task. If the class implements `InitializingBean` interface,
+    its `afterPropertiesSet()` method will be called to set such properties.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Custom init() method
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Though the `afterProperties()` helps to do initialization of properties based
+    on some logic, the code gets strongly coupled with the Spring API. To overcome
+    this drawback there is a way to initialize the bean using custom initialization
+    method. If the developer has written custom `init` method and configured it for
+    the bean in the bean configuration as an '`init-method`' attribute, it will get
+    called by the container.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Bean post processing with postProcessAfterInitialization
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: BeanPostProcessor''s `postProcessAfterInitialization()` will be called to do
+    the `postProcessing` once the properties got initialized.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Use the bean
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Thank god!!!! Yes now the object is perfectly ready for use with its state defined.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Destruct bean with
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The developers used the objects and the objects have completed their tasks.
+    Now we don't need them anymore. To release the memory occupied by the bean can
+    be destroyed by,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Dispose bean with destroy()
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: If the bean class implements DisposableBean interface, its destroy() method
+    will be getting called to release memory. It has the same drawback as that of
+    InitializingBean. To overcome we do have custom destroy method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Destruction with custom destroy()
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: It is also possible to write a custom method to release memory. It will be called
+    when the attribute 'destroy-method' has been configured in the bean configuration
+    definition.
+  prefs: []
+  type: TYPE_NORMAL
+- en: After knowing the lifecycle, let''s now do some implementation to know the implementation
+    perspective.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Case1: Using Custom initialization and destruction methods'
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: As we already discussed in bean life cycle, these two methods will leverage
+    the developer to write their own methods for initialization and destruction. As
+    developers are not coupled with Spring API, they can take advantage of choosing
+    their own method signature.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s have a look on how to hook these methods in order to be used by Spring
+    container step by step:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a Java Application as Ch02_Bean_Life_Cycle and add to it jar which we
+    did in previous project.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Create a class Demo_Custom_Init under the package com.ch02.beans as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add the class a method myInit() with the following code to do initialization.
+    Here we are shifting ''''name'''' to uppercase:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Create bean_lifecycle.xml in class path to configure the bean similar to the
+    previous project(refer to beans_classpath.xml from Ch01_Container_Initizatization)
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add to it bean definition as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: '* Each bean has to be configured within <bean> tag.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* A <bean> tag contains many attributes we need to configure minimum two of
+    them which are as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'a. id : Specifies the reference name on which the container recognises whose
+    object he is managing. ''id'' must be unique within the container. Naming the
+    ''id'' is similar to the reference in Java application.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'b. class: Specifies whose object container is creating and managing. The value
+    of the class attribute must be fully qualified class name as we did in above configuration.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'The syntax to configure a bean definition in XML is as shown as follows:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: The XML configuration is equivalent to the Java Code as,
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: There are few more attributes which developer can use in configuration. We will
+    see them one by one according to the scenarios in upcoming chapters.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The configuration shown in Step 5 is the very basic configuration without providing
+    any information to the container about how to initialize the property ''name''.
+    Let''''s modify the configuration by adding the attribute ''init-method'' to specify
+    the method name which is to be invoked to initialize the property after instantiation.
+    The modified code as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The way we perform initialize, in the same way we can release the resource
+    as well. To do the release with custom destruct method we need to first add it
+    to the code as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Configure the destruct method in bean configuration by specifying destroy-method
+    as shown in the following code:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Create `Test_Demo_Custom_Init` with main function. Initialize the container
+    as we did earlier in chapter 1\. And get the instance of `Demo_Custom_Init` using
+    `getBean()` as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The execution of the code gives the following output:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: The output clearly shows life cycle phases as construction, initialization,
+    use and then destruction of the bean.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Don''''t be surprised by the absence of ''destroy called'' statement. We can
+    use the following code to elegantly shut down the container:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: On addition of the above line to the main function even the 'destroy called'
+    will be seen as a console output.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Case2: Using InitializingBean to provide initialization'
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: We will use the same project Ch02_Bean_Life_Cycle which we develop in the Case1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Follow the steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add a class Demo_InitializingBean in com.ch02.beans package which is implementing
+    InitializingBean interface as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Override the method afterPropertiesSet() method for processing properties as
+    follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add one more bean to the bean_lifecycle.xml as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can observe that we don''t have to override any init-method attribute here
+    as we did in Case1 as afterPropertiesSet() get a call by callback mechanism once
+    properties got set.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Create a class Test_InitializingBean with main method as shown in the following
+    code:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The execution of output is as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: From the above out put the underlined statements are not related to the newly
+    configured bean. But as container does initialization of all the beans configured,
+    it will initialize the `Demo_Custom_Init` bean as well.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Case3: Using DisposableBean to provide release of memory'
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: We will use the same project Ch02_Bean_Life_Cycle which we develop in the Case1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Follow the steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add a class Demo_DisposableBean.in com.ch02.beans package which is implementing
+    DisposableBean interface as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Override the method destroy()method for memory release as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add one more bean to the bean_lifecycle.xml as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can observe that we don''t have to override any destroy-method attribute
+    here as we did in Case1\. The `destroy()` get a callback once the container containing
+    the bean getting shut down.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Create a class Test_DisposableBean with following code:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We will get the following code on execution of the main:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: The underlined line is from the destroy() from Disposable demo but as there
+    is custom `destroy()` method for `Demo_Custom_Init` class as well.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Case4: Making the bean aware of Container'
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: We will use the same project Ch02_Bean_Life_Cycle which we develop in the Case1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Follow the steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Add a class MyBean in com.ch02.contextaware package which is implementing ApplicationContextAware
+    interface.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add a data member to the bean class of type ApplicationContext.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Override the method setApplicationContext()method.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add display () to get one of the bean and display its properties. The class
+    will be as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: Here we are accessing one of the other bean who is not a data member of the
+    class and not injected. But the code shows we still cab access their properties.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add one more bean to the `bean_lifecycle.xml` as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE22]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Create a class Test_MyBean with main method as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE23]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'On execution we will get the following output as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE24]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Case4: Using BeanPostProcessor.'
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: We will use the same project Ch02_Bean_Life_Cycle which we develop in the Case1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Follow the steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Add a bean class Demo_BeanpostProcessor in com.ch02.beans package which implement
+    BeanPostProcessor.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Override the method postProcessBeforeInitialization ()method.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Override the method postProcessAfterInitialization()method.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The complete class definition is as shown below,
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE25]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add one more bean to the bean_lifecycle.xml as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE26]'
+  prefs: []
+  type: TYPE_PRE
+- en: Create a class `TestBeanPostProcessor` with main method. We don''t have to ask
+    bean for ''`beanPostProcessor''` as its methods are called before and after init
+    method for each bean in the container.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Write the test code to find the order of methods called in initialization process
+    as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE27]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The output is as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE28]'
+  prefs: []
+  type: TYPE_PRE
+- en: The underlined statements are for the bean which we asked from the container.
+    But find the order which has been followed as constructor, `postProcessBeforeInitialization`
+    method, custom-init method, `postProcessAfterInitialization`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In an application more than one `BeanPostProcessors` can be configured. The
+    order of their execution can be managed by setting ''order'' property if the bean
+    implements Ordered interface. The scope of each `PostBeanProcessor` is per container.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using JSR-250 annotations for bean lifecycle
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: JSR-250 annotations plays a vital role in bean life cycle but we won''t directly
+    jump and discover them. Doing so may lead us skipping some of very important concepts.
+    So relax we will discuss them at the time of JSR based annotations. But if you
+    already known Spring, use of annotations in Spring and so eager to go for @PreDestroy
+    or @PostConstruct you may directly go to the topic JSR annotations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In huge development of Java Enterprise application is simplified by writing
+    smaller units of codes generally, classes. Then developers reuse them by calling
+    the methods of each other. This is very complex and difficult to maintain architecture.
+    In order to invoke the method of another class, its knowledge is important. The
+    class which holds the object of another class is called as container. And the
+    object which container holds is called as contained object. Now the container
+    is well aware of the contained object. The developers will be more than happy
+    as now they can easily reuse the contained object which simplifies their development.
+    But now there is a very major flaw in the designing. This can be well explained
+    with two very famous terminologies as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Loose coupling**: The container class will not be affected even though there
+    is a change in the contained object. The container in such scenario is called
+    as loosely coupled object. The developers always try to write down the code which
+    follows loose coupling. In Java loose coupling can be well achieved with the help
+    of interface programming. The interface states what the contract is? But it doesn''''t
+    specify who and how the contract will be implemented. The container class will
+    have less of the knowledge of the dependency making it more flexible.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**Tight coupling**: the container class need to change whenever there is a
+    code change in contained objects. The container is tightly coupled with the container
+    object which makes development difficult.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Try to avoid writing tightly coupled classes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Whether it''''s loose coupling or tight coupling we get reusable objects. Now
+    the question is how these objects will be created. In Java the object creation
+    can happen with two major ways as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Constructor invocation.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Factory to give objects
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: As an abstract level both of these ways looks alike as the end user is going
+    to get an object for use. But these are not the same. In factory the dependant
+    classes have the responsibility of creating the object and in constructor the
+    constructor gets invoked directly. The Java application is centric and revolving
+    around objects. The very first thing every developer tries to get object properly
+    initialized so that handling of data and performing operations can be done in
+    sophisticated way. The instance creation and state initialization are the two
+    steps in creating every properly initialised object. As container will be involving
+    in both of these processes we should have a good knowledge of both of them. So
+    let's start with instance creation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Instance creation
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In java, following are the two ways to create an instance:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using constructor
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Using factory method
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: I will not go in detail the scenarios when to use which way as we all are from
+    Java background and had done or read the reasons number of times. We will directly
+    start with how to use them in Spring framework one by one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using Constructor
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Let''''s take an example of a Car to make it crystal clear how the container
+    will create the object of Car with the help of following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create Java application Ch02_Instance_Creation and add jars which we added in
+    previous project.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Create a class Car in com.ch02.beans package with chesis number, it''s color,
+    fuel type, price, average as data members. The code is as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE29]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add show() in Car as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE30]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'When the developer tries to create the object the code will be as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE31]'
+  prefs: []
+  type: TYPE_PRE
+- en: Now we need to configure `BeanDefination` in XML file which represents a bean
+    instance so that the bean will be managed by the Spring container.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Create `instance.xml` in `Classpath` to configure our Car `BeanDefination`
+    we need to configure it as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE32]'
+  prefs: []
+  type: TYPE_PRE
+- en: Create TestCar with main function in default package to get the bean to use
+    business logic.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '* Get Spring container instance. We will Use ClassPathXmlApplicationContext
+    as discussed in container initialization.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* Get the bean instance from the container.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The code will be as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE33]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The output is as shown in snapshot below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_02_002.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 02
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'It''s pretty clear from the output that the container have used default constructor
+    to define the values. Let''s prove it by adding default constructor in Car following
+    code as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE34]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The updated output will be as shown in the below snapshot:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_02_003.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Using factory method
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The bean is configured in the Spring container whose object is created through
+    either instance or static factory method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using instance factory method
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The instance creation will be done through a non static method of a bean. To
+    use the method for instance creation an attribute ''factory-method'' has to be
+    configured. Sometimes some other class may also be used to create the instance.
+    The ''factory-bean'' attribute will be configured along with ''factory-method''
+    to be used by the container for instance creation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let''s follow the steps to use factory-method for instance creation. We will
+    use the same Ch02_Instance_Creation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Create class CarFactory in com.ch02.factory as shown in the code below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE35]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `buildCar()` method will build an instance of Car and return it. Now the
+    task of making the Container aware of using the above code will be done by the
+    bean definition.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In instance.xml file add two beans, one bean for CarFactory and second for
+    Car as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE36]'
+  prefs: []
+  type: TYPE_PRE
+- en: The attribute factory-method specifies `buildCar` as the method to be used from
+    `car_factory` specified by factory-bean attribute to used for instance creation.
+    No need to specify class attribute here.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Create TestCarFactory with main function with the following code:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE37]'
+  prefs: []
+  type: TYPE_PRE
+- en: On the execution the following snapshot will be shown,
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_02_004.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Using static factory method
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: We can define static method in the class which returns the object. The attribute
+    'factory-method' is used to specify the method name who does instance creation.
+    Let's use Ch02_Instance_Creation project to use factory-method attribute with
+    the help of following steps.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Create class CarService in com.ch02.service package as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE38]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add the configuration in XML as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE39]'
+  prefs: []
+  type: TYPE_PRE
+- en: The **'factory-method'** specifies the method who returns the instance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Write the test code in TestCarService as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE40]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The execution of the code give the following output as snapshot shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_02_005.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Once the instance is created, now it''''s time to initialize the state. The
+    Java developers initialization state as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE41]'
+  prefs: []
+  type: TYPE_PRE
+- en: Here, if we change the values of the data members the state also gets changed.
+    So it''s pretty clear that the car is dependent on data member values. But as
+    here we have set them the values are part of the code, any change in them need
+    to change the code or redeployment of the code. In Dependency injection, the design
+    is done in such a way that the object is achieved its state externally instead
+    of hard coding them from a piece of the code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Dependency Injection
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Dependency Inversion Principle states two modules should not be tightly coupled
+    with each other. The modules should be depends using abstraction where the details
+    of dependency are not specified. Dependency Inversion Principle(DIP) helps in
+    ensuring loosely coupled modular programming. Dependency Injection is the implementation
+    of the DIP. To know what is dependency injection we first have to clearly understand
+    what is dependency?
+  prefs: []
+  type: TYPE_NORMAL
+- en: The state of an object is given by the values of its data members. These data
+    members as we all are aware can be of primitive or secondary type. If the data
+    members are primitive they get their values directly and in secondary data type,
+    the value is dependent on state of that object. That means whenever an object
+    initialization happens the data member initialization plays a very important role.
+    In other words we can say the data members are the dependency in object initialization.
+    To insert or set the values of the dependency onto the object is Dependency Injection.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The dependency injection helps in achieving loosely coupled architecture. The
+    loose coupling helps in easy testing of the modules. The code and the values which
+    the code uses are separated and can be controlled by central configuration, which
+    make easy code maintenance. The code remains unaffected as the values are in external
+    configuration making it easy to migrate with minimum changes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Spring framework the dependency injection can be achieved by,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Setter injection
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Constructor injection
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The above two are the ways which we can use for DI but these can be achieved
+    with number of ways which are
+  prefs: []
+  type: TYPE_NORMAL
+- en: XML based configuration
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: XML based configuration with namespace ''p''
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Annotation based configuration
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: So let's start exploring them one by one
+  prefs: []
+  type: TYPE_NORMAL
+- en: XML based configuration
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Setter Injection
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'The dependencies of an object are fulfilled by the setter methods in setter
+    injection. So the very important thing is when we do setter injection is to have
+    a bean whose data members will be set through setter methods. The steps to use
+    setter injection are:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Declare a class and its properties using standard java naming convention.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Configure the bean in bean definition XML as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE42]'
+  prefs: []
+  type: TYPE_PRE
+- en: The bean in above configuration create the instance. It has to be updated to
+    configure the properties.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '* Each <property> tag will configure a data member'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* Each <property> tag accepts two values'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '1\. name : The ''''name'''' attribute specifies the name of the data member
+    whose value the developer wants to configure.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '2\. value: The ''''value'''' specifies the value to be given to the data member.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The updated configuration will be as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE43]'
+  prefs: []
+  type: TYPE_PRE
+- en: If we have more than one data member whose values to set we need to use more
+    than one <property> tags.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Get the bean from the Spring container and you are ready to use it.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Let''''s first of all find out how to configure a bean with setter injection
+    with the help of following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create Ch02_Dependency_Injection as Java project.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add to it all core Spring jars which we already had used in previous chapter.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create a class Car in com.ch2.beans. You can refer the code from previous project(Ch02_Instance_Creation).
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '* As we are going to inject the dependencies using setter injection, create
+    setter methods as well.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* Add show() method as well.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The code will be as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE44]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Make sure you should follow Bean naming convention whenever you create a class
+    to configure in Spring Container.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The state of object can be obtained using getter methods. So normally the developers
+    add both getters and setter. Adding getters always depends on business logic of
+    the application:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Now we need to configure bean definition in beans.xml in classpath which represents
+    a bean definition so that the bean will be managed by the Spring container. The
+    configuration will be as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE45]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'In the previous step, only instance has been created we now want to set the
+    properties of it also, which is injecting dependencies using setter. The code
+    will be as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE46]'
+  prefs: []
+  type: TYPE_PRE
+- en: If we don't want to set the values of any dependency, the simple thing is not
+    to add it in the configuration.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Now we are ready to use the bean. We have to ask the container to give the
+    object of the bean. Create class TestCar in default package with main function.
+    We don''''t have to change anything in the main code which we already done in
+    TestCar in Ch02_Instance_Creation due to externalization of dependencies the code
+    remains intact. The code will look as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE47]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'On execution of the code we will get the following output:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_02_006.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The values shown in the figure are the same which we set from the configuration.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Constructor Injection
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In constructor injection the dependencies will be fulfilled by parameters of
+    the constructor or simple parameterized . Let''s develop an application to use
+    constructor based dependency injection.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Way 1: Without ambiguities'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We will use the same project Ch02_Dependency_Injection with the help of following
+    steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add a parameterized constructor to Car which has the following code:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE48]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: If you are adding parameterized constructor and you want to use both setter,
+    as well as constructor injection, you must add default constructor
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add one more bean in beans.xml file but this time instead of using <property>
+    tag we will use <constructor-arg> to use constructor DI. The code will look like:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE49]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Create a class TestCarConstructorDI in default package which will take Car
+    object from container. The code will be as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE50]'
+  prefs: []
+  type: TYPE_PRE
+- en: Here the container is happy to have each parameters of constructor with distinguished
+    data type. But same is not the case every time. We may come across the codes where
+    the constructor will have more than one parameter which are ambiguous in their
+    data types. Sometimes we do have more than one constructor in class and due to
+    auto up casting the unexpected constructor may get invoked by container. It may
+    also happen that developer just missed the order of arguments.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Way2: with ambiguities'
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'Let''s add one more bean definition in the beans.xml as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE51]'
+  prefs: []
+  type: TYPE_PRE
+- en: The number of arguments are matching to the constructor definition but, the
+    third argument instead of passing average we passed fuel_type value. Dont''t worry
+    just continue your journey and have faith!
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Create TestConstructor_Ambiguity to find what happens on mismatching arguments.
+    The code is as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE52]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The execution of main function gives exception as shown in the snapshot below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_02_007.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'The underline line expressed the ambiguity of the values of arguments. We can
+    have two Solutions as:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* You can change the order of configuration so as to match to the constructor
+    argument.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* Spring provides handy way by providing ''''index'''' attribute to resolve
+    the order of constructor arguments.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: One more way Spring gives to configure ''type'' attribute.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s try out configuring ''''index'''' by updating bean definition from Step
+    1 as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE53]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can find one more extra attribute we configure this time as ''index'' which
+    will tell the container which value is for which argument. The ''index'' always
+    starts with ''0''. We haven''t changed the order of the properties in configuration.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Run the same TestConstructor_Ambiguity. And you will get your instance without
+    any problem.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Specifying the index is the safest way to overcome ambiguity but even we can
+    specify ''type'' instead of index to overcome the situation. But if the constructor
+    has more than one argument with the same data type ''type'' will not help us out.
+    To use type in our previous code we need to change the bean definition in XML
+    file as,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Here we have explored the way by which bean properties to set. But if you keenly
+    observe all the properties which we set here are primitive but even we can have
+    secondary data as data member. Let''s find out how to set the properties of secondary
+    data type with the help of following demo.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''''s develop an example of Customer who has Address as one of the data
+    member. For better understanding follow the steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create Java Application,''Ch02_Reference_DI'' and add to it the jars as we did
+    in previous example.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Create Address class in com.ch02.beans package having city_name, build_no,
+    pin_code as data members. Add to it setter methods as well. The code will be as
+    follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE54]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Create Customer in com.ch02.beans package with cust_name, cust_id, cust_address.
+    Add getter and setter methods. The code will as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE55]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can easily find that cus_address is of secondary data.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For configuration create customer.xml in Classpath.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'We have two beans to be configured in the XML. First bean for Address and second
+    for Customer. Let''''s first off all configure bean for Address as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE56]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note the id for Address which we use here is ''cust_address''. But if you want
+    you can use your own.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Now, add the configuration for Customer as shown in the code below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE57]'
+  prefs: []
+  type: TYPE_PRE
+- en: The cust_id and cust_name will have the value attribute directly. But, the cust_address
+    is not primitive so instead of using ''value'' as an attribute we need to use
+    ''ref'' here.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* **ref**: The ''''ref'''' attribute is used to refer to the object we need
+    to inject. The value of ''''ref'''' is value of ''''id'''' from the container.
+    Here we use ref value as ''''cust_address'''' as we already had declared one bean
+    with the similar id for the Address data type.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Now it''''s time to test how the code is working. Add TestCustomer in default
+    package with main method to get object of Customer from the container with the
+    help of following code:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE58]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Instead of directly using data members developers normally invoke business logic
+    method of the bean.
+  prefs: []
+  type: TYPE_NORMAL
+- en: On execution we will get customer id and customer name on the console.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: We even can use here constructor injection by adding parameterized constructor
+    and using <constructor-arg> instead of <property>tag. As seen above the ''value''
+    attribute has to be replaced by ''ref''. You can find the code from Customer_Constructor_DI.java
+  prefs: []
+  type: TYPE_NORMAL
+- en: Namespace ''p'' for property
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'In one of the previous example we had used <property>tag for injecting values
+    of the properties in the instance. The framework have provided more sophisticated
+    way and alternative for<property> with the help of ''''p'''' namespace. To use
+    ''''p'''' namespace the developers have to add schema URI [http://www.springframework.org/schema/p](http://www.springframework.org/schema/p)
+    in the configuration file as shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE59]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The syntax to use ''''p'''' for setting the primitive values of the properties
+    is:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE60]'
+  prefs: []
+  type: TYPE_PRE
+- en: In case of setting more than one properties separate them with spaces.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The syntax changes for reference data types as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE61]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Let''''s use the new configuration in the XML. We will use the same project
+    structure as that of Ch02_Dependency_Injection and just modify the beans.xml.
+    Let''''s create a new application with the help of following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a new Java Project named Ch02_DI_using_namespce and add the jars to it.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create or copy Car class in com.ch02.beans package. You can refer the code from
+    Ch02_Dependency_Injection.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Create beans.xml file and update it for the declaration of namespace ''''p''''
+    as shown above. The configuration file will be as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE62]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add the bean definition using namespace ''p'' as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE63]'
+  prefs: []
+  type: TYPE_PRE
+- en: Create class TestCar to get instance of Car from container and execute the code.
+    You can refer to the same TestCar.Java from Ch02_Dependency_Injection project.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Once we know how to set primitives let''s do the coding for reference configuration
+    as well. We will use the same DI_using-namespce project to develop the further
+    code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Copy or Create class Address . (refer to the code from Ch02_Reference_DI) in
+    com.ch02.beans package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Copy or Create class Customer . (refer to the code from Ch02_Reference_DI) in
+    com.ch02.beans package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add a bean for Address using setter DI in bean.xml.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add a bean for Customer using namespace ''''p'''' and the configuration will
+    look like:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE64]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can observe here the customer address is not primitive so instead of using
+    value we use reference as p:cust_address ="cust_address" where ''cust_address''
+    is the id representing Address bean.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Create TestCustomer with main function containing the following code:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE65]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The execution of code will show the following output:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_02_008.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Configuring the inner beans
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'The bean definition file has more than one beans which are managed by the container.
+    As we are well aware these beans are reusable by each other. At one point this
+    reusability is amazing thing but along with it a problem comes. Let''s take an
+    example of Customer''''s Address. The configuration can be done for Address as
+    well as Customer. Can we use address bean for the another Customer? Yes, we can.
+    But.....what if the Customer don''''t want to share his address and to keep it
+    personal? With the current configuration it''''s not possible. But we can have
+    an alternative configuration which gives the facility to keep the address personal.
+    The configuration of customer bean from Ch02_Reference_DI can be modified for
+    using inner as shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE66]'
+  prefs: []
+  type: TYPE_PRE
+- en: The address bean is inner been whose instance will be created and wired with
+    the address property of the Cutomer instance. This is similar to Java inner classes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'As setter injection supports inner beans, they are supported by the constructor
+    injection as well. The configuration will be:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE67]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can find the complete code in Ch02_InnerBeans project.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Inheritance mapping
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'Inheritance is the major pillar of Java. Spring supports for bean definitions
+    to configure in XML. The inheritance support is provided by ''''parent'''' attribute
+    which says the missing properties can be used from the parent bean. Using ''''parent''''
+    gives similarity with parent class in inheritance when we develop Java code. Even
+    it''''s possible to override the properties from the parent bean. Let''s find
+    out how to use practically with the help of following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create Ch02_Inheritance as Java project.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add the jars.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Create class Student in com.ch02.beans package with following code:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE68]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Create class `EnggStudent` inherited from Student as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE69]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Create the student.xml in classpath to configure bean for student as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE70]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Now it''s time to configure bean for EnggStudent. First off all an ordinary
+    configuration which we don''''t want to use:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE71]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It''''s very clear that we repeated the configuration for rollNo and name.
+    We don''''t have to repeat the configuration by configuring ''''parent'''' attribute
+    as shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE72]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Though here we skip configuring name and rollNo and reusing it from ''''student''''
+    bean, it''''s possible to override any one of them as shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE73]'
+  prefs: []
+  type: TYPE_PRE
+- en: The choice is yours, which one to use!!
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Write TestStudent with main function as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE74]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The below snapshot show the console output as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_02_009.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'The developers can able to obtain Student instance as well as EnggStudent.
+    In some cases we don''''t want anybody to use Student instance or nobody should
+    able to get Student instance. In such situations configure attribute ''''abstract''''
+    on the bean whose instance developers don''''t want to make publically available.
+    By default the value of abstract=false which states anybody can obtain instance
+    of bean. We will configure abstract=""true"" making it unavailable. The updated
+    configuration of the Student will be as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE75]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Now, whenever someone ask for student bean BeanIsAbstractException will be
+    thrown. You can try out the code by adding following lines in TestStudent:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE76]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'On execution we will get the following stack trace which specifies bean creation
+    exception occur while obtaining Student bean:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_02_010.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Configuring the null values
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'In Java unless if any the values of the data member is not set each will get
+    their default ones. The reference properties will be defined as null and primitive
+    integers to ''''0'''' respectively. These nulls later on will be overridden by
+    the set values by either constructor injection or setter injection. It may also
+    be possible that developers want to keep it null until some business logic won''t
+    give the calculated value or get it from some external resource. Whatever the
+    reason, we want to configure the value as null simply use ''''<null/>''''. The
+    Customer''''s address will be set to null as shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE77]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can find the configuration in customer.xml of Ch02_InnerBeans.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Up till now, we had seen the mapping of primitives, references, null or inner
+    beans. We are more than happy, but wait a very important fundamental concepts
+    of Java is Collection framework. Yes, we have to discuss mapping of collection
+    as well.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Configuring Collection
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The Collection framework in Java facilitates handling objects to perform various
+    operations as addition, removal, searching, sorting of objects in simplified way.
+    The interfaces Set, List, Map, Queue are the interfaces has many implementation
+    like HashSet, ArrayList, TreeMap, PriorityQueue and many more which gives means
+    for handling data. We will not go in detail which one to choose for the operations
+    but, we will be discussing different configurations supported by Spring in injecting
+    the Collection.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Mapping List**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'List is ordered collection which offers handling of data in order of data insertion
+    . It maintains the insertion, removal, fetching of data by indices where duplicate
+    elements are allowed. ArrayList, LinkedList are some of its implementations. The
+    framework supports List configuration with help of <list> tag. Let''''s develop
+    an application to configure List by following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create Ch02_DI_Collection as Java project and add Spring jars to it.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create POJO class Book in com.ch02.beans package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '* Add isbn, book_name,price and publication as data members.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* Add default and parameterised constructors.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* Write .getter and setter methods.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* As we are handling collection add `equals()` and `hashCode()`'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* To display object add `toString()`'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Book will be as shown in the code below,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE78]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Create Library_List in com.ch02.beans who has List of Books. Write displayBooks()
+    to display list of the books. The code will be as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE79]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Create books.xml in ClassPath. Add to it four Book beans. I am trying following
+    three configurations:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '* book bean with setter DI.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* book bean with constructor DI.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* book bean using ''''p'''' namespace.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'No need to try out all combination, you can follow any one of them. We already
+    have used all of them in the previous Demos. The configuration will be as shown
+    below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE80]'
+  prefs: []
+  type: TYPE_PRE
+- en: Intentionally the fourth book is second copy of one of the first three books,
+    we in couple of steps discover the reason. Just wait and watch!!
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add a Library bean with <list> configuration as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE81]'
+  prefs: []
+  type: TYPE_PRE
+- en: The <list> contains list of <ref> of the beans to be injected for list of books
+    where 'book1','book2','book3','book4' are the id's of beans which we created in
+    Step 4.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Create TestLibrary_List with main function to get instance of Library and list
+    of Books it has. The code is as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE82]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Execute it to get the output displaying list of books. Find last two entries
+    which indicate List allows duplicate elements:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_02_011.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: '**Mapping Set**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The Set interface is an unordered collection, which doesn''''t allow duplicate
+    entries in the collection. HashSet, TreeSet are the implementations of Set. Spring
+    provides <set> tag to configure Set. Let''''s use Ch02_DI_Collection project to
+    add Set of Books by following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add Library_Set class in com.ch02.beans package and declare Set of Books as
+    Data member. Add getters and setters for it. The code is as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE83]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add a bean for Library_Set in beans.xml with <set> configuration as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE84]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Create TestLibrary_Set with main function as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE85]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The output of execution is as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_02_012.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: We injected four objects of books but got only three in output so it''s crystal
+    clear that Set doesn''t allow duplicates.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Mapping Map**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Map handles collection of objects having key and value pair. Map can have duplicate
+    values but duplicate keys are not allowed. It has implementations as `TreeMap`,
+    `HashMap` and `LinkedHashMap`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''''s explore configuring Map with the help of following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We will use the same Ch02_DI_Collection project. Create class Library_Map in
+    com.ch02.beans package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add|Map<String,Book> books as data member in it along with getters and setters.
+    Don''''t forget to add `displayBooks()` in it. The code will be as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE86]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Configure the Map in beans.xml as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE87]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Unlike List and Set the Map will take extra attribute of ''key'' to specify
+    the key. We used here name of the book as key but if you want you can declare
+    something else as well. Just don''''t forget that key is always unique in Map:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Write TestLibrary_Map with main function as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE88]'
+  prefs: []
+  type: TYPE_PRE
+- en: Execute the code to get book details displayed on console.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Here we configure single object as per entry. But in practice an entry may
+    contain List or Set of books. In such cases instead of having <entry> with ''''value-ref''''
+    the configuration will contain <entry> with <list> as shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE89]'
+  prefs: []
+  type: TYPE_PRE
+- en: In the above configuration each ''entry'' has name of books containing ''<list>''
+    of books which is but obvious if we are talking about Library of books. The complete
+    code of Library_Map1.java and TestLibrary_Map1.java can be refer from Ch02_DI_Collection.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Mapping Properties**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Properties also hold the collection of elements in key-value pair, but unlike
+    Map here the key and value both are of String types only. The Properties can be
+    saved or read from stream.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''''s consider a Country who has multiple States as Properties. Follow the
+    steps to find out how to configure Properties in `beans.xml`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a class Country in com.ch02.beans package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Declare name, continent and state_capital as data members. Add getters and
+    setters as well. To display state capitals add printCapital(). The code is as
+    shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE90]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'In beans.xml configure the definition of Country as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE91]'
+  prefs: []
+  type: TYPE_PRE
+- en: The 'state_capitals' contains '<props>' configuration to hold name of state
+    as 'key' and its capital as 'value'.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Write TestProperties with main function having the below code,
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE92]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The output will be as shown in the snapshot:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_02_013.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'The ''util'' namespace provides a means to the developers for configuring collections
+    in XML file elegantly. Using ''util'' namespace one can configure List, Map,Set,
+    Properties. To use ''''util'''' namespace the schema has to updated for [www.springframework.org/schma/util](http://www.springframework.org/schma/util)
+    URI as shown in snapshot below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_02_014.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The underlined lines have to be added for suing 'util' namespace in the configuration.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The configuration of List using ''''util'''' namespace will be as shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE93]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can find the updated configuration in books.xml.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We know how to get the bean and how to fulfill different types of dependencies
+    it has. The bean configuration defines the way by which instances created and
+    its state will be defined by injecting the dependencies. At any point of time
+    for business logic requirement the state of bean can be changed. But we yet don''t
+    know how many instances Spring container creates or what if developers want single
+    instance to serve every request? Or what is every operation needs different instances.
+    Actually we are talking about ''scope''
+  prefs: []
+  type: TYPE_NORMAL
+- en: Bean Scope
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The scope of bean defines how many instances will be created by the Spring container
+    and make it available for application to use. Use ''scope'' attribute of <bean>
+    to provide information about number of instances. We cannot move before discovering
+    the default process of creating and providing instances. It will make the term
+    ''scope'' clear as well it will define why understanding 'scope' is so important.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let''s use Ch02_Dependency_Injection project to find how many instances the
+    container creates by default. You can use the same project or can create a new
+    copy of it as we are doing in following steps.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create Ch02_Bean_Scope as Java project.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add Spring jars to it.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create or copy Car in com.ch02.beans package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create beans.xml in class path and configure ''car'' bean as shown below,
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE94]'
+  prefs: []
+  type: TYPE_PRE
+- en: The scope is no where related to how the bean has been configured.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Create TestCar to request for ''car'' bean twice as shown below. Don''t be
+    surprise. We want to find out how many instances created. So let''s start:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE95]'
+  prefs: []
+  type: TYPE_PRE
+- en: The execution of the code will give the following output,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_02_015.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Yes both the object has the same value. And why not? We configure them in XML.
+    This won''t lead us to any conclusion. Let''s move ahead for second step.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* Use the same TestCar code but, this time change the state of any one car
+    object. We will change for ''''car_one'''' and observe what happens to car_two?
+    Will car_two contains changed values or configured values ? The changed code will
+    be as below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE96]'
+  prefs: []
+  type: TYPE_PRE
+- en: On execution you will get the following out put.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_02_016.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: We just changed state of car_one but the output shows even state of car_two
+    got changed which proves no matter how many time you ask the container for the
+    instance every time the same instance will be given back to us.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: '''''singleton'''' is the default scope of bean means a single instance per
+    Spring container.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* Keep TestCarNew as it is and configure ''''scope'''' attribute in car bean
+    as shown below,'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE97]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Execute TestCarNew and you will get the following output:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_02_017.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The output shows change state of car_one doesn''t change state of car_two. Which
+    means, on every request for instance of car from the container, the container
+    creates and give a new instance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: '''''prototype'''' specifies a new instance per request for instance from the
+    container.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The following are few more scopes given by Spring framework,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**request** : By default in web application all HTTP request get served by
+    the same instance which may lead to the problems in handling data or consistency
+    of data. To make sure each request get its own new fresh instance ''''request''''
+    scope will be helpful.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**session**: We are well aware of handling session in web application. ''''request''''
+    creates instance per request but when multiple request are bound to the same session
+    then instance per request become clumsy and so do managing the data. The ''''session''''
+    scope is the rescue in such situation where the developers needs instance per
+    session.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**application**: Each web application has its own ServletContext. The ''''application''''
+    scope creates instance per ServletContext.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**globalSession**: In protletContext the Spring configuration provides instance
+    per global HTTPSession.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**websocket**: The ''''websocket'''' scope specifies instance creation per
+    WebSocket''''.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Annotation Based Configuration
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: From Spring 2.5 onwards Spring started supporting Annotation based configuration.
+    We already have discussed the concepts in Java and how to configure them in XML?
+    While doing the annotation based configuration we come across two types of configuration
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring based annotations
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: JSR based annotations.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Spring based annotations
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'Number of annotations has been provided by Spring which may be categories as
+    managing life cycle, creating bean instance, wiring annotations any many more.
+    Let''''s find them one by one. But before that we need to know one very important
+    thing. The bean definition has to be registered by configuring it in XML. Now
+    to have annotation based configuration the bean registration has to be done using
+    context namespace as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE98]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `<context:annotation-config/>` asks the container to consider the annotations
+    on the bean.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Instead of the above configuration one can even go with the following configuration,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE99]'
+  prefs: []
+  type: TYPE_PRE
+- en: Let us start with using annotations one by one for different scenarios as follows,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Stereotype annotations
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: 'These annotations are class level annotations which get registered with Spring
+    container. The following figure shows stereotype annotations:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_02_018.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Let''''s use @Component in the application. We will use Ch02_Reference_DI as
+    base project and use the following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create Ch02_Demo_Annotation and all the jars which we have added earlier , along
+    with them add spring-aop.jar to it as well.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create or copy Address.java in com.ch02.beans package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create or copy Customer.java in com.ch02.stereotype.annotation package. Rename
+    it to Customer_Component.java
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add to it default constructor as the code we are refereeing is not having any
+    default constructor. The code can be as below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE100]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Annotate the class with @Component as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE101]'
+  prefs: []
+  type: TYPE_PRE
+- en: Here we had configured a component which is auto scanable. By default the id
+    of this component will be decaptitalized class name. In our case it''s ''customer_Component''.
+    If we want to use customized id we can modify the configuration to use ''myObject''
+    as bean id will be,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE102]'
+  prefs: []
+  type: TYPE_PRE
+- en: And there is no need to configure it in XML as we did earlier. But we still
+    need XML for some other configurations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create or copy customer.xml in classpath.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add the following code to consider the annotations:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE103]'
+  prefs: []
+  type: TYPE_PRE
+- en: We already had seen how to configure ''context'' namespace.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Create TestCustomer_Component to get the bean of Customer_Component as show
+    below to find out what is the out put of our configuration:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE104]'
+  prefs: []
+  type: TYPE_PRE
+- en: On execution we will get the following stack trace of exception,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE105]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'If we did everything then why we still are getting exception. The reason made
+    component auto scan able but forgot to tell the container where to scan for annotations?
+    Let''''s configure where to scan for components as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE106]'
+  prefs: []
+  type: TYPE_PRE
+- en: Here all the subpackages of com.ch02.streotype will be scanned to find out bean
+    having id as ''customer_Component''.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'After adding the configuration we will get the following out put displaying
+    the data member values as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE107]'
+  prefs: []
+  type: TYPE_PRE
+- en: In the same way we can use the other annotations but we will discuss them one
+    by one in the upcoming chapters.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Wiring annotations
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: We already had discussed in depth about ''auto wiring'' which gives us the facility
+    to reduce the configuration and automatically discover which object to inject
+    as the dependency in the bean. Following are the annotations which help in auto
+    wiring and to sort out the problems which occur in auto wiring.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_02_019.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Let''s use Cho2_Demo_Annotation project to demonstrate the above annotations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Case1\. Using @Autowired
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: Create class Customer_Autowired in com.ch02.autowiring.annotation. This is similar
+    to Customer_Component which we has created in stereotype annotations. Don''t forget
+    to add default customer if you don''t have one.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add @Autowired annotations on the field cust_address as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE108]'
+  prefs: []
+  type: TYPE_PRE
+- en: In customer_new.xml configure a bean for Address as shown below,
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE109]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Create TestCustomer_Autowired to get the bean with ''''customer_Autowired''''
+    as id:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE110]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We will get the following console output on execution:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE111]'
+  prefs: []
+  type: TYPE_PRE
+- en: Case2\. Using autowired=false
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: Whatever the care developers take we always come across scenarios where the
+    dependency is not available or doesn''t get injected due to some reason. It''s
+    quite obvious to get exception here. In order to get rid of such forceful injection
+    add `'autowired=false`' to `@Autowired`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'You can try this out by deleting cust_address from customer.xml in previous
+    project. On execution of main we will get exception as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE112]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Change @Autowired annotation to:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE113]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Again rerun main where we get the following output:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE114]'
+  prefs: []
+  type: TYPE_PRE
+- en: The value null denotes no address has been injected but we haven''t got any
+    bean creation exception here.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Once you finished the demonstration of required=false undo all the changed we
+    just made in this demo.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Case3\. Using @Qualifier
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: 'In some situations we may have more than one bean of the same type configures
+    in the container. To have more than one bean is not a problem unless developers
+    control the dependency injection. It may also be possible to have different id
+    of the dependency and having more than one bean of the same type but none of the
+    id is matching. Let''''s use `@Qualifier` to overcome these problems. We will
+    use the same class `Customer_Autowired` from previous step:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rename the id of bean cust_address to cust_address1 which we created earlier.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add one more bean of type Address in it as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE115]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Create TestCustomer_Autowiring1 to get the customer instance as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE116]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'On execution we will get the following exception specifying there are multiple
+    instances of type Address available for injection leading to ambiguity:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE117]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Update the annotation of data member cust_address with @Qualifier as shown
+    below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE118]'
+  prefs: []
+  type: TYPE_PRE
+- en: We are specifying the id of bean which we want to inject to fulfill the dependency.
+    In our case the bean whose id is ''address'' will be injected.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Execute main function which we had created in step 2 to get the following output
+    which shows beans with id as ''address'' gets injected in `Customer_Autowried`:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE119]'
+  prefs: []
+  type: TYPE_PRE
+- en: Case 3\. Using @Required
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: While developing the code the business logic will fail if the correct values
+    have not been provided or if those are absent. So it''s must to have dependency
+    injected and whatever happened it should not be failed. To make sure the dependency
+    has been injected and ready for use apply `@Required` after `@Autowired` annotation.
+    It works in the same way '`autowired=true`'. But in contrast to it, the annotation
+    can be applied only to the setter methods. If the dependency is not available
+    `BeanInitializationException` will be thrown.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Following is the code which gives the clear understanding of the use of `@Required`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE120]'
+  prefs: []
+  type: TYPE_PRE
+- en: Case 4 Scope management annotations
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: Few pages back we had discussed in depth about the scopes and their use. We
+    also had seen how to manage scope according to the requirements in the XML. Usually
+    the `@Scope` is class level annotation. But it also can be used with Bean annotation
+    to a method which indicates the Scope of the instance returned from it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Following is the code indicates use of @Scope:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE121]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'You can use the following code to check whether each time a new instance is
+    been provided or not:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE122]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can refer the complete code form Ch02_Demo_Annotation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: JSR standard Annotation
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The Spring 2.5 supports JSR-250 and 3.0 onwards the framework started supporting
+    JSR-330 standard annotations whose discovery is been done in the same way as that
+    of Spring based annotations. JSR provides annotations for lifecycle management,
+    bean configuration, auto wiring and for many more such requirements. Let's discuss
+    them one by one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Annotations for Life cycle
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: We had discussed enough about the life cycle of a bean and what are different
+    ways to achieve it by XML configurations? But we haven''t discussed about annotation
+    based. Spring 2.5 onward support the life cycle management by `@PostConstruct`
+    and `@PreDestroy` which gives an alternative to `InitializingBean` and Disposable
+    interfaces respectively.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**@PostConstruct:**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The method which has been annotated with @PostConstruct get called after the
+    bean which has been instantiated using the default constructor by the container.
+    This method is called just before the instance is returned.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**@PreDestroyed:**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The method annotated with @PreDestroy will be invoked just before the bean is
+    getting destroyed which allows taking the values back up of the values from the
+    resource which may get lost if the object is destroyed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''''s follow the steps to use it to understand bean lifecycle:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Ch02_Bean_Life_Cycle java project which we already had used while discussing
+    bean life add Car_JSR class in com.ch02.beans package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add a method init_car for initiliazation of Car and annotate it with @PostConstruct
+    as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE123]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add to the class a method which will has the code of destruction of car which
+    is nothing but resource release as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE124]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add beans_new.xml to configure the bean and don''''t forget the rule of using
+    annotations in the application. The XML will look like:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE125]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add a main method in TestCar as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE126]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'On execution of the code we will get the following out put which shows the
+    init_car() got invoked:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE127]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'As the destroy method will get after context got switch the output will not
+    be shown on console. We can use the following code to elegantly shut down of the
+    container:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE128]'
+  prefs: []
+  type: TYPE_PRE
+- en: '**@Named**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '@Named annotation is used instead of @Component which is applied to the class
+    level. @Named annotation doesn''''t provide composable model but the scanning
+    of it is in the same way as that of @Component:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE129]'
+  prefs: []
+  type: TYPE_PRE
+- en: '**@Inject**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '@Inject is used for auto wiring the dependencies in the same way as we do for
+    @Autowired. But it won''''t has attribute ''''required'''' to specify the dependency
+    is optional. The following code shows the implementation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE130]'
+  prefs: []
+  type: TYPE_PRE
+- en: '**@Configuration**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The class level @Configuration annotation is used to indicate the class as source
+    of the bean definition the same way as we do in XML file within <beans></beans>
+    tags.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE131]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The Spring annotations as @Component, @Repository needs registration with the
+    framework. In XML scanning of these annotation is enabled by providing <context:component-scan>
+    with an attribute base-package. @Component-Scan is an alternative to enable scanning
+    of Spring stereotype annotations. The syntax is as shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE132]'
+  prefs: []
+  type: TYPE_PRE
+- en: '**@Bean**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The @Bean is used with @Configuration to declare bean definition as we usually
+    do in `<bean></bean>` tag in XML. It''''s applicable to the method who has the
+    bean definition. The code can be as follow:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE133]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'To define a bean returned from `myCustomer()` can also have customised bean
+    id which can be given by:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE134]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The XML has been replaced by the annotation based configuration. The `AnnotationConfigApplicationContext`
+    class helps in loading the configuration in the same way we were doing by `ClasspathXmlApplicationContext`.
+    The test class can be written as:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE135]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can refer the complete code from Ch02_Demo_JSR_Annot.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: XML provides centralized way to do the bean configurations. As the dependencies
+    are kept out of source code the change in them will not affect the source code.
+    Also in XML configuration the source code doesn''t need to be recompiled. But
+    annotation based configuration is directly a part of source code and scattered
+    throughout the application. It becomes decentralised which ultimately become difficult
+    to control. Annotation based injected values will be overridden by the XML injection
+    as annotation based injections take place before the XML injection.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring Expression Language (SpEL)
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Up till now we configured the values which are secondary types. For wiring the
+    beans we used the XML configuration which we wrote and available at compile time.
+    But using it we cannot able to configure the runtime values. Spring Expression
+    provides the required solution whose values will be evaluated at runtime.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using SpEL the developers can reference to other beans using id''s and set literal
+    values as well. It provides a means to invoke methods and properties of the objects.
+    SpEL unable evaluation values using mathematical, relational and logical operators.
+    It also supports and injection of Collection. It is somewhat similar to using
+    EL in JSP. The sysntax to use SpEL is ''#{value}''. Let''s find out how to use
+    SpEL in the application one by one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using Literals
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Using literals in SpEL unable the developers to set primitive values for the
+    properties of the bean. Though using literals in configuration doesn''t interesting
+    but to know how to use in expression certainly help us to go for the complex expressions.
+    Follow the steps to understand use of literals,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create Ch02_SpringEL as Java application and add to it Spring jars.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Define Customer.java in com.ch02.beans as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE136]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Create beans.xml in class path to configure Customer bean as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE137]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can observe the values for cust_id, prod_price configured using SpEL syntax
+    as ''#{ value}'' and we use single quote to specify the value for prod_name. You
+    even can use double quotes for specifying String values. The cust_name has been
+    configured in old style. Yes, it''s still possible to use old style and SpEL together
+    to set the values.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add TestCustomer.java as shown in the code below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE138]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We will get the output as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE139]'
+  prefs: []
+  type: TYPE_PRE
+- en: Using bean reference
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Each bean configured in the XML has its unique bean id. This is can be used
+    to refer for value or for auto wiring using SpEL. Use the following steps to understand
+    how to use bean reference.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In the above Ch02_SpringEL project add new POJO class as Address and Customer_Reference
+    in com.ch02.beans as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE140]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add Address and Customer_Reference beans in beans.xml as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE141]'
+  prefs: []
+  type: TYPE_PRE
+- en: Observe the way cust_address has been initialized. The customer''s address is
+    placed value as cust_address which is the id of the bean defined for Address.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Define TestCustomer_Reference as we did in Step 4 of previous case to get the
+    bean 'cust_ref'.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'On execution we will get the out put as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE142]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Sometimes instead of using the bean we may want to inject only one of the property
+    of the bean as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE143]'
+  prefs: []
+  type: TYPE_PRE
+- en: We injected cust_name by borrowing it from bean 'cust_ref' and converting it
+    to upper case.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using mathematical, logical, relational operators
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: In some of the scenarios the values of the dependencies needs mathematical,
+    logical or relational operators to define and place values of the dependencies.
+    You can find how to use them in the following demo.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We will use the same project Ch02_SpringEL defined in previous case.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Define a bean for Customer in beans.xml as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE144]'
+  prefs: []
+  type: TYPE_PRE
+- en: The value of prod_price is calculated at runtime with the help of mathematical
+    operator and value for ''second_handed'' evaluated by relational operator.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Write TestCustomer_Cal to get cust_calculation and display its properties as
+    follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE145]'
+  prefs: []
+  type: TYPE_PRE
+- en: Throughout this chapter we had seen how to do the configuration. But we missed
+    a very important point ''loose coupling''. Everywhere we use classes which leads
+    for tight coupling and we know programming by contract gives developers the facility
+    to write loosely coupled modules. We avoid use of interfaces for above all demos
+    because it may make them unnecessarily complex. But in the real time applications
+    you will find use of interfaces on each stage in Spring. From next chapter onwards
+    we will use standard way of writing Spring based applications.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Summary
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: This chapter is full of configurations, different ways and alternative to do
+    the same thing. This chapter helps throughout your journey with Spring no matters
+    whether its 5.0 or below versions. In this chapter we explore range of ways to
+    do instance creation and initializing it. We are now aware of almost all kind
+    of Java Concepts with how to do their configuration both using XML and annotation
+    based. We also seen ways like auto wiring , SpEL to minimise the configuration.
+    We demonstrate Spring provided as well as JSR annotations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Now we are set to implement all these in our application. Let''s start with
+    database handling. In next chapter we will find how to handle database using Spring
+    and how Spring helps us doing faster development.
+  prefs: []
+  type: TYPE_NORMAL

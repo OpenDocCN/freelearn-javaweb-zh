@@ -1,0 +1,1671 @@
+- en: Chapter 6. Explore Spring MVC
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Up till now we have discussed about the Spring framework to handle, initialize
+    and use of the data considering console as our output. We haven''t taken any effort
+    on either of its presentation or any user interaction. It seems very boring in
+    today''s world to work with old style window based, very bland presentation. We
+    want something much more interesting and exciting. Internet is the something which
+    made the world closer than ever before as well as interesting. Today''s world
+    is the world of web, so how could we be apart from it? Let''s dive into an amazing
+    world of internet to explore the power of Spring with the help of following point:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Why is it necessary to learn web application development using Spring?
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: How to develop web application using Spring MVC
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: What are different components of Spring MVC?
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: How to pre populate the form and bind the data to an object?
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: We will also discuss about how to perform validations in spring
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: In the 1990s the world of internet opened the doors of a complete new world
+    to us. It was the ocean of data which no one had seen ever before. Before internet,
+    the data was only available through hard copies; mainly books and magazines. In
+    early days the internet was used just to share the static data, but over the years
+    the dimensions, meaning and the use of internet had changed a lot. Now a day,
+    we cannot imagine the world without internet. It is simply next to impossible.
+    It has become a part of our day today life and a very major source of our business
+    industry as well. As a developer for us also it's very important to know about
+    the web application, its development, the challenges and how to overcome that.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Java, the basic web application can be created using Servlet and JSP, but
+    then lot many evolutions happened. These evolutions are mainly due to high demand
+    of changing world in less of the time. Not only presentation, but also the overall
+    web experienced has changed using HTML5, CSS, JavaScript, AJAX, Jquery and many
+    similar technologies. The Servlets handle the web request and use the data from
+    the request parameters to extract the data for the dynamic web applications.
+  prefs: []
+  type: TYPE_NORMAL
+- en: While using Servlets and JSPs the developers have to take lots of efforts to
+    perform the data conversion and bind the data to the objects. Apart from their
+    main role in performing the business logic, now they have to handle the extra
+    burden of request and response presentation as well.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The developers mainly work on the data extracted from the request in web application.
+    They develop the complex, lengthier business logic based on the rules to perform
+    the task. But it all will be useless if the data extracted from request parameters
+    is incorrect. It's obviously not the fault of the developers but still their business
+    logic suffered and there is no point in carrying out business logic with such
+    data values. The developers now have to take all the care to first find out whether
+    the data extracted from the request is correct or not before performing business
+    logic. The developers also have to extensively involve in the presentation of
+    the data to the response. To present the data first the developers needs to bind
+    the data to the response and then further how to extract it on the presentation
+    side.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Each one of the above discussed tasks adds extra bourdon on the development
+    side within limited time. The Spring framework facilitates the developers for
+    easy and faster development by the following features:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring framework supports MVC architecture which gives clear separation of Model,
+    View and Controller.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The framework facilitates the developers with power of beans for easy handling
+    of data by binding the request parameters to the command object.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: It provides easy validation of request parameters performing validation either
+    with Validator interface or using annotations. It can also supports customization
+    of validation rules.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: It provides the annotations such as @RequestParam, @RequestHeader which facilitates
+    the request data binding to the method parameters without getting involved in
+    Servlet APIs.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: It has support for a wide range of view templates such as JSTL, Freemarker,
+    Velocity and many other.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The easy transfer of the data from Controller to the view made easy with the
+    use ModelMap object.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: It can be easily pluggable to other frameworks like Apache Struts2.0, JSF and
+    many more.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Generally, the web applications are deployed on the web Servers. Each resource
+    in the application is mapped with the URL and users use these URLs to access the
+    resources. The Servlet or JSP reads the data from the request object, performs
+    the business logic on it and then returns the response as a result. We all are
+    well aware of this general flow takes places in any web application. In this flow
+    the first and for most concern is that these web applications don't have any Servlet
+    or controller who manages the flow of entire application. Yes, the first attainder
+    to the application is absent. The entire application and its flow has to be maintained
+    by the development side. This is where the major different in between Servlets
+    and Spring lies.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The Spring framework works on MVC design pattern, it provides a Front controller
+    which handles or attains each request hitting to the application. The following
+    figure shows how the Spring MVC handles the request and all the components are
+    part of Spring MVC:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_06_001.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'The following steps gives us the orientation of the flow of the Spring MVC
+    web application:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Each incoming request will first hit the Front Controller which is the heart
+    of the application. The Front Controller dispatches the request to the handlers
+    and allows the developers to use different features of the framework.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The Front Controller has its own WebApplicationContext which has been inherited
+    from the root WebApplicationContext. The beans configured in the root application
+    can be accessed and shared between the context and the Servlet instance of the
+    application. As applicable to all the Servlets the Front Controller gets initialized
+    on the first request.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Once the Front Controller is initialized, it looks further for a XML file named
+    as servlet_name -servlet.xml under the WEB-INF folder. It contains the MVC specific
+    components.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: This configuration file is by default named as XXX-servlet.xml under WEB-INF
+    folder. This file contains the mapping information of the URL to the controllers
+    which can handle the incoming request. Before Spring 2.5 the mapping was must
+    for discovery of the handlers, which now we don't need. We now can directly use
+    the annotation based controllers.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The RequestMappingHandlerMapping searches all the controllers to look for @RequestMapping
+    annotation under @Controller. These handlers can be used to customize the way
+    URLs are searched by customizing the properties like interceptor, defaultHandler,
+    order, alwaysUseFullPath, urlDecode.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: After scanning all the user defined Controllers the appropriate controller based
+    on URL mapping will be chosen and appropriate method will be invoked. The method
+    selection took place based on the URL mapping and the HTTP method which it supported.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: On execution of business logic written in the controller method, now it's time
+    to generate the response. This is different than our usual HTTPResponse as it
+    won't be served to the user directly. Instead the response will be sent to the
+    Front Controller. Here the response contains the logical name of the view, the
+    logic name of the model data and the actual data to bind. Usually instance of
+    the ModelAndView is returned to the FrontController.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The logical view name is with Front Controller, but it doesn't give any information
+    about the actual view page to return to the user. The bean for ViewResolver configured
+    in the XXX-servlet.xml file will be the mediator to map view name to the actual
+    page. There is a wide range of view resolvers supported by the framework, we will
+    discuss them shortly.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The ViewResolver helped to get the actual view which Front Controller can returned
+    as a response. The FrontController will render it by extracting the values from
+    the bounded model data and will return it to the user.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: In the flow discussion we have used many names as Front Contrller, ModelAndView,
+    ViewResolver, ModelMap etc. Let's discuss them classes in depth.
+  prefs: []
+  type: TYPE_NORMAL
+- en: DispatcherServlet
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The DispacherServlet acts as the Front Controller in Spring MVC applications
+    where first off all each incoming request will hit. It is basically used to handle
+    the HTTP requests as it has been inherited from HTTPServlet. It delegates the
+    request to the controllers, resolves which view to send back as response. The
+    following configuration shows the Dispatcher mapping in the web.xml (deployment
+    descriptor),
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: The above configuration state all the request with *.htm as URL pattern will
+    be handled by the Servlet named 'books'.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Sometimes the application demands for multiple configuration files, few of them
+    are in root WebApplicationContext handling beans for Database and few in Servlet
+    application context containing beans defined to be used in controllers. The following
+    configuration can be used to initialize beans from multiple WebApplicationContexts.
+    The following configuration can be used to load multiple configuration files from
+    the context as,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Controller
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'The Spring controllers handles the request for carrying out the business logic,
+    these controllers can also be referred as ''handlers''and their methods as handler
+    methods. The Spring provides AbstarctUrlViewController, ParameterizableViewContoller,
+    ServletForwardingConroller, ServletWrappingControllerBefore as controllers. One
+    of these controllers needs to be subclasssed to customize the controller in Spring
+    2.5 based web application. But now, Spring supports annotation driven controllers
+    by @Controller annotation. The following configuration enables the annotation
+    based controllers:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The annotation based controllers need to be discovered to execute the handler
+    method. The following configuration provides information to the framework about
+    which packages to scan to discover the controllers:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: The @RequestMapping annotation is used to annotate either a class or a method
+    for the declaration of specific URL which it can handle. Sometimes more than one
+    method can be annotated for the same value of the URL which supports different
+    HTTP methods. The 'method=RequestMethod.GET' attribute of the @RequestMapping
+    is used to specify which HTTP method will be handled by the method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ModelAndView
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'The ModelAndView plays vital role for response generation. The instance of
+    the ModelAndView facilitates bounding of model data to its logical name, logical
+    view name. The object which holds the data to be used in view is generally referred
+    as model data. The following snippet makes clear how binding happens:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We can even use the following snippet code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: ModelMap
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The ModelMap interface is the subclass of LinkedHashMap used in building of
+    the model data using key and value pair. It has addAttribute() method providing
+    the binding of model and logical name of the model. The attribute set in ModelMap
+    can be used by the views for form data binding on form submission. We will discuss
+    this in depth shortly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ViewResolver
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The logical view name and other details returned by the user defined controller
+    to the Front Controller. The view name is a String which needs to be resolved
+    by ViewResolver.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Following are few ViewResolvers which can be used to render the view:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**XmlViewResolver**: The XmlViewResolver helps in viewing the file written
+    in XML. It uses the default configuration from WEB-INF/views.xml which contains
+    the view beans having the same DTD as that of Spring beans configuration file
+    has. The configuration can be written as shown below:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: The logical view name '`myHome`' is mapped to the actual view '`WEB-INF/jsp/home.jsp`'.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'One bean can also be referred the view mapped for some other bean as:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: The '`logout`' bean is not mapped for any actual view file, but it is using
+    the bean '`myHome'` to give the actual view file.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**UrlBasedViewResolver:** It gives the direct mapping of the URL''s to the
+    logical view name. It will be preferred where the logical names match to the view
+    resource. It has prefix and suffix as its properties helps in getting the actual
+    view names with its location. The class is unable to resolve the views which are
+    based on the current locale. To enable URLBasedViewResolver the following configuration
+    can be written as:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `JstlView` is used to render the view page. The page name and location is
+    our case is 'prefix+ view_name_from_controller+suffix'.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**InternalResourceViewResolver:** The InternalResourceViewresolver is subclass
+    of UrlBasedViewResolver used to resolve the internal resource which can serve
+    as views using properties like prefix and suffix similar to its parent class.
+    AlwaysInclude, ExposeContextBeansAsAttributes, ExposedContextBeanNames are few
+    extra properties of the class adding advantage of using it more frequently than
+    its parent class. The following configuration is similar to the way we configure
+    UrlBasedViewResolver in previous example:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: It can verify the existence of the page only when it lands to it and not before
+    that.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**ResourceBundleViewResolver:** The ResourceBundleViewResolver uses the definition
+    from the ResourceBundle specified in the configuration. The default file is used
+    to define the configuration is views.properties. The configuration will be as,'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The view.properties will specify the details of the View class to be used and
+    the url mapping to the actual view as follows:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The following line states the mapping of view named homepage:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: '**TilesViewResolver:** Tiles framework is used to define layout templates of
+    the pages which can be reused keep consistent look and feel of the application.
+    The page definitions defined in ''tiles.def'' file as tile, header, footer, menus
+    which will assembled in the page as runtime. The logical name returned by the
+    controller matches the name of the tiles template which will be rendered by the
+    view resolver.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Apart from the above discussed view resolvers Spring also has FreeMarkerViewResolver,
+    TileViewResolver, VelocityLayoutViewResolver, VelocityViewResolver, XsltViewResolver.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Before continuing the discussion ahead let's first develop a sample demo to
+    understand the flow of the application in detail which gives the orientation of
+    the above discussion with the help of following steps,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create Ch06_Demo_SpringMVC as a dynamic web application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Copy the jars for spring-core, spring-context, commons-logging, spring-web
+    and spring-webmvc as shown in the below project outline:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_06_002.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Create index.jsp in **`WebContent`** folder which works as the home page. The
+    name can be customized as per your requirement the way we do in any Servlet application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add a link in `index.jsp` which gives navigation to the controller as shown
+    below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: Whenever the user clicks the link the request will be generated having URL 'welcomeCointroller.htm',
+    it will be attended by the Front Controller.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'It''s time to configure the Front Controller in `web.xml` as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: The information to find and invoke the methods of the Controllers the Front
+    controller will look for the file having name as `servlet_name-servlet.xml` in
+    WEB-INF. In our case '`books'` is the name of the Servlet. So let's create file
+    with name '`books-servlet.xml`' under WEB-INF folder.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The file should have configuration for which package Spring container will
+    be scanning to find the Controllers. The configurations will be as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: The above configuration says all the controllers will be scanned from '`com.packt`
+    ' package.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a class `MyMVCController` in the package com.packt.ch06.controllers.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Annotate the class by `@Controller`. Annotating the class facilitates it to
+    use the feature of handling the request.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Let''s add `welome()` method to handle the request by annotating it with `@RequestMapping`
+    as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: The controllers can have multiple methods, which will be invoked as per the
+    URL mapping. Here we are declaring the method which will be invoked for the '`welcomeController.htm'`URL.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The method performs the business logic of generating the welcome message and
+    generates the response with the help of `ModelAndView` as shown below,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Alternative to the above code you can also use the code shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We can have multiple methods mapped to the same URL supporting different HTTP
+    methods as shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Configure the bean for ViewResolver in `books-servlet.xml` as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The ViewResolver helps the Front Controller to get the actual view name and
+    the location. The response page which Font Controller returns to the browser in
+    our case it will be:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_06_003.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Create a folder named jsps' in WebContent.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Create a welcome.jsp page in the jsps folder, which will display the welcome
+    message using Expression Language as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: The attribute '`message'` is used in EL as it's the logical model name used
+    by us in the controller method bounded to the object of `ModelAndView`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Configure the tomcat server and run the application. The link will be shown
+    on the browser. Clicking on the link we will get the output as shown the screen
+    shot below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_06_004.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'The demo introduced us to the Spring MVC flow. Let''s now develop the book
+    application step by step covering the following cases:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Reading the request parameters
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Handling Form Submission
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Case1: Reading request parameters'
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Let''s start with reading the request parameters with help of following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create ReadMyBooks as dynamic web application, and add all required jars to
+    it as we did earlier.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Each application has home page. So, let's add index.jsp as a home page from
+    the earlier application. You can copy and paste it directly.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Copy images folder from the earlier application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add one more link to search book on author's name as shown below,
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE22]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Let''s add searchByAuthor.jsp page facilitating user to request for list of
+    books by entering author''s name as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE23]'
+  prefs: []
+  type: TYPE_PRE
+- en: Add the configuration for DispachetServlet as front controller in web.xml as
+    we did earlier. Name the servlet as 'books'.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create or copy books -servlet.xml for configuring handler mapping and other
+    web component mappings from earlier application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add the configuration for scanning the controllers using 'context' namespace.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'We need Book bean to handle data to and fro the controller. So, before developing
+    controllers code add Book.java to com.packt.ch06.beans package from our earlier
+    applications having the data members as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE24]'
+  prefs: []
+  type: TYPE_PRE
+- en: Now create a class SearchBookController as a controller in com.packt.ch06.controllers
+    package and annotate it by @Controller.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: To search the books, add method named searchBookByAuthor() and annotate it by
+    @RequestMapping for the URL 'searchBooks.htm'. We can either use the Servlet API
+    or Spring API, but we will use Spring APIs here.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Let''s now add the code to `searchBookByAuthor()` for:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '* Reading request parameters'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '* Search list of books'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Creating instance of ModelAndView to bind book list as model data, logical model
+    name and logical view name together.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The code will be as shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE25]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `@RequestParam` is used to read a request parameter and bind it to the method
+    argument. The value of the 'author' attribute is bounded to author_name argument
+    without exposing servlet APIs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Here, we have added a dummy list. Later on it can be replaced by the actual
+    code to get the data from persistency layer.
+  prefs: []
+  type: TYPE_NORMAL
+- en: It's time to configure ViewResolver and package scanning in books -servlet.xml
+    as we did in earlier application. We can copy paste books-sevlet.xml in WEB-INF
+    from earlier application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create jsps folder under WebContent which will contain the jsp pages.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Create display.jsp in jsps folder to display the list of book using JSTL tag
+    as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE26]'
+  prefs: []
+  type: TYPE_PRE
+- en: If the list doesn't have elements, there is no point to display such list. jstl:if
+    tag is used to take the decision whether to display the list or not and jstl:forEach
+    is used to display the book information by iterating over the list.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Run the application and click link on home page to get the form to enter author''s
+    name. If the author''s name exists, on the submission of the form we will get
+    list of books as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_06_005.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Here, we have used `@RequestParam` to bind the individual request parameters
+    to the method arguments. But, if in case name of the request parameters are matching
+    to the name of method arguments, no need to use the annotation. The update code
+    can be written as shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE27]'
+  prefs: []
+  type: TYPE_PRE
+- en: Reading individual request parameters one by one and then to bind them to the
+    object of bean becomes clumsy and unnecessarily lengthy. A better option has been
+    provided by the framework by handling 'form backing object'.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Case 2: Handling Form submission'
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'The form submission is very common task in the application development. Each
+    time on form submission the developer needs to perform the following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Reading request parameters
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Converting the request parameter values according to required data types
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Setting the values to an object of the bean.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The above steps can be bypassed to get directly an instance of the bean on
+    the form submission. We will discuss the form handling in two cases as:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Form submission
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Form Preprocessing
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Form Submission
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: In normal web application the form will be loaded on clicking a link by the
+    user and then manually the above discussed steps will be carried out. As the process
+    needs to be automated instead of displaying the form directly, it should be loaded
+    from the controller which already will have an instance of a bean. On the form
+    submission, the values entered by the user will be bounded to this instance. This
+    instance now can be used in controller to carry out business logic. Spring 2.0
+    onwards provides the set of tags which are aware data binding in form handling
+    in the view making the development easy.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let's add a form to ReadMyBooks application to understand form submission using
+    Spring provided form tags. We will do this in two steps one displaying the form
+    and second post processing the submitted form.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Displaying the form
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: As the form has to be loaded from the controller let's add the code using following
+    steps,
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add a link on home page to get the form loaded. The code to get the form is
+    as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE28]'
+  prefs: []
+  type: TYPE_PRE
+- en: Add `showBookForm()` method in `AddBookController` which will be invoked on
+    clicking the link written in step1\. The method will return a form page facilitating
+    use of an object of Book where entered data will be bounded. The method has the
+    below code,
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE29]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The method should have `ModelMap` as one of its argument to add an instance
+    of bean which can be used by the views. Here we had added ''book'' attribute having
+    value as an instance of book. By default the reference name will be used as an
+    attribute name. The ''book'' instance can be referred as ''form backing'' object
+    as well. In order to customize name of form backing object to be used in the view
+    we can use the following code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE30]'
+  prefs: []
+  type: TYPE_PRE
+- en: As the view name '`bookForm'` has been returned by the controller, add `bookForm.jsp`
+    in the jsps folder which has the form to display.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The values entered by the user needs to bounded to the form. Spring framework
+    provides powerful tags to handle user input. To unable Spring tags we need to
+    add ''taglib'' directive as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE31]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The Spring provides similar tags as that of html to handle form, input, checkbox,
+    button and many more with a major difference of implicit binding of their values
+    to the bean data member. The following code will allow user to enter the book
+    name and on submission of form bind it to ''bookName'' data member of the Book
+    bean:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE32]'
+  prefs: []
+  type: TYPE_PRE
+- en: The 'path' attribute maps the entered value to the bean data member. The values
+    have to be specified as per the names of the data members.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Lets'' add the form in bookForm.jsp as shown below to facilitate user to enter
+    the values of new book:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE33]'
+  prefs: []
+  type: TYPE_PRE
+- en: The attribute 'modelAttribute' takes the value of the logical name of the attribute
+    of ModelMap set by the controller.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Run the application and click '**`Show Form to add new book`**'.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: You will be navigated to the bookForm.jsp page where you can enter your own
+    values. On submission, you will get 404 error as no resource has been written
+    by us to handle the request. Don't worry!! In following steps we will process
+    the form.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Post Processing the form
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: 'Let''s add a method in AddController which will be invoked on form submission
+    for the url ''addBook.htm'' as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE34]'
+  prefs: []
+  type: TYPE_PRE
+- en: When user submits the form, the values entered by him will get bounded to the
+    bean data members giving an instance of the Book bean. Annotating the 'book' argument
+    by @ModelAttribute facilitates developers to use bean instance who has values
+    bounded to it. Now, there is no need to read the individual parameter and further
+    things to get and set an instance of Book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As we already have display.jsp page to display the books so we are just reusing
+    it here. The book details entered by the user can later be added to the book table.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Run the application, click the link to get the form. Fill the form and submit
+    it to get following output:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_06_006.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The output list shows the book details but without price as in the output. The
+    price is having no value simply because we haven't set them. We want the pricelist
+    with some predefined values. Let's move ahead to discuss pre- processing of the
+    form.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Form Pre processing
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: In some situations the form contains few predefined values like name of countries
+    or categories of book in drop drown menu, radio buttons with colors available
+    to choose and many more. These values can be hard coded leading to the frequent
+    change as values to show changes. Instead of using constant values, the values
+    can be rendered and can be populated in the form. This generally called as form
+    pre processing. The preprocessing can be done in two steps.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Defining the attribute with values to add in the view
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: 'The @ModelAttribute is used to add an instance of the model data to an instance
+    of Model. Each method annotated by @ModelAttribute will be called before any other
+    method of the Controller and on its execution the model data will be added to
+    Spring Model. The syntax of using the annotation is as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE35]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The following code adds the ''hobbies'' attribute which can be used in the
+    view:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE36]'
+  prefs: []
+  type: TYPE_PRE
+- en: Hobby is user defined class with hobbyName and hobbyId as data members.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Populating the values of the attribute in the form
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: The form can display the available list of the choices to the user using checkboxes,
+    drop down menus or radio buttons. The values in the view can be populated using
+    List, Map or array for the values of the drop down menu, check boxes or radio
+    buttons .
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The general syntax of the tags is as shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE37]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The following code can be used to display hobbies of the user in checkboxes
+    using ''hobbies'' as modelattribute for binding the value to the hobby data member
+    of the bean:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE38]'
+  prefs: []
+  type: TYPE_PRE
+- en: In the same way we can generate dropdown menu and options for the select tag
+    at runtime.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The `itemLabel` and `itemValue` attribute can be skipped while dealing while
+    handling String values.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The complete example can be referred from the application `Ch06_Form_PrePopulation`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s update `ReadMyBooks` application to predefine some values of price in
+    the `bookForm.jsp` using ''`ModelAttribute''` to discuss form pre- processing
+    with the help of following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'As the form is retuned by the `AddController` to the Front Conotroller where
+    we want to set predefined values, ass `addPrices()` method in it. Annotate the
+    method by `@ModelAttribute` as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE39]'
+  prefs: []
+  type: TYPE_PRE
+- en: The above code is creating an attribute '`pricelist'` which can be available
+    to the view for use.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Now the `pricelist` attribute can be used in the view to display the predefined
+    values. In our case it''s a form for addition of the new book, update the `bookForm.jsp`
+    to display pricelist as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE40]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Run the application and click the link, you can observe the predefined prices
+    will appear in the drop sown list as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_06_007.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The users will enter values in the form and submit it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The values can be obtained in the handler method. But still, we can't be sure
+    of only valid values will be entered and submitted. The business logic performed
+    on wrong values will always fail. Also there is a chance of getting wrong data
+    type values entered by the user leading to exception. Let's take an example of
+    email ids. The email id always follows a particular format, if the format is wrong
+    the business logic ultimately fails. Whatever may be the case, we have to be sure
+    of submitting only valid values either for their data types, range or formation.
+    To validate whether the correct data will be submitted or not is the process of
+    'form validation'. The form validation plays key role to make sure the correct
+    data submission. The form validation can be done on client side as well as server
+    side. The Java Script is used to perform client side validations, but it's possible
+    to disable it. In such cases server side validation is always preferable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring has flexible validation mechanism which can be extensible to write custom
+    validators as per application requirements. Spring MVC framework by default supports
+    JSR 303 specification on addition of JSR303 implementation dependencies in the
+    application. The following two approaches can be used to validate the form fields
+    in Spring MVC,
+  prefs: []
+  type: TYPE_NORMAL
+- en: JSR 303 specification based validation
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Spring based implementation using Validator interface.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Custom validator based on Spring Validator interface
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Spring provides Validator interface who has validate method where the validation
+    rules will be checked. The interface not only supports validation of the web tier
+    but it can also be used in any tier to validate the data. In case the validation
+    rules fail, the user has to be made aware of it by showing appropriate informative
+    messages. The BindingResult, a child of an Errors holds the validation result
+    bounded by the Errors while performing validation on the model in validate() method.
+    The bounded messages for the errors will be displayed using<form:errors> tag in
+    the view to make the user aware of them.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s add a custom validator in our ReadMyBooks application with the help
+    of following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Add validation-api-1.1.0.final.api.jar file in the lib folder of the application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create BookValidator class in com.packt.ch06.validators package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The class implements org.springframework.validation.Validator interface.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Override supports () method as shown in the code below,
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE41]'
+  prefs: []
+  type: TYPE_PRE
+- en: The support method assures the object is matching to the object being validated
+    by the validate method
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Now override the validate() method where the check on the data member as per
+    the rule. We will do it in three steps as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Set the rules for validation
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'We will crosscheck the following rules:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The length of book's name must be greater than 5.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The author's name must not be empty.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The description must not be empty.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The description length must be of minimum 10 and maximum 40 characters.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The ISBN should not be less than 150.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The price should not be less than 0.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The publication must not be empty.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Write condition to check validation rules.
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: If validation fails add the message to an instance of errors using rejectValue
+    () method
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The method using the above steps can be written as shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE42]'
+  prefs: []
+  type: TYPE_PRE
+- en: The Errors interface is used to store the binding information about the validation
+    of the data. The `errors.rejectValue()` is one of the very useful method provided
+    by it which registers the errors for an object along with their error messages.
+    Following are the available signatures of rejectValue() method from Error interface,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE43]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add a data member of type org.springframework.validation.Validator in AddBookController
+    and annotate it by `@Autowired` as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE44]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Update the `addBook()` method of `AddController` to invoke validate method
+    and check whether validation error occurred or not . The updated code is as shown
+    below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE45]'
+  prefs: []
+  type: TYPE_PRE
+- en: The method signature of `addBook ()` should have BindingResult as one of its
+    argument. The instance of BindingResult has the list of errors which has occurred
+    while performing the validation. The `hasErrors()` method returns true if validation
+    has failed on the data members. If `hasErrors()` returns true, we are returning
+    the '`bookForm'` view facilitating user to enter the correct values. In case of
+    no validation violation the 'display' view will be returned to the Front Controller.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Register the `BookValdator` as a bean in books-servlet.xml as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE46]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can also use `@Component` instead of the above configuration.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The Validation violation messages have to be shown to the user by updating
+    the bookForm.jsp as shown in code below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE47]'
+  prefs: []
+  type: TYPE_PRE
+- en: Only the underline code has to be added in the bookForm.jsp to show the message
+    in Red color.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The <form:errors> is used to display the messages if validation failed. It
+    takes the below shown syntax:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE48]'
+  prefs: []
+  type: TYPE_PRE
+- en: Update the bookForm.jsp for all the inputs by specifying name of data members
+    as value for path attribute.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Run the application. Click on the link Show form to add new Book.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Without entering any data in the text fields submit the form. We will get the
+    form displaying the messages which denotes which validation rules has been violated
+    as below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_06_008.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The code written for validation above though is working fine, we are not taking
+    complete advantage of Spring framework. The invocation of the validate method
+    is explicit as the framework is not aware to carry out validation implicitly.
+    The @Valid annotation provides information to the framework to perform validation
+    implicitly using custom validators. The framework facilitates binding of the custom
+    validator to WebDataBinder giving awareness to framework to use the validate()
+    method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using @InitBinder and @Valid for validation
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'Let''s update the code of AddController.java step by step as shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add a method to bind validator to WebDataBinder and annotate it by `@InitBinder`
+    as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE49]'
+  prefs: []
+  type: TYPE_PRE
+- en: '`@InitBinder` annotation helps in identifying the methods which performs the
+    WebDataBinder initialization.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: To enable the annotations to be considered by framework the book-servelt.xml
+    has to be updates as,
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add mvc namespace as shown in the configuration below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE50]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can only copy the underlined statements in your existing code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add the configuration as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE51]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Update the `addBook()` method to add `@Valid` annotation to perfom Book validation
+    and remove the validator.validate() invocation as it will be executed implicitly.
+    The updated code is as shown in the below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE52]'
+  prefs: []
+  type: TYPE_PRE
+- en: Run the application to get the similar result when you submit blank form.The
+    messages will be displayed in the view has been hard coded in the `rejectValue()`
+    method. The framework provides a support for externalizing the messages in the
+    properties file. Let's update the validator for externalizing messages.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Externalizing the messages
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: 'We will use the externalization of the messages without changing the logic
+    of validation with the help of following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Add a new class BookValidator1 in com.packt.ch06.validators package implementing
+    Validator interface.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Override the supports method as did in earlier application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Override the validate method where we are not providing the default error messages.
+    We will only provide name of the bean property and error code associated with
+    it as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE53]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Let''s add messages_book_validation.properties file in WEB-INF to map error
+    code to their associated message as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE54]'
+  prefs: []
+  type: TYPE_PRE
+- en: The syntax to write properties file to map key-value pair is,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE55]'
+  prefs: []
+  type: TYPE_PRE
+- en: Update the books-servlet.xml as,
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Comment the bean written for BookValidator as we are no using it
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add a new bean for BookValidator1 as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE56]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add a bean for MessagSource to load the messages from the properties file as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE57]'
+  prefs: []
+  type: TYPE_PRE
+- en: No need to change the AddController.java. Run the application, on submission
+    of the blank from the messages pulled from properties file will be displayed.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: We successfully externalize the messages, Congratualtion!!!
+  prefs: []
+  type: TYPE_NORMAL
+- en: But don't you think the validation code is unnecessarily performing the basic
+    validations here. The framework provides ValidationUtils as a utility class which
+    facilitate the developers carrying out the basic validations like empty or null
+    values.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using ValidationUtils
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: 'Let''s add BookValidator2 which will use ValidationUtils as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Add BookValidator2 as a class in com.packt.ch06.validators package which is
+    implementing Validator in ReadMyBooks application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Override supports() method as did earlier.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Override validate() which will perform validation using ValidationUtils class
+    as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE58]'
+  prefs: []
+  type: TYPE_PRE
+- en: As we are reusing the same error codes no need to add them again in the properties
+    file.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Comment the bean for BookVlidator1 and add a bean for BookVlidator2 in books-servlet.xml
+    as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE59]'
+  prefs: []
+  type: TYPE_PRE
+- en: Execute the application and submit the blank form to get validation messages
+    displayed from the properties file.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: JSR annotation based validation
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: JSR 303 is a bean specification which defines the metadata and APIs to validate
+    the beans in J2EE applications. The latest in market is JSR 349 which is an extension
+    of JSR 303 providing features as openness, Denepdency injection and CDI, method
+    validation, group conversion, integrations with other specification. Hibernate
+    Validator is a well known reference implementation available. The javax.validation.*
+    package provides the APIs for validation purpose.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Following are few common annotations used in validation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '@NotNull: Checks the annotated value is not null but it cannot check for empty
+    strings.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '@Null: It Checks the annotated value is null'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '@Pattern: It checks whether the annotated string matches the given regular
+    expression.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '@Past: Checks the annotated value is the date in past.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '@Future: Checks the annotated value is the date in future.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '@Min: It makes sure that the annotated element is a number and whose value
+    is equal or greater than the specified value.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '@Max: It makes sure that the annotated element is a number and whose value
+    is equal or less than the specified value.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '@AssertFalse: It assures the annotated element is false.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '@AssertTrue: It assures the annotated element is true.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '@Size: It assures the annotated element is between the max and min values.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Apart from the above annotations defined by Bean Validation API the following
+    additional annotations has been provided by Hibernate Validator:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '@CreditCardNumber: It checks that the annotated value follws the character
+    sequence passed to it.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '@Email: Used to check the specified character follows valid email address according
+    to the specified expression'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '@Length: It checks that the annotated element has number of characters limited
+    by min and max attribute specified by the annotation.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '@NotBlank: It checks for the annotated element is not null and has the length
+    greater than zero.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '@NotEmpty: It makes sure the annotated element is neither null nor empty.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Let''s create a copy of ReadMyBooks application to implement JSR based validation
+    by following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Part1: Creating basic application'
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Create ReadMyBooks_JSR_Validation as a dynamic web application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add all required jar which we had added in earlier application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Along with these jar also add hibernate-validator-5.0.1.final.jar,classmate-0.5.4.jar,
+    jboss-logging-3.1.0.GA.jar and validation-api-1.1.0.final.jar
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Copy com.packt.ch06.beans and com.packt.ch06.controllers package along with
+    its content.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Copy index.jsp and searchByAuthor.jsp in WebContent.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add DispatcherServlet mapping in web.xml file.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Copy books-servlet.xml in WEB-INF
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Copy images in WebContent and jsps folder in WEB-INF along with its content.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Part2: Applying validation'
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'Let''s apply validations provided by hibernate-validator API on Book.java as
+    shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE60]'
+  prefs: []
+  type: TYPE_PRE
+- en: Let's update `AddBookController` as,
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Delete the Validator data member.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Delete initBinderMethod.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Keep `@Valid` annotation applied on Book argument of `addBook()` method as it
+    is.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Remove bean for validator from books-servlet.xml as its no longer required.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Comment bean for messageResource from XML we will use it later on.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Make sure to have `<mvc:annotation-driven />` entry in book-servlet.xml to unable
+    framework to consider annotation in controllers.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Run the application. On submission of blank form you will get the following
+    response displaying the default validation messages:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_06_009.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The customization of the messages can be done either by using the 'message'
+    attribute or we can externalize the messages using properties file. Let's do one
+    by one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using 'message' attribute
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: 'Each of the annotations used in bean class to validate the data has ''message''
+    attribute. The developers can use it to pass the appropriate message as shown
+    in the code below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE61]'
+  prefs: []
+  type: TYPE_PRE
+- en: Keeping all other code as it is and changing the Book.java as shown above run
+    the application. If any violation of the validation rule occurred, the messages
+    configured for 'message' attribute will be displayed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using properties file
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: The developers can externalize the messages in the properties file from where
+    it will be loaded on the violation of the validation as we did in the earlier
+    application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s add properties file using the below steps in the application:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Create a file messages_book_validation.properties in WEB-INF and add to mapping
+    of violation rules and messages to display as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE62]'
+  prefs: []
+  type: TYPE_PRE
+- en: F1 at the end of each file has been purposely added to know whether the messages
+    are pulled from bean class or properties file. You don't have to add them in actual
+    file. Purposely we haven't added any message for 'publication' data member to
+    understand pulling of messages.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The syntax to write the properties file is as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE63]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Uncomment the bean ''`messageResource''` in book-servlet.xml or add one if
+    you don''t have as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE64]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Run the application, on submission of the blank form the messages from the
+    properties file will be loaded apart from ''publication'' as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_06_010.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Summary
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We had a discussion about web tier in this application. We discussed about the
+    working of Spring MVC framework declaring user defined Controller. We had a discussion
+    about the views are used to display the values using model object from ModelAndView.
+    We also discussed about how the view are discovered by the framework and how they
+    are rendered from the logical name set in ModelAndView using ViewResolvers. The
+    discussion continued to the form handling where we had in depth discussion about
+    form submission to use form backing object and pre population of the form using
+    @ModelAttribute annotation. The from containing incorrect values may leads to
+    exceptions or failure in business logic. The solution to the problem is form validation.
+    we discussed form validation with the help of Spring custom validators and annotation
+    based validation provided by hibernate validators. We also had discovered how
+    externalization of messages to carry out using messageresource bundle. In the
+    next chapter we will continue our discussion about how to carry out testing of
+    an application to minimize the risk of its failure when the application goes live.
+  prefs: []
+  type: TYPE_NORMAL

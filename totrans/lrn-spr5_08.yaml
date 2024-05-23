@@ -1,0 +1,778 @@
+- en: Chapter 8. Explore the Power of Restful Web Services
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'In earlier chapter we discussed about building Spring MVC application. These
+    applications facilitate the user to serve through web only for Java platform.
+    What if some other platform wants to use the functionalities developed by us?
+    Yes we need functionalities which are platform independent. In this chapter we
+    will discuss how to develop such platform independent services using Restful web
+    services to address following topics:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: What is web service?
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Importance of web services.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Types of web services
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Restful web services
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Developing Spring restful web services.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: How to use RestTemplate and POSTMAN to test the web services?
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The presentation of the data using message converters and content negotiation.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Web services
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Web service is the way of communication between two or more applications which
+    have developed for different platforms. These services are independent of browsers
+    and operating systems which make easy communication and enhanced performance to
+    target more users. This service can be as easy as a function, a collection of
+    standards or protocols which has been deployed on the server. It is a communication
+    between a client and server or communication between two devices through network.
+    Let's say we developed a service in Java and published it on internet. Now this
+    service can be consumed by any Java based applications, but more importantly any
+    .NET based or Linux based applications can also consume it with the same ease.
+    This communication is done through set of XML based messages over the HTTP protocol.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Why we Need of web service?
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Interoperatibility is one of the best thing which can be achieved by web services
+    along with which they provides following
+  prefs: []
+  type: TYPE_NORMAL
+- en: Usability
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Many applications invest their valuable time in developing complex function
+    which is already available in other application. Instead of redeveloping it web
+    services allow developers to explore such services exposed over web. It also leverages
+    to develop customized client side logic reusing the web services saving valuable
+    time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Reusing the developed application
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The technologies and market so moving so fast, the developers has to keep on
+    matching the client requirements. It's very common in development to redevelop
+    an application using a new platform to support new features with ease. Instead
+    of developing the complete application from scratch, the developers can now add
+    enhanced functionalities with whatever the platform they want, and use the old
+    modules using web services.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Loosely coupled modules
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Each service developed as web service is totally independent of any other services
+    which supports ease of modifying them without any effect on other part of the
+    application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Ease in deployment
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The web services are deployed over the servers to facilitates the use through
+    internet. The web service can be deployed over the fire walls to the server through
+    internet with the same ease as they can be deployed in local servers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Types of web services
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: SOAP web service
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: RESTful web service
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: RESTful web service is Representational state transfer which is an architectural
+    style. The RESTfuul resources are revolver around the transfer of data in some
+    represenatatinal format. The REST resources will be in the form which needed suits
+    the consumer. It can be in representation forms like XML, JSON or HTML. In RESTful
+    web services the state of the resource is more important than the action took
+    against the resource.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Advantages of RESTful web services:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: RESTful web services are fast as it consumes less resources and band width.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: It can be written and execute on any platform.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The most important thing is it allows different platforms such as HTML, XML,
+    Plain text and JSON.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Spring and RESTful web services
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Spring supports writing of RestController which can handle requests for HTTP
+    requests using @RestController annotation. It also provides @GetMapping, @PostMapping,
+    @DeleteMapping, @PutMapping annotations to handle HTTP get, post, delete and put
+    methods. The @PathVariable annotation facilitates access of the values from the
+    URI template. Current most of the browsers support using GET and POST as HTTP
+    methods as html actions methods. The HiddenHttpMethodFilter now enables submission
+    of form for PUT and DEETE methods using <form:form> tags. Spring facilitates the
+    selecting the suitable view depending upon requested media type using ContentNegotiatingViewResolver.
+    It implements the ViewResolver which already has used in Spring MVC. It delegates
+    the request to the appropriate view resolvers automatically. Soring framework
+    has introduced @ResponseBody and @RequestBody to bind the method parameters either
+    to request or response. The request and response communication from the clients
+    read and write data with variety of formats which may need message converters.
+    Spring provides many message convers like StringHttpMessageonverter, FormHttpMessageConvereter,
+    MarshallingHttpMessageConverter to perform reading and writing.The RestTemplate
+    provides easy client side consumption of RESTful web services.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Before moving ahead let''s develop a RESTController to understand the flow
+    and URI consumptions with the help of following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create Ch09_Spring_Restful as dynamic web application and add the jars which
+    we added for Spring web MVC application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add DispatcherServlet as a font controller mapping in web.xml file as shown
+    below to map all the URLs:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: Add books-servlet.xml to configure base package name to scan for controller
+    and view resolvers which we have added in every Spring web MVC application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create `MyRestController` class in com.packt.ch09.controllers package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Annotate the class by @RestController.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add the method `getData()` for consuming ''/welcome'' URI as shown in the code
+    below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `getData()` method will be serving the request for '/welcome' URL for GET
+    as HTTP method and returns a String message as the response.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Deploy the application to the container and once the service is successfully
+    deployed it's time to test the application by creating the client.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Let''s write client using `RestTemplate` provided by Spring as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Executing the main function will display "welcome to web services" on your console.
+  prefs: []
+  type: TYPE_NORMAL
+- en: RestTemplate
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Similar to many other template classes like JdbcTemplate and HibernateTemplate
+    the RestTemplate class is also designed to perform complex functionalities to
+    give a call to REST services. The following table sumaries the methods provided
+    by RestTemplate to map HTTP methods:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| **RestTemplate method** | **HTTP method** | **Description** |'
+  prefs: []
+  type: TYPE_TB
+- en: '| getForEntity and getForObject | GET | It retrieves the representation on
+    the specified URI |'
+  prefs: []
+  type: TYPE_TB
+- en: '| postForLocation and postForObject | POST | It creates a new resource by posting
+    the new object on the specified URI location and it returns the header having
+    value as Location. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| put | PUT | It creates or updates the resource at the specified URI |'
+  prefs: []
+  type: TYPE_TB
+- en: '| delete | DELETE | It delete the resource specified by the URI |'
+  prefs: []
+  type: TYPE_TB
+- en: '| optionsForAllow | OPTIONS | The method returns the value of allowed headers
+    for the specified URL. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| execute and exchange | Any | Execute the HTTP method and returns the response
+    as ResponseEntity |'
+  prefs: []
+  type: TYPE_TB
+- en: We cover most of them in upcoming demo. But before diving into RESTful webservices
+    let's discuss the most important part of the RESTful web service 'URL. RestContollers
+    handle the request only if it has been requested by the correct URL. The Spring
+    MVC controllers also handle the web request which are request parameter and request
+    query oriented while the URLs handled by the RESTful web services are resource
+    oriented. The identification about the resource to map is done by the entire base
+    URL without any query parameters.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The URLs written are based upon plural nous in it and try to avoid using verbs
+    or query parameters as we did in earlier demo for Spring MVC. Let''s discuss the
+    way URLs are formed. The following is RESTful URL for the resource which is a
+    combination of the Servlet context, the resource noun to fetch and path variable:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_09_001.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Observe the following table to know more about the RESTful URLs:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| **Supported HTTP methods****Resource to fetch** | **GET method** | **POST
+    method** | **PUT method** | **DELETE method** |'
+  prefs: []
+  type: TYPE_TB
+- en: '| /books | Returns the list of books | Add a new book | Update the book or
+    books | Delete the books |'
+  prefs: []
+  type: TYPE_TB
+- en: '| /books/100 | Returns the book | 405 | Update the book | Delete the book |'
+  prefs: []
+  type: TYPE_TB
+- en: Let's develop an application to use different HTTP methods and URLs to have
+    better understandings by the steps below. We will use Ch03_JdbcTemplate as our
+    dao layer in this application from where you can directly copy the required codes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Create Ch09_Restful_JDBC and add all the required jars as shown in the outline
+    of WebContent folder:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_09_002.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Add front controller and web component mapping file as we did in earlier application
+    in web.xml and books-servlet.xml. You can copy the same from earlier applications.
+    Don't forget to add 'contextConfigLocation' as we are writing more than one bean
+    configuration files.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add Book.java in com.ch03.beans as POJO which we had used in all JDBC applications.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add com.packt.cho3.dao package containing BookDAO and BookDAO_JdbcTemplate class.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add connection_new.xml in classpath.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create MyBookController class in com.packt.ch09.controllers package and annotate
+    it by @RestController.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add BookDAO as data member and annotate it by @Autowired annotation.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Now add we will add getBook()method to handle web service request to search
+    the book. Annotate the method by @GetMapping mapped for the URL ''/books/{ISBN}''
+    as shown in the following code:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: The @GetMapping set the method to handle GET requests for the URLs in the form
+    of 'books/{ISBN}'. The {name_of_variable} acts as the place holder so that a data
+    can be passed to the method for use. We also have used `@PathVariable` annotation
+    applied to the first parameter in the method signature. It facilitates the binding
+    of value of the URL variable to the parameter. In our case ISBN have the value
+    passed by the URL's ISBN.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The HttpStatus.NO_CONTENT states that the status of the response to be set which
+    indicates the resource has been processed but the data is not available.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The ResponseEntity is an extension of the HttpEntity where additional information
+    about the HttpStatus to the response.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s add the Client code to use the mapped resource using RestTemplate as
+    shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: Here we are getting the book with ISBN=14\. Make sure this ISBN is available
+    in the table, if not you can add your value.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Execute the Main_Get_Book to get the book details on console.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We can test the RESTful web services using POSTMAN tool available in Google
+    Chrome using following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 15.You can install in your Google from [https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm](https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm)
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Once you install launch it by clicking the Postman icon.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Now from drop down select GET method and enter the URL http://localhost:8081/Ch09_Spring_Rest_JDBC/books/13
+    in the textfield.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Click on **`Send`** button.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'We will get the list displayed in the body as shown below by the image:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_09_003.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The URL specifies only which the handler method will be handling the request,
+    but it cannot decides what action to be taken at the resource. As in the discussed
+    demo we use handled HTTP GET method to get the data.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Once we know how to get the data now let''s update the data by adding the method
+    using following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Add updateBook() method in the MyBookController which will be annotated by
+    `@PutMapping` to handle URL as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Here the URL is mapped for `PUT` method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `updateBook()` has:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The argument as ISBN which has been bounded for the value by @PathVariabl annotation.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Second argument is of type Book annotated by @ResponseBody. The @ResponseBody
+    annotation marker for the HTTP reponse body which is used to bind HTTP response
+    body to the domain object. This annotation uses the standard HTTP Message Converters
+    by Spring framework to convert the response body to the respective domain object.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: In this case the `MappingJacksonHttpMessageConverter` will be chosen to convert
+    the arrived JSON message to Book object. To use the converter we had added related
+    libraries in the lib folder. We will discuss in detail about message converters
+    in upcoming pages.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The client code to update the Book as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The put method has the signature as:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Let''s now test it from POSTMAN by entering the URL, selecting PUT method from
+    drop down and value for the body as shown below and click on send:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_09_004.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'After getting and updating the data now let''s add the code for the resource
+    for adding a Book using following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Add a method `addBook()` in the controller annotated by @PostMapping.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'We will use `@ResquestBody` annotation to bind the HTTP request body to the
+    domain object ''book'' as shown in the code below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `@RequestBody` annotation binds the request body to the domain object, here
+    in our case it's Book object.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Now let''s add Client code as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: The post method take **`URL for resource`**, Object to add at resource and type
+    of object as the arguments.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In the POSTMAN we can add the resource URL and select POST method as shown
+    in the figure below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_09_005.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'In the same way we will add a resource for getting all the books as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'To test getAllBook add the Client code as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: The response is of type JSON contains array of books which we can get from the
+    response body.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s get the list from POSTMAN by adding the URL as [http://localhost:8081/Ch09_Spring_Rest_JDBC/books](http://localhost:8081/Ch09_Spring_Rest_JDBC/books)
+    and selecting the GET method. We will get the list of books as JSON as shown in
+    the snapshot:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_09_006.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: In the same way we can write the method to delete the book by ISBN. You can
+    find the code
+  prefs: []
+  type: TYPE_NORMAL
+- en: Presentation of the data
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In the discussed demos we used JSON to present the resource but in practice
+    the consumer may prefer other resource formats as XML, PDF, or HTML. Whatever
+    the representation format the consumer wants to have the controllers are least
+    bother about it. The Spring provides following two ways to deal with the response
+    to transform it to representation state which client will be consumed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: HTTP based message converters
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Negotiating view based rendering of the view.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Http-based message converters
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The controllers performs their main task of producing the data, this data will
+    be presented in the view part. There are multiple ways to identify the view for
+    representation, but a direct way is available where the object data returned from
+    the controller is implicitly converted to appropriate presentation for the client.
+    The job of implicitly converting is done by HTTP message converters. Following
+    are the message converters provided by Spring which handles common conversion
+    between the message and the java objects
+  prefs: []
+  type: TYPE_NORMAL
+- en: ByteArrayHttpMessageConverter - it converts byte arrays
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: StringHttpMessageConverter - it converts Strings
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: ResourceHttpMessageConverter - it converts org.springframework.core.io.Resource
+    for any type of octet stream
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: SourceHttpMessageConverter - it converts javax.xml.transform.Source
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: FormHttpMessageConverter - it converts form data to/from the value of type MultiValueMap<String,
+    String>.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Jaxb2RootElementHttpMessageConverter - it converts Java objects to/from XML
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: MappingJackson2HttpMessageConverter - it converts JSON
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: MappingJacksonHttpMessageConverter - it converts JSON
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: AtomFeedHttpMessageConverter - it converts Atom feeds
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: RssChannelHttpMessageConverter - it converts RSS feeds
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: MarshallingHttpMessageConverter - it converts XMLs
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Negotiating view based rendering of the view
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: We had already discussed Spring MVC in depth to handle the data and to present
+    the data as well. The ModelAndView helps in setting the view name and the data
+    to be bound in it. The view name then will be used by the front controller to
+    target the actual view from its exact location with the help of ViewResolver.
+    In Spring MVC only resolving the name and then bound data in it was more than
+    sufficient but in RESTful web services we need much more than this. Here matching
+    the view name alone is not sufficient but also choice of suitable view is also
+    important. The view has to be matched to the representation state of the which
+    is required by the client. If user needs JSON the view has to be selected which
+    is able to render the obtained message to JSON.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring provides ContentNegotiatingViewResolver to resolve the views according
+    to the content type which is required for the client. Following is the bean configuration
+    which we need to add to select the views as
+  prefs: []
+  type: TYPE_NORMAL
+- en: The configuration has reference to the ContentNegotiationManagerFacrtoryBean
+    refered by 'cnManager'. We will do the configuration of it while discussing the
+    demo. Here we configured two ViewResolvers one as PDF viewer and other for JSP's.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The very first thing checked from the request path is its extension to determine
+    the media type. If no match found then FileTypeMap is used to get media type using
+    the requested file name. If still the media type is not available then the accept
+    header will be checked. Once the media type is known the whether the supported
+    view resolver is available or not is checked. And if it''s available then the
+    request is delegated to the appropriate view resolver. While developing the custom
+    view resolver we need to follow steps as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Develop the custom view. This cusom view will be child of AbstarctPdfView or
+    AbstarctRssFeedView or AbstarctExcelView.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: According the view the ViewResolver implementation need to be written.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Register the custom view resolvers in the context.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Let's generate a PDF file using custom ViewResolver and sample data step by
+    step
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Add handler mapping file boo-servlet.xml which will contain annotation configuration
+    and configuration to discover the controllers. You can copy this from earlier
+    applications.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add front controller in web.xml as we did in earlier application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Download and add itextpdf-5.5.6.jar for PDF files.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create Ch09_Spring_Rest_ViewResolver as dynamic web application and add to it
+    all required jars.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add `MyBookController` as a RestController to show list of books in com.packt.ch09.controller
+    package. The method handles ''books/{author}'' URL. The method has ModelMap as
+    a parameter to allow the addition of the ''book list'' model. Here we are adding
+    a dummy list of the books but you can add the code to fetch the data from the
+    database as well. The code will be as done below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: We will add the JSP view later with 'book' as the view name which is returned
+    by the handler method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s add PDFView which is a child of `AbstarctPdfView` as shown by the code
+    below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `pdfBuildDocument()` method will design the look and feel of the PDF file
+    as a Document with the help of PdfTable. The table heading and the data to display
+    will be bounded by the table.`addCell()` methods.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Now let''s add the PdfViewResolver which implements `ViewResolver` as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: Now we need to register the ViewResolvers to the context. It can be done by
+    adding the ContentNegotiatingViewResolver bean as done in the configuration.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The ContentNegotiatingViewResolver bean refers to the ContentNegotiationManagerFacrtoryBean
+    so let''s add one more bean for it as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We had added the custom view but we will also add the JSP page as its our default
+    view. Let''s add book.jsp under /WEB-INF/views. You can check the configuration
+    of the InternalResourceViewResolver to get the exact location of the JSP page.
+    The code is shown using following steps:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: Yes we had done with application now it's time to test the application. Run
+    the application on the server and add the URL in the browser as `http://localhost:8080/Ch09_Spring_Rest_ViewResolver/books/author1.pdf`.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The `auuthor1` is the name of the author whose book list we want to fetch, the
+    extension PDF shows what type of view is expected by the consumer.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We will get the following output in the browser:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_09_007.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Summary
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the beginning of the chapter we discussed about the web services and importance
+    of the web services. We also discussed about SOAP and RESTful web services. We
+    discuss in depth about how to write the RestController who handles URLs. The rest
+    controller are revolving around the URL, we take a over view of how to design
+    URLs to mapped to the handler methods. We developed a RestController which deals
+    with database whenever the client request arrives for all CRUD methods. The RestTemplate
+    an easy and less complex way to test RESTful web services has been discussed in
+    depth for different types of HTTP methods. Moving one step ahead we also used
+    POSTMAN application to test the developed web services. Developing the web services
+    irrespective what consumer is looking for is one way traffic. We also explored
+    about message converters and content negotiation to serve the consumer by different
+    views.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In next chapter we will explore the most discussable topic and a new entry in
+    Spring who is changing the web experience. We will discuss about WebSocket in
+    next chapter.
+  prefs: []
+  type: TYPE_NORMAL

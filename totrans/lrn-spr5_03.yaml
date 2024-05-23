@@ -1,0 +1,1183 @@
+- en: Chapter 3. Accelerate with Spring DAO
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In the second chapter, we discussed in depth about dependency injection. Obviously,
+    we discussed various ways to use DI in the configuration files as well as using
+    annotations, but still somewhere due to unavailability of real time application
+    it was incomplete. We were not having any choice as these were the most important
+    basics, which each of Spring framework developer should be aware of. Now, we will
+    start with handling database which is the backbone of application using the co
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'nfigurations which we discussed. In this chapter we will discuss the following
+    points:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We will discuss about DataSource and its configuration using JNDI, pooled DataSource,
+    and JDBCDriver based DataSource
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: We will learn how to integrate database in the application using DataSource
+    and JDBCTemplate
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Understanding ORM and its configuration in application using SessionFactory
+    will be the next point to discuss
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: We will configure HibernateTemplate to talk with database using ORM.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: We will cover configuring cache manager to enable the support of caching the
+    data
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: As we are well aware that, the database gives easy structuring of the data facilitating
+    easy access using various ways. Not only many ways are available but also there
+    are number of databases available in market. On one hand it's good to have many
+    options of databases but on other its complex as each of them needs to handle
+    separately. The Java application on enormous stages needs the persistency for
+    accessing, updating, deleting, adding the records in database. JDBC APIs helps
+    in accessing such records through drivers. JDBC provides the low level database
+    operations as defining, opening and closing the connections, creation of statements,
+    iterating through the ResultSet to fetch the data, processing the exceptions and
+    many more. But at one point, this became repetitive operation and tightly coupled.
+    The Spring Framework gives loosely coupled, high level, clean solution with a
+    range of customized exceptions using DAO design pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: How Spring handles database?
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Java application the developers generally uses a concept of utility class
+    to create, open and close database connection. A pretty sound, smart and reusable
+    way for connection management but still the application is tightly coupled with
+    the utility class. Any change in the either the database or its connectivity as
+    URL, username, password or schema, it need to be changed in the class. This needs
+    to be followed by the recompilation and redeployment of the code. In such scenario
+    externalizing the connection parameters will be a good solution. We cannot externalise
+    the Connection object, that still has to be managed by the developer and so do
+    the exceptions while handling it. Spring has a elegant, loosely coupled ways to
+    manage the connection using the DataSource at centre.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The DataSource
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'The DataSource is the factory for data source connections similar to the DriverManager
+    in JDBC who helps for Connection management. Following are some of the implementations
+    which can be used in the application to obtain the Connection object:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**DriverManagerDataSource** : The `DriverManager` class provides a simple implementation
+    of the DataSource to be used in test or standalone application which enable a
+    new Connection object on every request via getConnection().'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**SingleConnectionDataSource**: The class is an implementation of the SmartDatSource
+    which gives a single Connection object which doesn''t get closed after its use.
+    It''s useful only in single threaded applications and in making testing easy outside
+    of the application server.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**DataSourceUtils**: This is a helper class who has static methods for obtaining
+    the database Connection from DataSource.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**DataSourceTransactionManager**: This class is an implementation of the PlatformTransactionManager
+    for a Connection per data source.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Configuring DataSource
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'The DataSource can be configured by following ways in the application:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Obtained from JNDI look up** : Spring helps in maintaining large scale JavaEE
+    application which run in application servers like Glassfish, JBoss, Wlblogic,
+    Tomcat. All these servers support facility to configure the pool of data sources
+    which can be acquired by the Java Naming Directory Interface (JNDI) look up helps
+    in better performance. The jee namespace can be used to obtain data source configured
+    in the application as shown below:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Where:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**jndi-name** : specifies name of the resource configured on server in JNDI'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**id** : id of the bean which gives object of DataSource'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**resource-ref** : specifies whether to prefix with java:comp/env or not.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Fetched from the pooled connection : Spring doesn''t have pooled data source
+    but, we can configure pooled data source provided by Jakarta Commons Database
+    Connection Pooling. The DBCP provided BasicDataSource can be configured as,'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Where:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**initialSize**: specifies how many connections to be created when the pool
+    is started'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**maxActive**: specifies how many connections can be allocated from the pool.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Along with these attributes we can even specify the time which needs to wait
+    till the connection is returned from the pool(maxWait), the maximum/ minimum number
+    of connections that can be idle in the pool(maxIdle/ minIdle), the maximum number
+    of prepared statements that can be allocated from the statement pool (maxOperationPreparedStatements).
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'With the help of JDBC driver : One can use of the following class to configure
+    the simplest way to get and object of the DataSource:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '* **SingleConnectionDataSource**: As we already discussed it returns single
+    connection.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* **DriverManagerDataSource**: It returns a new connection object on a request.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The DriverMangerDataSource configuration can be done as follows:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: SingleConnectionDataSource is suiltable for small single threaded applications.
+    DriverManagerDataSource supports multithreaded application but hampers the performance
+    due to managing number of connections. It's recommended to use pooled data source
+    for better performance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let's develop a sample demo using loosely coupled modules so that we will understand
+    the practical aspects of Spring framework application development.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The DataSource facilitates handling of connection with database so it needs
+    to be injected in the module. The choice of using setter DI or constructor DI
+    can be totally decided by you as you are well aware of both of these dependency
+    injections. We will use setter DI. Instead of starting from the class we will
+    start by considering interface as it's the best way to do programming by contract.
+    The interfaces can have multiple implementations. So the use of interface and
+    Spring configuration helps to achieve loosely coupled modules. We will declare
+    the methods for database operations, you are free to choose the signature. But
+    make sure that they will be testable. As loose coupling is major feature of the
+    framework the application will also demonstrate why we keep on saying loosely
+    coupled modules can be easily written using Spring? You can use any database but
+    we will use MySQL throughout the book. Whatever the database you choose make sure
+    to install it before moving ahead So let's start by following the steps!
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Case 1: using XML configuration of DriverManagerDataSource'
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: 'Create a Core Java application as Ch03_DataSourceConfiguration and add to it
+    jar for Spring and JDBC as shown in the outline of the application below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_03_001.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Create a Book POJO in com.ch03.packt.beans package as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: Declare an interface BookDAO in com.ch03.packt.dao package. (DAO means Data
+    access Object).
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add to it a method for adding a book to the database. The code will be as shown
+    below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Create an implementation class for BookDAO as BookDAOImpl and add a data member
+    of type DataSource in the class as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Don't forget to use standard bean naming conventions.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: As we are following setter injection write or generate setters for DataSource.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The overridden method will deal with getting the connection from DataSource
+    and using PreaparedStatement insert a book object in the table as we do in JDBC
+    as shown in the code below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: Create connection.xml in classpath to configure the beans.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Now the question will be how many beans to be declared and what has to be their
+    id's?
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'A very simple thumb rule: First find out class to configure and then what are
+    its dependencies?'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Here:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* A bean for BookDAOImpl'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* BookDAOImpl has DataSource as a dependency so a bean for DataSource.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You will be wondering that DataSource is an interface! So, how could we create
+    and inject its object? Yes, this is what our point is! This is what we are talking
+    about loosely coupled modules. The DataSource implementation which we are using
+    here is, DriverManagerDataSource. But, if we inject directly DriverManagerDataSource
+    then the class will be tightly coupled on it. Also, if tomorrow instead of using
+    DriverManagerDataSource the team decides to use some other implementation then
+    the code has to be changed which leads to recompilation and redeployment. That
+    mean the better solution will be using interface and injecting its implementation
+    from the configuration.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The id''s can be of developers choice, but don''t neglect to take the advantage
+    of auto wiring and then accordingly set the id. Here we will use auto wiring ''byName''
+    so choose the id''s accordingly. (If you are confused or want to dig about auto
+    wiring you can refer the previous chapter.) So the final configuration in XML
+    will be as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: You use may need to customize the URL, username, password to match your connection
+    parameters.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Normally, the DAO layer will be invoked by the Service layer but here we are
+    not dealing with it as the application proceed we will add it. As we yet not discussed
+    about testing we will write a code with main function to find out the output of
+    it. The main function will get BookDAO bean and invoke on it a method to insert
+    the Book. If the value of the row returned by the implementation code is greater
+    than zero the book got successfully added otherwise not. Create a class MainBookDAO
+    and add the following code to it:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: If you keenly observed though we configure object of BookDAOImpl we are accepting
+    it in BookDAO interface which helps in writing flexible code where the main code
+    is unaware of in actual whose object is giving implementation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Open your MYSQL console, use credentials to login. Fire query to create BookDB
+    schema and Book table as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_03_002.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: All set to execute the code to get "book inserted successfully" on console.
+    You can fire "select * from book" in MySQL to get the book details as well.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Case2: Using Annotations for DriverManagerDataSource'
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: 'We will use the same Java application Ch03_DataSourceConfiguration developed
+    in Case1:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Declare a class BookDAO_Annotation implementing BookDAO in com.packt.ch03.dao
+    package and annotate it with @Repository as it deals with database and specify
+    id as 'bookDAO_new'.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Declare a data member of type DataSource and annotate it with @Autowired to
+    support auto wiring.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Don't forget to use standard bean naming conventions.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'The overridden method will deal database to insert book in table. The code
+    will be as shown below:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We can edit the same connection.xml from Case1 but that may complex the configuration.
+    So, let''s create connection_new.xml in classpath to configure the instructions
+    for container to consider annotation and search for stereotype annotations as
+    follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: To find out addition of context namespace and using annotation you can refer
+    to second chapter.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'It''s now time to find the output with the help of following code:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: Execute the code to add the book in database.
+  prefs: []
+  type: TYPE_NORMAL
+- en: You may have observed that, we never come to know who is providing the implementation
+    of the JDBC code and the injection is loosely coupled due to configuration. Though,
+    we will able to insert the data in database we will be still involved in the JDBC
+    code like getting Connection, creating Statements from it and then setting the
+    values for the columns of table where we want to insert the records. This is very
+    preliminary demo which is rarely used in JavaEE applications. The better solution
+    is to use template classes provided by Spring.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using Template classes to perform JDBC operations
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Template classes provides an abstract way to define operations by giving rid
+    from common issues as opening and maintaining the connection, the boiler plate
+    code as getting the Statement objects. Spring provides many such template classes
+    where dealing with the JDBC, JMS and Transaction management becomes easy than
+    ever before. JdbcTemplate is one of such core component by Spring who helps in
+    handling JDBC. To handle JDBC we can use any one of the following three templates.
+  prefs: []
+  type: TYPE_NORMAL
+- en: JDBCTemplate
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The JdbcTemplate helps the developers to concentrate on the core business logic
+    of the application without getting involved in how to open or mange the Connection.
+    They don't have to be worried about what if they forget to release connection?
+    All these things will be elegantly done by the JdbcTemplate for you. It provides
+    specifying indexed parameters to use in SQL queries for JDBC operations as we
+    normally do in PreparedStatements.
+  prefs: []
+  type: TYPE_NORMAL
+- en: SimpleJdbcTemplate
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: This is very similar to JDBCTemplate along with an advantage of Java5 features
+    as generics, var-args, autoboxing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: NamedParameterJdbcTemplate
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The JdbcTemplate uses index to specify the values of the parameters in SQL which
+    may become complicate to remember the parameters with their indexes. If you are
+    uncomfortable with numbers or more number of parameters to set we can use the
+    NamedParamterJdbcTemplate who facilitates use of named-parameters to specify parameters
+    in the SQL. Each parameter will have a named prefixed with a colon(:). We will
+    see the syntax shortly while developing the code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let's demonstrate these templates one by one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using JdbcTemplate
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: We will use the similar outline of the project used in Ch03_DataSourceConfiguration
+    and redevelop it with the help of following steps,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a new Java application named Ch03_JdbcTemplate and add jar which we used
+    in Ch03_DataSourceIntegration. Along with it add spring-tx-5.0.0.M1.jar as well.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create or copy Book in com.packt.ch03.beans package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create or copy BookDAO in com.packt.ch03.dao package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create BookDAOImpl_JdbcTemplate in com.packt.ch03.dao package and add to it
+    JdbcTemplate as data member.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Annotate the class with @Repository and data member JdbcTemplate with @Autowired
+    annotation respectively.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The overridden methods will deal with insertion of Book in table. But we don''t
+    have to get the connection. Also we will not do creation and setting the parameters
+    of the PreparedStatement. The JdbcTemplate will do it for us. Things will be pretty
+    clear from the code shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: The JdbcTemplate has update() method where the developers need to pass the SQL
+    query followed by the values of the parameters in the query. So, we can use it
+    for insertion, updation as well as deletion of data. Rest all will be done by
+    the template. If you keenly observe, we are not handling any exceptions. We forgot
+    to? No, we don't care to handle them as Spring provides the DataAccessException
+    which is unchecked exception. So leave the worries. In the upcoming pages we will
+    discuss about the exceptions Spring provides.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Let''s add method in the code for updating book''s price as well as deleting
+    the book. Don''t forget to change the interface implementation first. The code
+    is as shown below:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Let''s add beans configuration file as connection_new.xml. You can simply copy
+    it from Ch03_DataSourceIntegration project. We are using JdbcTemplate who has
+    DataSource as its dependency. So, we need to configure two beans one for DataSource
+    and another for JdbcTemplate as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Write the code to get ''bookDAO_jdbcTemplate'' bean and execute the operations
+    in MainBookDAO_operations as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: Using NamedParameterJdbc Template
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: We will use Ch03_JdbcTemplates to add new class for this demonstration with
+    the help of following steps.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Add BookDAO_NamedParameter class in com.packt.ch03.dao package which is implementing
+    BookDAO and annotate it with @Repository as we did earlier.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Add to it NamedParameterJdbcTemplate as a data member and annotate it with @Autowired.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Implement the overridden methods to perform JDBC operations with the help of
+    update(). The NamedParameterJdbcTemplate supports giving names to the parameters
+    in SQL query. Find the below query to add Book:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Each parameter has to be prefixed with colon as :name_of_parameter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'If these are the names of the parameters then these have to be registered so
+    that the framework will place them in the query. To do this we have to create
+    a Map where these parameter names acts as keys whose values will be specified
+    by the developer. The following code will give a clear idea:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add a bean in connection_new.xml for NamedParameterJdbcTemplate as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: In all other demos we have used setter injection but here we cannot use setter
+    injection, as the class doesn't have default constructor. So, use constructor
+    dependency injection only.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Use the MainBookDAO_operations.java developed to test how JdbcTemplate work.
+    You just have to update the statement which will get **BookDAO_named** bean to
+    execute operations. The changed code will be:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can find the complete code in MainBookDAO_NamedTemplate.java
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Execute the code to get success message.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: In small Java application the code will have less number of DAO classes. So,
+    to the developers handling DAOs with Template classes in each of them to handle
+    JDBC will not be complex. This also leads to duplication of the code. But the
+    complexity becomes difficult to handle when we deal with enterprise applications
+    with more number of classes. The alternative will be instead of injecting the
+    template class in each of the DAO, choose a parent who has the ability as that
+    of Template classes. Spring has JdbcDaoSupport, NamedParameterJdbcSupport as such
+    supportive DAOs. These abstract support class provide a common base leaving out
+    repetition of the code, wiring of properties in each DAO.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s take the same project ahead to use supportive DAOs. We will use JdbcDaoSupport
+    class to understand the practical aspects:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Add BookDAO_JdbcTemplateSupport.java in com.packt.ch03.dao which extends JdbcDaoSupport
+    and implementing BookDAO.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Override the methods from interface which will deal with database. The BookDAO_JdbcTemplateSupport
+    class inherits JdbcTemplate from JdbcDaoSupport. So the code remains same as we
+    did in using JdbcTemplate with a little change. The JdbcTemplate has to be accessed
+    through getter method as shown by underlining in the code below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: To use DAO classes the dependencies will be injected through constructor.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We already had discussed couple of pages back about handling the exceptions
+    in short. Let''s find out more in detail about it. The JDBC code forces handling
+    of exception through checked exceptions. But, they are generalized and handled
+    only through DataTrucationException, SQLException, BatchUpdateException, SQLWarning.
+    Opposite to JDBC Spring support various unchecked exceptions for different scenarios
+    providing specialized information. The following table shows few of them which
+    we may need frequently:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| **Spring Exceptions** | **When they get thrown?** |'
+  prefs: []
+  type: TYPE_TB
+- en: '| DataAccessException | This is the root of the Spring Exception hierarchy
+    we can use it for all situations. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| PermissionDeniedDataAccessEception | When trying to access the data without
+    correct authorization to access the data |'
+  prefs: []
+  type: TYPE_TB
+- en: '| EmptyResultDataAccessException | On no row returned from the database but
+    at least one is expected. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| IncorrectResultSizeDataAccessException | When the result size is mismatching
+    with the expected result size. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| TypeMismatchDataAccessException | On mismatch of the data type between Java
+    and database. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| CannotAccqireLockException | On failure to acquire the lock while an update
+    of the data |'
+  prefs: []
+  type: TYPE_TB
+- en: '| DataRetrivalFailureException | When searching and retrieving of the data
+    using Id using ORM tool |'
+  prefs: []
+  type: TYPE_TB
+- en: While handling the database operations using Spring DataSource, Template classes,
+    DAOSupport classes we still are involved in JDBC operations using SQL queries
+    without Object centric operations. The easy way to handle database operations
+    is by keeping Object at the center using Object Relational Mapping.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Object Relation Mapping
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The JDBC APIs gives a means for performing relational database operations to
+    achieve persistency. The Java developers are rigorously involved in writing SQL
+    queries to do such database operations. But Java is Object Oriented Programming
+    Language (OOPs) and database uses **Sequential Query Language** (**SQL**). OOPs
+    has object at its centre which SQL has database. OOPs doesn't have Primary Key
+    concept, as it has identity. OOPS uses inheritance but SQL does not have. These
+    and many more mismatches makes JDBC operations difficult to perform without sound
+    hands on knowledge of database and its structure. A good solution has been provided
+    by the ORM tools. ORM deals with database operations keeping object at centre
+    developers without asking developers to deal with SQL. The iBATIS, JPA, Hibernate
+    are some of the ORM frameworks in the market.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Hibernate
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Hibernate is one of the famous middleware tool among the developers for ORM
+    solutions. It provides a solution to problems of granularity, inheritance, identity,
+    relational association and navigation in easy way. The developers doesn't have
+    to hard code the SQL queries as Hibernate provides rich API to deal with CRUD
+    database operations making it more maintainable and easy. The SQL queries are
+    database dependant but in Hibernate there is no need to write SQL as it provides
+    vendor independence. It also supports Hibernate Query Language (HQL) and native
+    SQL support to perform customised database operations by writing queries. Using
+    Hibernate developers can reduce in development time leading to increase in productivity.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Hibernate Architecture
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'The following figure shows the architecture of the hibernate and the interfaces
+    in it:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_03_003.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The Hibernate has Session, SessionFactory, Configuration, Transaction, Query,
+    Criteria interfaces at its core helping in providing the ORM support to the developers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Configuration interface
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: The instance of Configuration is used to specify the database properties like
+    URL, username and password, the location of mapping files or class containing
+    information about mapping of data members to the tables and their columns. This
+    Configuration instance is then used to obtain instance of the SessionFactory.
+  prefs: []
+  type: TYPE_NORMAL
+- en: SessionFactory interface
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: SessionFactory is heavy weight and every application typically has single instance
+    per application. But sometimes an application uses more than one database which
+    leads to one instance per database. SessionFactory is used to obtain the instance
+    of Session. It is very important as it caches the generated SQL statements and
+    the data generated which Hibernate uses at runtime in one unit of work as First
+    level cache.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Session interface
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: The Session interface is the basic interface which each Hibernate the application
+    uses to perform database operations obtained from SessionFactory. Session is light
+    weight, inexpensive component. As Sessionfactory is per application, the developer
+    creates Session instance per request.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Transaction interface
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: Transaction helps the developers to bind number of operations as a unit of work.
+    JTA, JDBC provides the implementation of the Transaction implementation. Unless
+    the developers don't commit the transaction, the data won't reflect in database.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Query interface
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: Query interface provides a facility to write queries using Hibernate Query Language(HQL)
+    or native SQL to perform database operations. It also allows developers to bind
+    values to the SQL parameters, specify how many number of results are returned
+    from the query.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Criteria interface
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: The Criteria interface is similar to Query interface allows the developers to
+    write criteria query object to get result based on some restrictions or criteria.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In Spring framework developers has the choice of using SessionFactory instance
+    or HibernateTemplate to do Hibernate integrations. The SessionFactory is obtained
+    from the configuration of database connectivity parameters and location of the
+    mapping which then using DI can be used in Spring application. The `SessionFactory`
+    can be configured as shown below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: '**dataSource** - provides information about the database properties.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**mappingResource**- specifies the name of files which provides information
+    about mapping of the data members to the table and it''s columns.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**hibernateProperties**- provides information about hibernate properties'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '* **dialect** - it is used by the framework to genertae SQL queries as per
+    the under laying database.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* **show_sql** - it displays the SQL query fired by framework on console.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* **hbm2ddl.auto**- it provides the info whether to create, update the table
+    with which operations to perform.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'While using SessionFactory the developers are not writing code which uses Spring
+    APIs. But we already had discussed about Template classes few pages back. HibenateTemplate
+    is one of such template which helps developers to write decoupled applications.
+    The HibernateTemplate configuration is as:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE22]'
+  prefs: []
+  type: TYPE_PRE
+- en: Let's integrate SessionFactory in our Book project one by one with the help
+    of following steps.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Case1: Using SessionFactory'
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: 'Create Java application named Ch03_Spring_Hibernate_Integration and add to
+    it jars for Spring, JDBC and hibernate as shown in the outline below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_03_004.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: You can download the zip containing jar for hibernate framework from official
+    website of Hibernate.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Copy or create Book.java in com.packt.ch03.beans package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Create book.hbm.xml in classpath to map the Book class to the book_hib table
+    as shown in the configuration below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE23]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Where the configuration of tags are as:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '* **id**- defines mapping for primary key from table to book class'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* **property**- provides mapping of data members to the columns in the table'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Add BookDAO interface as we did in Ch03_JdbcTemplate application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Implement BookDAO by BookDAO_SessionFactory and override the methods. Annotate
+    the class with @Repository. Add a data member of type SessionFactory annotated
+    with @Autowired. The code is as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE24]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add connection_new.xml to configure SessionFactory and other details as shown
+    below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE25]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Create or copy MainBookDAO_operations.java to get the bean ''bookDAO_sessionFactory''
+    to test the application. The code will be:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE26]'
+  prefs: []
+  type: TYPE_PRE
+- en: We already had seen how to configure the HibernateTemplate in the XML. It extensively
+    works with Transaction but we yet have not discussed anything about what is transaction,
+    it's configuration and how to manage it? We will discuss it after few chapters.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The real time applications handles huge amount of data in each step. Let's say
+    we want to find a book. Using hibernate we will simply invoke a method which returns
+    the book depending upon the ISBN of it. In day today use the book will be searched
+    countless times and each time the database will be hit leading to performance
+    issues. Instead of that it will be great to have a mechanism which will use the
+    outcome of the previous query next time if someone asks for it again. The Spring
+    3.1 introduced effective yet simplest way 'a cache' mechanism to achieve it and
+    added JSR-107 annotation support in 4.1\. The cached result will be stored in
+    the cache repository and will be used next time to unnecessary hits to the database.
+    You might be thinking of buffer, but it's different from cache. The buffer is
+    an intermediate temporary storage to write and read data once. But cache is hidden
+    to improve the performance of an application and from where the data is read multiple
+    times.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The cache repository is the location where the objects fetched from the database
+    will be saved in key-value pair. Spring supports following the repositories,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**JDK based ConcurrentMap cache:**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In JDK ConcurrentMap is used as backing Cache store. Spring framework has SimpleCacheManager
+    to get CacheManager and giving it a name. This cache is best for relatively small
+    data which doesn't change frequently. But it cannot be used outside of Java heap
+    to store data also there is no built in way to share the data between multiple
+    JVMs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**EhCache based cache:**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: EhcacheChacheManager is used to get a cache manager where the Ehcache configuration
+    specifications to be configured in the configuration file generally named ehcache.xml.
+    The developers can use different cache manager for different databases with different
+    configurations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Caffeine cache:**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Caffeine is Java8 based caching library to provide high performance. It helps
+    in overcoming the important drawback of ConcurrentHashMap that it persist the
+    data until explicitly removed. Along with it also provides automatic loading of
+    the data, expiration of data based on time, provides notification of the evicted
+    data entries.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring provides both XML based as well as annotation based cache configuration.
+    The easiest way is to use annotation based configuration. From Spring 3.1 onward
+    versions have enables JSR-107 support. To take advantage of the cache using JSR-107
+    the developers need to first do cache declaration which will help in identifying
+    the methods to be cached and second configuring the cache to inform where the
+    data is stored.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The cache declaration
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'The cache declaration can be done using Annotation as well as XML based. Following
+    are the annotations which developers can use for the declaration:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '@Cacheable:'
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: The annotation is used to declare that result of these methods is going to be
+    stored in the cache. It takes the name of the cache associated with it. Each time
+    when the developers invoked the methods first off all cache is checked to find
+    out whether the invocation is already done or not.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '@Caching:'
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: The annotation is used when more than one annotations as @CacheEvict, @CachePut
+    need to be nested on the same method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '@CacheConfig:'
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: The annotation @CacheConfig is used to annotate the class. In the class whose
+    methods annotated using cache based annotations to specify the cache name each
+    time. If the class has multiple methods annotating it with @CacheConfig allows
+    us to specify cache name only once.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '@CacheEvict:'
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: It is used to remove the unused data from the cache region.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '@CachePut'
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: The annotation is used to update the cache result each time the method annotated
+    with it is invoked. The annotation behaves exactly opposite to that of @Cacheable
+    as it forcefully invokes the method to update the cache and @Cacheable skip the
+    execution.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The cache configuration:'
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'To enable the use of annotation based configuration first off all the Spring
+    has to be registered using cache namespace. The following configuration can be
+    used to declare the namespace for cache and to register the annotation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE27]'
+  prefs: []
+  type: TYPE_PRE
+- en: Once the registration is done now it's time to provide the configuration to
+    specify what is the name of the repository and using which cache manager repository
+    the results will be cached. We will define the configuration very soon in the
+    sample demo for the `SimpleCacheManager`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let's integrate JDK based ConcurrentMap repository in our Book application.
+    We will use Ch03_Spring_Hibernate_Integration as base project for the demonstration.
+    Follow the steps for the integration,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a new Java application named Ch03_CacheManager and add to it jars for
+    Spring, JDBC and hibernate. You can refer to the Ch03_Spring_Hibernate_Integration
+    application as well.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create or copy Book.java in com.packt.ch03.beans package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Create or copy BookDAO interface in com.packt.ch03.dao package and add to it
+    a method to search the book from database using ISBN. The signature of the method
+    is as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE28]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Implement the methods in BookDAO_SessionFactory_Cache as we already did in
+    the BookDAO_SessionFactory.java from Hibernate application. The method to get
+    the book from database will be as:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE29]'
+  prefs: []
+  type: TYPE_PRE
+- en: The method is going to use 'repo' repository for caching the result.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Copy book.hbm.xml in classpath.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add the MainBookDAO_Cache.java with main function to get the data from the
+    database but purposely we will fetch the data twice as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE30]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Before execution make sure the ISBN we are searching is already present in
+    the database. We will get the following output:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE31]'
+  prefs: []
+  type: TYPE_PRE
+- en: The above output clearly shows the query to search for book is executed twice,
+    denoting the database has been hit twice.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let's now configure the Cache manager to cache the result of the search book
+    as follow,
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Annotate the method whose result to be cached by @Cacheable as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE32]'
+  prefs: []
+  type: TYPE_PRE
+- en: Configure the cache namespace in the connection_new.xml as we already discussed.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Register the annotation based cache in the XML as shown below:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE33]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add the CacheManger for setting the repository as ''repo'' as shown in the
+    following configuration:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE34]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Execute the MainBookDAO_Cache.java without change to get the following output:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE35]'
+  prefs: []
+  type: TYPE_PRE
+- en: The console output shows the query has been fired only once even we searched
+    the book twice. The result of the book fetched first time by `getBook()` is cached
+    and used next time whenever someone ask for the book without heating the database.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Summary
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In this chapter we discussed in depth about the persistency layer. The discussion
+    gave us orientation about how to integrate JDBC in application using Spring via
+    DataSource. But using JDBC still exposes the developers to JDBC APIs and its operations
+    like getting Statement, PreparedStatement and ResultSet. But the JdbcTemplate
+    and JdbcDaoSupport provides a means to perform database operations without getting
+    involved in JDBC APIs. We also have seen the exception hierarchy given by Spring
+    which can be used according to the situation in the application. We also discuss
+    about Hibernate as ORM tool and its integration in the framework. Cache helps
+    in minimum hits to the database and enhancing the performance. We discuss about
+    cache mangers and how to integrate the CacheManger in the application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the next chapter we will discuss about Aspect Oriented Programming which
+    helps in handling cross cutting technologies.
+  prefs: []
+  type: TYPE_NORMAL

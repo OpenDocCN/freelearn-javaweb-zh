@@ -1,0 +1,964 @@
+- en: Chapter 1. Spring at Glance
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '*Spring the fresh new start after the winter of traditional J2EE*, is what
+    Spring framework is in actual. A complete solution to the most of the problems
+    occurred in handling the development of numerous complex modules collaborating
+    with each other in a Java enterprise application. Spring is not a replacement
+    to the traditional Java Development but it is a reliable solution to the companies
+    to withstand in today''s competitive and faster growing market without forcing
+    the developers to be tightly coupled on Spring APIs.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In this topic, we will be going through the following points:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Introduction to Spring framework
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Problems address by Spring in enterprise application development
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Spring road map
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: What's new in Spring 5.0
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Introduction to Spring framework
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rod Johnson is an Australian computer specialist and co-founder of SpringSource.
+    "Expert One on One J2EE Design and Development" was published in November 2002
+    by him. This book contains about 30000 lines of code, which contains the fundamental
+    concepts like **Inversion of Control** (**IoC**), **Dependency Injection** (**DI**)
+    of the framework. This code is referred as interface21\. He wrote this code with
+    just an intension to be used by developers to simplify their work, or they can
+    use this as basis of their own development. He never thought of any framework
+    development or anything like that. There happened to be a long discussion at Wrox
+    Forum about the code, its improvement and lot many things. Juregen Holler and
+    Yann Caroffa,were the two readers of the forum who proposed the thought of making
+    the code a base of a new framework. This is the reasoning of Yann, *Spring the
+    fresh new start after Winter of traditional J2EE* who names the framework as The
+    Spring framework. The project went in public in June 2003 and powered towards
+    1.0\. Then onwards lots of changes and up gradations took place to withstand and
+    support the technologies in market. We aim in this book about the latest version
+    5.0\. In couple of pages we will cover what are the new features added in this
+    version. In subsequent pages we will cover how to use the latest features in your
+    application and how as a developer you can take advantages of.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Problems addressed by Spring
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Java Platform is long term, complex, scalable, aggressive, and rapidly developing
+    platform. The application development takes place on a particular version. The
+    applications need to keep on upgrading to the latest version in order to maintain
+    recent standards and cope up with them. These applications have numerous classes
+    which interact with each other, reuse the APIs to take their fullest advantage
+    so as to make the application is running smoothly. But this leads to some very
+    common problems of as.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Scalability
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The growth and development of each of the technologies in market is pretty fast
+    both in hardware as well as software. The application developed, couple of years
+    back may get outdated because of this growth in these areas. The market is so
+    demanding that the developers need to keep on changing the application on frequent
+    basis. That means whatever application we develop today should be capable of handling
+    the upcoming demands and growth without affecting the working application. The
+    scalability of an application is handling or supporting the handling of the increased
+    load of the work to adapt to the growing environment instead of replacing them.
+    The application when supports handling of increased traffic of website due to
+    increase in numbers of users is a very simple example to call the application
+    is scalable. As the code is tightly coupled, making it scalable becomes a problem.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Plumbing code
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Let's take an example of configuring the DataSource in the Tomcat environment.
+    Now the developers want to use this configured DataSource in the application.
+    What will we do? Yes, we will do the JNDI lookup to get the DataSource. In order
+    to handle JDBC we will acquire and then release the resources in `try catch`.
+    The code like `try catch` as we discuss here, inter computer communication, collections
+    too necessary but are not application specific are the plumbing codes. The plumbing
+    code increases the length of the code and makes debugging complex.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Boiler plate code
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: How do we get the Connection while doing JDBC? We need to register Driver class
+    and invoke the `getConnection()` method on DriverManager to obtain the connection
+    object. Is there any alternative to these steps? Actually NO! Whenever, wherever
+    we have to do JDBC these same steps have to repeat every time. This kind of repetitive
+    code, block of code which developer write at many places with little or no modification
+    to achieve some task is called as Boilerplate code. The boiler plate code makes
+    the Java development unnecessarily lengthier and complex.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Unavoidable non-functional code
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Whenever application development happens, the developer concentrate on the business
+    logic, look and feel and persistency to be achieved. But along with these things
+    the developers also give a rigorous thought on how to manage the transactions,
+    how to handle increasing load on site, how to make the application secure and
+    many more. If we give a close look, these things are not core concerns of the
+    application but still these are unavoidable. Such kind of code which is not handling
+    the business logic (functional) requirement but important for maintenance, trouble
+    shooting, managing security of an application is called as non-functional code.
+    In most of the Java application along with core concerns the developers have to
+    write down non-functional code quite frequently. This leads to provide biased
+    concentration on business logic development.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Unit testing of the application
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Let's take an example. We want to test a code which is saving the data to the
+    table in database. Here testing the database is not our motive, we just want to
+    be sure whether the code which we have written is working fine or not. Enterprise
+    Java application consists of many classes, which are interdependent. As there
+    is dependency exists in the objects it becomes difficult to carry out the testing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring, mainly addresses these problematic areas and provide a very powerful
+    yet easy solution with,
+  prefs: []
+  type: TYPE_NORMAL
+- en: POJO based development
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The class is a very basic structure of application development. If the class
+    is getting extended or implementing an interface of the framework, reusing it
+    becomes difficult as they are tightly coupled with API. The **Plain Old Java Object**
+    (**POJO**) is very famous and regularly used terminology in Java application development.
+    Unlike Struts and EJB Spring doesn't force developers to write the code which
+    is importing or extending Spring APIs. The best thing about Spring is that developers
+    can write the code which generally doesn't has any dependencies on framework and
+    for this, POJOs are the favorite choice. POJOs support loosely coupled modules
+    which are reusable and easy to test.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The Spring framework is called to be non-invasive as it doesn't force the developer
+    to use API classes or interfaces and allows to develop loosely coupled application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Loose coupling through DI
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Coupling, is the degree of knowledge in class has about the other. When a class
+    is less dependent on the design of any other class, the class will be called as
+    loosely coupled. Loose coupling can be best achieved by **interface programming**.
+    In the Spring framework, we can keep the dependencies of the class separated from
+    the code in a separate configuration file. Using interfaces and dependency injection
+    techniques provided by Spring, developers can write loosely coupled code (Don't
+    worry, very soon we will discuss about Dependency Injection and how to achieve
+    it). With the help of loose coupling one can write a code which needs a frequent
+    change, due to the change in the dependency it has. It makes the application more
+    flexible and maintainable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Declarative programming
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In declarative programming, the code states what is it going to perform but
+    not how it will be performed. This is totally opposite of imperative programming
+    where we need to state stepwise what we will execute. The declarative programming
+    can be achieved using XML and annotations. Spring framework keeps all configurations
+    in XML from where it can be used by the framework to maintain the lifecycle of
+    a bean. As the development happened in Spring framework, the 2.0 onward version
+    gave an alternative to XML configuration with a wide range of annotations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Boilerplate code reduction using aspects and templates
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: We just have discussed couple of pages back that repetitive code is boilerplate
+    code. The boiler plate code is essential and without which providing transactions,
+    security, logging etc will become difficult. The framework gives solution of writing
+    Aspect which will deal with such cross cutting concerns and no need to write them
+    along with business logic code. The use of Aspect helps in reduction of boilerplate
+    code but the developers still can achieve the same end effect. One more thing
+    the framework provides, is the templates for different requirements. The JDBCTemplate,
+    HibernateTemplate are one more useful concept given by Spring which does reduction
+    of boilerplate code. But as a matter of fact, you need to wait to understand and
+    discover the actual potential.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Layered architecture
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Unlike Struts and Hibernate which provides web persistency solutions respectively,
+    Spring has a wide range of modules for numerous enterprise development problems.
+    This layered architecture helps the developer to choose any one or more of the
+    modules to write solution for his application in a coherent way. E.g. one can
+    choose Web MVC module to handle web request efficiently without even knowing that
+    there are many other modules available in the framework.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring Architecture
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Spring provides more than 20 different modules which can be broadly summaries
+    under 7 main modules which are as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_01_001.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Spring modules
+  prefs: []
+  type: TYPE_NORMAL
+- en: Core modules
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Core
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Spring Core module supports ways of creating Spring beans and injecting the
+    dependencies in beans. It provide means to configure the beans and how to obtain
+    the configured beans from the Spring container using `BeanFactory` and `ApplicationCotext`
+    for developing standalone application
+  prefs: []
+  type: TYPE_NORMAL
+- en: Beans
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The Beans module provides `BeanFactory` which provides alternative for programmatic
+    singletons. The `BeanFactory` is an implementation of factory design pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Context
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: This module supports Java enterprise features such as EJB, JMX and basic remoting.
+    It supports for integration of third party libraries for caching, Java Mailing
+    and templating engines like Velocity.
+  prefs: []
+  type: TYPE_NORMAL
+- en: SpEL
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Spring Expression Language (SpEL) is an extension of unified Expression Language
+    which has be specified in JSP 2.1 specifications. SpEL module supports setting
+    and getting of property values, configuring collections using logical as well
+    as arithmetic operators, named variables from Spring IoC.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Data access and integration modules
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: JDBC(DAO)
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: This module provides abstraction layer on JDBC. It supports reduction of boiler
+    plate code which occurs in getting connection object via loading of driver, getting
+    statement object and many more. It also supports templates as JdbcTemplate, HibernateTemplate
+    to simplify the development.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ORM
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The Object Relational Mapping (ORM) module supports integration of very popular
+    frameworks like Hibernate, iBATIS, Java Persistence API(JPA), Java Data Object(JDO).
+  prefs: []
+  type: TYPE_NORMAL
+- en: OXM
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The Object XML Mapper (OXM) module supports object to XML mapping and integration
+    for JAXB, castor, XStream etc.
+  prefs: []
+  type: TYPE_NORMAL
+- en: JMS
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: This module provides support and provides Spring abstract layer over Java Message
+    Service(JMS)for asynchronous integration with other applications via messaging.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Transaction
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: JDBC and ORM modules handle exchange of data to-and-fro between Java application
+    and database. This module supports transaction management support while working
+    with ORM and JDBC modules.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Web MVC and remoting modules
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Web
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: This module supports integration of web application created in other frameworks.
+    Using this module the developers can also develop web application using Servlet
+    listener. It supports multipart file uploading and handling of request and response.
+    It also provides web related remoting support.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Servlet
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: This module contains Spring Model View Controller(MVC) implementation for web
+    applications. Using Spring MVC developers can write handling of request and response
+    to develop full-fledged web application. It helps in getting rid from the boiler
+    plate code while handling request and response by supporting handling form submission.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Portlet
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The Portlet module provides MVC implementation to be used in Portlet environment
+    which support Java's portlet API.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The Portlet has been removed in Spring 5.0M1\. If you want to use Portlet you
+    need to use with 4.3 module.
+  prefs: []
+  type: TYPE_NORMAL
+- en: WebSocket
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: WebSocket is a protocol which provides two way communications between client
+    and server which has been included in Spring 4\. This module provides support
+    for integration of Java WebSocket API in the application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: '**`Struts module`** This module contains supports for integrating Struts framework
+    within Spring application. But this has been deprecated in Spring 3.0'
+  prefs: []
+  type: TYPE_NORMAL
+- en: AOP modules
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: AOP
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The Aspect Oriented Programming module helps in handling and managing the cross
+    cutting concern services in the application and helps in keeping the code cleaner.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Aspects
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: This module provides integration support with AspectJ.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Instrumentation modules
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Instrumentation
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Java Instrumentation gives an innovative way to access a class from JVM with
+    the help of class loader and modify its byte code by inserting the custom code.
+    This module supports instrumentation and class loader implementations for some
+    application servers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Instrument Tomcat
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Instrument Tomcat module contains Spring instrumentation support for Tomcat.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Messaging
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The messaging module provides support for STOMP as websocket protocol. It also
+    has annotations for routing and processing STOMP messages received from the clients.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring messaging module has been included in Spring 4.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Test module
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The Test module support unit as well as integration testing with JUnit and TestNG.
+    It also provides support for creating mock objects to simplify testing in isolated
+    environment.
+  prefs: []
+  type: TYPE_NORMAL
+- en: What more Spring supports underneath?
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Security module
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Now a days the applications alone with basic functionalities also need to provide
+    sound ways to handle security at different levels. Spring5 support declarative
+    security mechanism using Spring AOP.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Batch module
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The Java Enterprise Applications needs to perform bulk processing, handling
+    of large amount of data in many business solutions without user interactions.
+    To handle such things in batches is the best solution available. Spring provides
+    integration of batch processing to develop robust application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring integration
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In the development of enterprise application, the application may need interaction
+    with them. Spring integration is extension of the core spring framework to provide
+    integration of other enterprise applications with the help of declarative adapters.
+    The messaging is one of such integration which is extensively supported by Spring.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Mobile module
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The extensive use of mobiles opens the new doors in development. This module
+    is an extension of Spring MVC which helps in developing mobile web applications
+    known as Spring Android Project. It also provide detection of the type of device
+    which is making the request and accordingly renders the views.
+  prefs: []
+  type: TYPE_NORMAL
+- en: LDAP module
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The basic aim of Spring was to simplify the development and to reduce the boilerplate
+    code. The Spring LDAP module supports easy LDAP integration using template based
+    development.
+  prefs: []
+  type: TYPE_NORMAL
+- en: .NEW module
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The new module has been introduced to support .NET platform. The modules like
+    ADO.NET, NHibernate, ASP.NET has been in the .NET module includes to simplify
+    the .NET development taking the advantages of features as DI, AOP, loose coupling.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring road map
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1.0 March2004
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: It supports for JDO1.0 and iBATIS 1.3 with integrated with Spring transaction
+    management. This version was supporting the functionalities as, Spring Core, Spring
+    Context, Spring AOP, Spring DAO, Spring ORM and Spring web.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2.0 October 2006
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Spring framework enhanced support for Java5\. It added out of box namespaces
+    like jee, tx, aop, lang, util to simplify the configuration. The IoC was supporting
+    scopes as singleton and prototype. In addition to these scopes, scopes for HttpSession,
+    Cluster cache and request has been also introduced. The annotation bases configuration
+    as @Transactional, @Required, @PersistenceContext introduced.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2.5 November 2007
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In this version Spring supports full Java6 and JavaEE5 features as JDBC4, JavMail1.4,
+    JTA1.1, JAX WS 2.0\. It also extends the support for annotation based DI including
+    support for qualifier as well. A new bean named pointcut element in AspectJ pointcut
+    expressions has been introduced. The build in support for AspectJ for load time
+    weaving which is based on LoadTimeWeaver abstraction has been provided. For the
+    convenience an introduction of custom namespaces like context, jms has been included.
+    The testing support extended for Junit4 and TestNG. The annotation based SpringMVC
+    controllers has been added. It also supports for auto detection of components
+    on the classpath such as @Repository,@Service, @Controller and @Conponent. Now
+    SimpleJdbcTemplate supports named SQL parameters. The certified WebSphere support
+    has been included. It also include support for JSR-250 annotations like @Resource,PostConstruct,
+    @PreDestroy
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.0 GA December 2009
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The entire code has been revised to support Java5 feature like generics, varargs.
+    The Spring Expression Language(SpEL) has been introduced. It also supports for
+    annotation for REST web application. It extends support for many Java EE6 features
+    like JPA 2.0, JSF 2.0\. The version 3.0.5 support hibernate 3.6 final as well.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.1GA December 2011
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In this version Testing support has been upgraded for Junit 4.9\. It also supports
+    load time weaving on the WebSphere version 7 and 8.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.0 December 2013
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: For very first time the full support for java 8 features has been included.
+    This version uses JavaEE 6 as its baseline. Using Spring 4, now it is possible
+    to define external bean configuration using Groovy DSL. Developers now can treat
+    generic types as a form of qualifier. @Lazy annotation can be used on injection
+    points as well as on @Bean definitions. The @Description has been introduced for
+    developers using Java Based configuration. The @Conditional annotation has been
+    introduced for conditional filtering. Now, there is no requirement to have default
+    constructor to be used byCGLIB based proxy classes. The @RestController has been
+    introduced to remove need of @ResponseBody to each of @RequestMapping, The AsynchRestTemplate
+    has been included which allows non blocking asynchronous support for REST client
+    development. The spring-websocket introduced as new model to provide support for
+    WebSocket based two way communication between server and client. The spring- messaging
+    module has been introduced for the support of WebSocket sub protocol STOMP. Most
+    of the annotations from spring-test module can now be used as meta annotations
+    to create custom composed annotations. The set of the mocks from org.springframework.mock.web
+    is based on Servlet API 3.0
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.0 M1 Q4 2016
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Spring 5M1 will support Java8+ but basically, it aims to track and support greatly
+    to the new bee Java9\. It also will support reactive programming Spring 5 will
+    focus on HTT2.0\. It also aims to focus on reactive programming through reactive
+    architecture. The mock.staticmock from spring-aspects, web.view.tiles2 has been
+    dropped. No more support for Portlet, Velocity, JasperReports, XMLBeans, JDO,
+    Guava.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'It can be summarized as shown in the following figure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_01_002.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Spring modules
+  prefs: []
+  type: TYPE_NORMAL
+- en: Container-The heart of Spring
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: POJO development is the backbone of Spring framework. The POJO configured in
+    the and whose object instantiation, object assembly, object management is done
+    by Spring IoC container is called as bean or Spring bean. We use Spring IoC as
+    it on the pattern of Inversion of Control.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Inversion of Control (IoC)
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In every Java application, the first important thing which each developer does
+    is, to get an object which he can use in the application. The state of an object
+    can be obtained at runtime or it may be at compile time. But developers creates
+    object where he use boiler plate code at a number of times. When the same developer
+    uses Spring instead of creating object by himself he will be dependent on the
+    framework to obtain object from. The term inversion of control comes as Spring
+    container inverts the responsibility of object creation from developers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Spring IoC container is just a terminology, the Spring framework provides two
+    containers
+  prefs: []
+  type: TYPE_NORMAL
+- en: The BeanFactory
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The ApplicationContext
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The BeanFactory-The history
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The `BeanFactory` container provides the basic functionalities and framework
+    configuration. Now a days, developers won't prefer to use BeanFactory. Now the
+    obvious question comes to your mind then why BeanFactory is still in framerwork?
+    Why has it not been removed? If not BeanFactory, then what's the alternative?
+    Let's answer them one by one. The very simple answer of BeanFactory in framework
+    is to support for backward compatibility of JDK1.4\. The beanFactory provides
+    BeanFactoryAware, InitializingBean, DisposableBean interfaces to support backward
+    compatibility for third party framework which has integration with Spring.
+  prefs: []
+  type: TYPE_NORMAL
+- en: XMLBeanFactory
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Today's enterprise application development demands much more than ordinary development.
+    The Developer will be happy to get a helping hand for managing the object life
+    cycle, injecting the dependencies or reduction in boilerplate code from the IoC
+    container. XMLBeanFactory is a common implementation of BeanFactory.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s find out practically how the BeanFactory container get initialized:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a Java application with the name `Ch01_Container_Initialization`.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Add the jars as shown in the following snapshot:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_01_003.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Jars to be added
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Make sure that you are using JRE to 1.8 as it's a baseline for Spring5.0.0.M1.
+    You can download the jars from...............
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a class `TestBeanFactory` under the package `com.ch01.test` package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create a XML file `beans_classpath.xml` in the classpath where we can write
+    bean definitions later. Each beans definition file contains the referencing schema
+    to beans.xsd of the particular Spring version. The root tag of this XML file will
+    be `<beans>`.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Basic structure of the XML file is as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: Our XML file contains the same code as shown above without any beans configured.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In the main function lets'' write down the code to initialize the bean factory
+    as shown:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Here, the `bean_classpath.xml` will contain the beans definitions (For simplicity,
+    we haven't added any bean definition, we will see it in detail in next chapter).
+    The `ClassPathResource` loads the resource from the classpath.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Sometimes the resource will not be in the classpath and it will be in the filesystem.
+    The following code can be used to load the resource from filesystem:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We need to create `bean_fileSystem.xml` on D drive which will contain the same
+    content as that of `bean_classpath.xml`. The complete code will be as follows:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'There will not be any output on console apart from logging information of spring
+    container as we haven''t written any output code here. But the following snapshot
+    shows the XML file loads and the container got initialized:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_01_004.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The console logger output
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: BeanFactory doesn't support multiple configuration files.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The ApplicationContext: The present'
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The registration of BeanProcessor and BeanFactoryPostProcessor which plays important
+    role in AOP and property place holders, needs the explicit code writing which
+    makes it inconvenient to work with. Developers don't want to write the code which
+    supports internationalization. The event publication to handle AOP integration
+    is unavoidable. The web application needs to have application layer specific context.
+    To all of these the simple solution is to expand the services provided by BeanFactory
+    with ApplicationContext. The ApplicationContext is not replacement of BeanFactory
+    but it's an extension for enterprise specific solutions and more advance mechanism
+    for bean configuration.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let's look at the implementations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ClassPathXmlApplicationContext
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The subclass of AbstractXmlApplicationContext is used for Satndalone applications.
+    It uses bean configured XML file from the class path. It the conditions of having
+    more than one XML configuration files later bean definition from the XML file
+    will override the earlier bean definition. It provides the advantage of writing
+    new bean definition to replace the previous one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s find out practically how the `ClassPathXmlApplicationContext` container
+    gets initialized. We will use the same `Ch01_Container_Initialization` project
+    by following the steps as:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a class `TestClasspathApplicationContext` under the package `com.ch01.test`
+    package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create a new XML file `beans_classpath.xml` in classpath as we had created in
+    previous application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'In the main function let''s write down the code to initialize the bean factory
+    as shown in the following code:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: No need to create XML file as we already had created it for the previous example.
+    `ClassPathXmlApplicationContext` loads the `bean_classpath.xml` file from the
+    classpath which contains the beans definitions (For simplicity we haven't added
+    any bean definition, we will see it in detail in next chapter).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Run the application which will give the following output suggesting the container
+    created successfully:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![](img/image_01_005.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Console output
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In Java enterprise application, the project can have multiple configuration
+    files as it''s easy to maintain and support modularity as well. To load multiple
+    bean configuration files we can use the following code:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: To use the preceding code of lines we need to create `beans_classpath1.xml`
+    in classpath.
+  prefs: []
+  type: TYPE_NORMAL
+- en: FileSystemXmlApplicationContext
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Similar to ClassPathXmlApplicationContext this class also extends AbstractXmlApplicationContext
+    and is used for standalone applications. But this class helps to load the bean
+    XML definition from the file system. The file path it relative to the current
+    working directory. In case of specifying the absolute file path one can use `file:`
+    as prefix. It also provides the advantage of writing new bean definition to replace
+    the previous one in case of having multiple XML configurations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s find out practically how the `ClassPathXmlApplicationContext` container
+    gets initialized. We will use the same `Ch01_Container_Initialization` project
+    by following the steps as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a class `TestFileSystemApplicationContext` under the package `com.ch01.test`
+    package.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Create a new XML file `beans_fileSystem.xml` in D drive we had created in previous
+    application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'In the main function, let''s write down the code to initialize the bean factory
+    as shown in the following code:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: '`FileSystemXmlApplicationContext` loads the `bean_fileSystem.xml` file from
+    the path specified.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Run the application which will give the following output suggesting the container
+    created successfully.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The structure of project discussed above will be as shown in the following
+    snapshot:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](img/image_01_006.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Project directory structure
+  prefs: []
+  type: TYPE_NORMAL
+- en: WebXmlApplicationContext
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The AbstractRefreshableWebApplicationContext has been extended by WebXmlApplicationContext.
+    We can write the context definition in related to root application context in
+    `applicationContext.xml` and keep it under WEB-INF as its the default location
+    from where the context definition will be loaded. The XXX-servlet.xml file is
+    loaded to load the controller definition as in case of MVC we application. Also,
+    we can override the default locations by configuring `contextConfigLocation` for
+    the `context-param` and `init-param`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: How beans are available from container?
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Yes, beans or object of beans will not be available without doing anything from
+    development side. Spring manages bean but what to manage has to be decided and
+    pass on to the container. Spring supports declarative programming via XML file
+    configuration. The beans definitions configured in XML file loaded by the container
+    and using org.springframework.beans the object instantiation and the property
+    value injection takes place. Bean lifecycle explain the stages, phases or activities
+    through which each bean object goes through from making the object usable by application
+    till its cleaned up and removed from the container when application doesn't required
+    by the application. We will discuss in next chapter the detail initialization
+    process.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Summary
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: This chapter gives an overview of Spring framework. We discussed about the general
+    problems faced in Java enterprise application development and how they have been
+    address by Spring framework. We have seen the overall major changes happened in
+    each version of Spring from its first introduction in market. The backbone of
+    Spring framework is the bean. We use Spring to simplify the work of managing them
+    by the container. We discuss in detail about two Spring containers BeanFactory
+    and ApplicationContext and how they can be used by the developers. The containers
+    are involved in process of bean lifecycle management. In next chapter we are aiming
+    to discuss in depth about the bean state management with a very famous terminology
+    Dependency Injection and the bean life cycle management in detail.
+  prefs: []
+  type: TYPE_NORMAL
