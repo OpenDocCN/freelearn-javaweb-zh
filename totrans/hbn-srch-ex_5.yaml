@@ -1,0 +1,660 @@
+- en: Chapter 5. Advanced Querying
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In this chapter, we will elaborate on the basic search query concepts that we
+    covered earlier, in light of the new mapping knowledge that we just picked up.
+    We will now look at a number of techniques for making search queries more flexible
+    and powerful.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We will see how to dynamically filter results at the Lucene level, before the
+    database is even touched. We will also avoid database calls by using projection-based
+    queries, to retrieve properties directly from Lucene. We will use faceted search,
+    to recognize and isolate subsets of data within search results. Finally, we will
+    cover some miscellaneous query tools, such as query-time boosting and placing
+    time limits on a query.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Filtering
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The process of building a query revolves around finding matches. However, sometimes
+    you want to narrow the search results on the basis of a criteria that explicitly
+    did *not* match. For example, let''s say we want to limit our VAPORware Marketplace
+    search to only those apps that are supported on a particular device:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Adding a keyword or phrase to an existing query doesn't help, because that would
+    just make the query more inclusive.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: We could turn the existing query into a boolean query, with an extra `must`
+    clause, but then the DSL starts to become harder to maintain. Also, if you need
+    to use complex logic to narrow your results, then the DSL may not offer enough
+    flexibility.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: A Hibernate Search `FullTextQuery` object inherits from the Hibernate ORM `Query`
+    (or its JPA counterpart) class. So, we can narrow results using core Hibernate
+    tools like `ResultTransformer`. However, this requires making additional database
+    calls, which can impact performance.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Hibernate Search offers a more elegant and efficient **filter** approach. Through
+    this mechanism, filter logic for various scenarios is encapsulated in separate
+    classes. Those filter classes may be dynamically enabled or disabled at runtime,
+    alone or in any combination. When a query is filtered, unwanted results are never
+    fetched from Lucene in the first place. This reduces the weight of any follow-up
+    database access.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Creating a filter factory
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: To filter our search results by supported devices, the first step is creating
+    a class to store the filtering logic. This should be an instance of `org.apache.lucene.search.Filter`.
+    For simple hardcoded logic, you might just create your own subclass.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'However, if we instead generate filters dynamically with a filter factory,
+    then we can accept parameters (for example, device name) and customize the filter
+    at runtime:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `@Factory` annotation is applied to the method responsible for producing
+    the Lucene filter object. In this case, we annotate the aptly named `getFilter`
+    method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Unfortunately, building a Lucene `Filter` object requires us to work more closely
+    with the raw Lucene API, rather the convenient DSL wrapper provided by Hibernate
+    Search. The full Lucene API is very involved, and covering it completely would
+    require an entirely separate book. However, even this shallow dive is deep enough
+    to give us the tools for writing really useful filters.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This example builds a filter by wrapping a Lucene query, and then applying a
+    second wrapper to facilitate filter caching. A specific type of query used is
+    `org.apache.lucene.search.PhraseQuery`, which is equivalent to the DSL phrase
+    query that we explored in [Chapter 3](ch03.html "Chapter 3. Performing Queries"),
+    *Performing Queries*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: We are examining the phrase query in this example, because it is one of the
+    most useful types for a building a filter. However, there are 15 Lucene query
+    types in total. You can explore the JavaDocs at [http://lucene.apache.org/core/old_versioned_docs/versions/3_0_3/api/all/org/apache/lucene/search/Query.html](http://lucene.apache.org/core/old_versioned_docs/versions/3_0_3/api/all/org/apache/lucene/search/Query.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let's review some of the things we know about how data is stored in a Lucene
+    index. By default, an analyzer tokenizes strings, and indexes them as individual
+    terms. The default analyzer also converts the string data into lowercase. The
+    Hibernate Search DSL normally hides all of this detail, so developers don't have
+    to think about it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, you do need to account for these things when using the Lucene API directly.
+    Therefore, our `setDeviceName` setter method manually converts the `deviceName`
+    property to lower case, to avoid a mismatch with Lucene. The `getFilter` method
+    then manually tokenizes this property into separate terms, likewise to match what
+    Lucene has indexed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Each tokenized term is used to construct a Lucene `Term` object, which consists
+    of the data and the relevant field name (that is, `supportedDevices.name` in this
+    case). These terms are added to the `PhraseQuery` object one by one, in the exact
+    order that they appear in the phrase. The query object is then wrapped up as a
+    filter and returned.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Adding a filter key
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: By default, Hibernate Search caches filter instances for better performance.
+    Therefore, each instance requires that a unique key be referenced by in the cache.
+    In this example, the most logical key would be the device name for which each
+    instance is filtering.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'First, we add a new method to our filter factory, annotated with `@Key` to
+    indicate that it is responsible for generating the unique key. This method returns
+    a subclass of `FilterKey`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Custom `FilterKey` subclasses must implement the methods `equals` and `hashCode`.
+    Typically, when the actual wrapped data may be expressed as a string, you can
+    delegate to the corresponding methods on the `String` class:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Establishing a filter definition
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'To make this filter available for our app searches, we will create a filter
+    definition in the `App` entity class:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `@FullTextFilterDef` annotation links the entity class with a given filter
+    or filter-factory class, specified by the `impl` element. The `name` element is
+    a string by which Hibernate Search queries can reference the filter, as we'll
+    see in the next subsection.
+  prefs: []
+  type: TYPE_NORMAL
+- en: An `entity` class may have any number of defined filters. The plural `@FullTextFilterDefs`
+    annotation supports this, by wrapping a comma-separated list of one or more singular
+    `@FullTextFilterDef` annotations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Enabling the filter for a query
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Last but not least, we enable the filter definition for a Hibernate Search
+    query, using the `FullTextQuery` object''s `enableFullTextFilter` method:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: This method's `string` parameter is matched to a filter definition on one of
+    the entity classes involved in the query. In this case, it's the `deviceName`
+    filter defined on `App`. When Hibernate Search finds this match, it will automatically
+    invoke the corresponding filter factory to get a `Filter` object.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Our filter factory uses a parameter, also called `deviceName` for consistency
+    (although it's a different variable). Before Hibernate Search can invoke the factory
+    method, this parameter must be set, by passing the parameter name and value to
+    `setParameter`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The filter is enabled within an `if` block, so that we can skip this when no
+    device was selected (that is, the **All Devices** option). If you examine the
+    downloadable code bundle for this chapter''s version of the VAPORware Marketplace
+    application, you will see that the HTML file has been modified to add a drop-down
+    menu for device selection:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Enabling the filter for a query](img/9205_05_01.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Projection
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In the first couple of chapters, our example application fetched all the matching
+    entities in one big database call. We introduced pagination in [Chapter 3](ch03.html
+    "Chapter 3. Performing Queries"), *Performing Queries*, to at least limit the
+    database calls to a fixed number of rows. However, since we're already searching
+    data in a Lucene index to begin with, is it really necessary to go to the database
+    at all?
+  prefs: []
+  type: TYPE_NORMAL
+- en: Hibernate Search offers **projections** as a technique for eliminating, or at
+    least reducing, database access. A projection-based search returns only specific
+    fields pulled from Lucene, rather than returning a full entity object from the
+    database. You can then go to the database and fetch full objects if necessary,
+    but the fields available in Lucene may be sufficient by themselves.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This chapter's version of the VAPORware Marketplace application modifies the
+    search results page so that it now uses a projection-based query. The previous
+    versions of the page received `App` entities all at once, and hid each app's pop-up
+    window until its **Full Detail** button was clicked. Now, the page receives only
+    enough fields to build the summary view. Each **Full Detail** button triggers
+    an AJAX call for that app. Only then is the database called, and only to fetch
+    data for that one app.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Exhaustive descriptions of how to make AJAX calls from JavaScript and how to
+    write RESTful web services to respond to those calls, ventures pretty far beyond
+    the scope of this Hibernate Search book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: That being said, all of the JavaScript is contained on the search results JSP,
+    within the `showAppDetails` function. All of the corresponding server-side Java
+    code resides in the `com.packtpub.hibernatesearch.rest` package, and is heavily
+    commented. There are endless online primers and tutorials for writing RESTful
+    services, and the documentation for the particular framework used here is at [http://jersey.java.net/nonav/documentation/latest](http://jersey.java.net/nonav/documentation/latest).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Making a query projection-based
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'To change `FullTextQuery` to be projection-based, invoke the `setProjection`
+    method on that object. Our search servlet class now contains the following line:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: The method accepts the names of one or more fields to pull from the Lucene indexes
+    associated with this query.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Converting projection results to an object form
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: If we stopped right here, then the query object's `list()` method would no longer
+    return a list of `App` objects! By default, projection-based queries return a
+    list of object arrays (that is, `Object[]`) instead of entity objects. These arrays
+    are often referred to as **tuples**.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The elements in each tuple contain values for the projected fields, in the order
+    they were declared. For example, here `listItem[0]` would contain the value of
+    a result's ID, `field.listItem[1]` would contain the name, `value.listItem[2]`
+    would contain the description, and so on.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In some cases, it''s easy enough to work with the tuple as-is. However, you
+    can automatically convert tuples into an object form by attaching a Hibernate
+    ORM result transformer to the query. Doing so changes the query''s return type
+    yet again, from `List<Object[]>` to a list of the desired object type:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can create your own custom transformer class inheriting from `ResultTransformer`,
+    implementing whatever complex logic you need. However, in most cases, the subclasses
+    provided by Hibernate ORM out of the box are more than enough.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Here, we are using the `AliasToBeanResultTransformer` subclass, and initializing
+    it with our `App` entity class. This matches up the projected fields with the
+    entity class properties having the same names, and sets each property with the
+    corresponding field value.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Only a subset of properties of `App` are available. It is okay to leave the
+    other properties uninitialized, since the search results JSP doesn't need them
+    when building its summary list. Also, the resulting `App` objects won't actually
+    be attached to a Hibernate session. However, we've been detaching our results
+    before sending them to the JSP anyway.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Making Lucene fields available for projection
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: By default, Lucene indexes are optimized with the assumption that they will
+    not be used for projection-based queries. Therefore, projection requires that
+    you make some small mapping changes and bear a couple of caveats in mind.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'First and foremost, the field data must be stored by Lucene in a manner that
+    can be easily retrieved. The normal indexing process optimizes data for complex
+    queries, not for retrieval in its original form. To store a field''s value in
+    a form that can be restored by a projection, you add a `store` element to the
+    `@Field` annotation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This element takes an enum with three possible values:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`Store.NO` is the default. It causes the field to be indexed for searching,
+    but not retrievable in its original form through projection.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`Store.YES` causes the field to be included as-is in the Lucene index. This
+    increases the size of the index, but makes projections possible.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`Store.COMPRESS` is an attempt at compromise. It also stores the field as-is,
+    but applies compression to reduce the overall index size. Be aware that this is
+    more processor-intensive, and is not available for a field that also uses the
+    `@NumericField` annotation.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Secondly, a field must use a bi-directional field bridge. All of the default
+    bridges built-in to Hibernate Search already support this. However, if you create
+    your own custom bridge type (see [Chapter 4](ch04.html "Chapter 4. Advanced Mapping"),
+    *Advanced Mapping*), it must be based on `TwoWayStringBridge` or `TwoWayFieldBridge`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Last but not least, projection is only effective for basic properties on the
+    entity class itself. It is not meant for fetching associated entities or embedded
+    objects. If you do try to reference an association, then you will only get one
+    instance rather than the full collection that you were probably expecting.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: If you need to work with the associated or embedded objects, then you might
+    take the approach used by our example application. Lucene projection fetches the
+    basic properties for all search results, including the entity object's primary
+    key. When we later need to work with an entity object's associations, we use that
+    primary key to retrieve only the necessary rows through a database call.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Faceted search
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Lucene filters are a powerful tool for narrowing the scope of a query to some
+    particular subset. However, filters work on predefined subsets. You must already
+    know what it is that you are seeking.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Sometimes you need to dynamically identify subsets. For example, let''s give
+    our `App` entity a `category` property representing its genre:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: When we perform a keyword search for apps, we might want to know which categories
+    are represented in the results and how many results fall under each category.
+    We might also want to know which price ranges were found. All of this information
+    can help guide users in narrowing their queries more effectively.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Discrete facets
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'The process of dynamically identifying dimensions and then filtering by them
+    is called **faceted search**. The Hibernate Search query DSL has a flow for this,
+    starting with a `QueryBuilder` object''s `facet` method:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Discrete facets](img/9205_05_02.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Discrete faceting request flow (dotted gray arrows represent optional paths)
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `name` method takes some descriptive identifier for this facet (for example,
+    `categoryFacet`), so that it can be referenced by queries later. The familiar
+    `onField` clause declares the field by which to group results (for example, `category`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `discrete` clause indicates that we are grouping by single values, as opposed
+    to ranges of values. We'll explore range facets in the next section.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `createFacetingRequest` method completes this process and returns a `FacetingRequest`
+    object. However, there are three optional methods that you can call first, in
+    any combination:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`includeZeroCounts`: It causes Hibernate Search to return all possible facets,
+    even those which do not have any hits in the current search results. By default,
+    facets with no hits are quietly ignored.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`maxFacetCount`: It limits the number of facets to be returned.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`orderedBy`: It specifies the sort order of the facets found. The three options
+    relevant to discrete facets are:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`COUNT_ASC`: Facets are sorted in an ascending order by the number of associated
+    search results. The facets with the lowest number of hits are listed first.'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`COUNT_DESC`: This is the exact opposite of `COUNT_ASC`. Facets are listed
+    from the highest hit count to the lowest.'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`FIELD_VALUE`: Facets are sorted in an alphabetical order by the value of the
+    relevant field. For example, the "business" category would come before the "games"
+    category.'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'This chapter''s version of the VAPORware Marketplace now includes the following
+    code for setting up a faceted search on the `app` category:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Now that the faceting request is enabled, we can run the search query and retrieve
+    the facet information using the `categoryFacet` name that we just declared:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `Facet` class includes a `getValue` method, which returns the value of the
+    field for a particular group. For example, if some of the matching apps are in
+    the "business" category, then one of the facets will have the string "business"
+    as its value. The `getCount` method reports how many search results are associated
+    with that facet.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Using these two methods, our search servlet can iterate through all of the
+    category facets, and build a collection to be used for display in the search results
+    JSP:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: If the search servlet receives a request with a `selectedCategory` CGI parameter,
+    then the user chooses to narrow results to a specific category. So if this string
+    matches the value of a facet being iterated, then that facet is "selected" for
+    the `FullTextQuery` object. The query can then be re-run, and it will then return
+    only apps belonging to that category.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Range facets
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Facets are not limited to single discrete values. A facet may also be created
+    from a range of values. For example, we might want to group apps by a price range—search
+    results priced below one dollar, between one and five dollars, or above five dollars.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The Hibernate Search DSL for range faceting takes the elements of the discrete
+    faceting flow and combines them with elements from the range query that we saw
+    in [Chapter 3](ch03.html "Chapter 3. Performing Queries"), *Performing Queries*:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Range facets](img/9205_05_03.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Range faceting request flow (dotted gray arrows represent optional paths)
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can define a range as being above, below, or between two values (that is,
+    `from` – `to`). These options may be used in combination to define as many range
+    subsets as you wish.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As with regular range queries, the optional `excludeLimit` method exclude its
+    boundary value from the range. In other words, `above(5)` means "greater than
+    or equal to 5", whereas `above(5).excludeLimit()` means "greater than 5, *period*".
+  prefs: []
+  type: TYPE_NORMAL
+- en: The optional `includeZeroCounts`, `maxFacetCount`, and `orderBy` methods operate
+    in the same manner as with discrete faceting. However, range faceting offers an
+    extra choice for sorting order. `FacetSortOrder.RANGE_DEFINITION_ODER` causes
+    facets to be returned in the order they were defined (note that the "`r`" is missing
+    in "`oder`").
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Along the discrete faceting request for `category`, the example code for this
+    chapter also includes the following code snippet to enable range faceting for
+    `price`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: If you take a look at the source code for `search.jsp`, it now includes both
+    the category and price range facets found during each search. These two faceting
+    types may be used in combination to narrow the search results, with the currently-selected
+    facets highlighted in bold. When **all** is selected for either type, that particular
+    facet is removed and the search results widen again.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Range facets](img/9205_05_04.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Query-time boosting
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In [Chapter 3](ch03.html "Chapter 3. Performing Queries"), *Performing Queries*,
+    we saw how to boost a field's relevance at index time, on either a fixed or a
+    dynamic basis. It is also possible to dynamically change the weight at query time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'All query types in the Hibernate Search DSL include the `onField` and `andField`
+    methods. For each query type, these two clauses also support a `boostedTo` method,
+    taking a `weight` factor as a `float` parameter. Whatever the index-time weight
+    of that field might be, adding a `boostedTo` clause multiplies it by the indicated
+    number:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: In this chapter's version of the VAPORware Marketplace application, query-time
+    boosting is now added to the "exact phrase" use case. When users wraps their search
+    string in double quotes to search by phrase rather than by keywords, we want to
+    give the `App` entity's name and description field even more weight than normal.
+    The highlighted changes double the index-time weight of those two fields, but
+    only for the exact phrase query rather than for all query types.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Placing time limits on a query
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: The example application we have been working with has a limited set of test
+    data, only a dozen apps, and a handful of devices. So, as long as your computer
+    has a reasonable amount of processor and memory resources, the search queries
+    should run almost instantaneously.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, an application with real data might involve searching across millions
+    of entities, and there may be a risk of your queries taking too long. As a matter
+    of user experience if nothing else, you will probably want to limit the execution
+    of your queries to some reasonable period of time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Hibernate Search offers two approaches for time boxing a query. One is through
+    the `FullTextQuery` object''s `limitExecutionTime` method:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: This method causes the query to gracefully halt after a specified period of
+    time, and return all of the results that it had found up until that point. The
+    first parameter is the number of time units, and the second parameter is the type
+    of time unit (for example, microsecond, millisecond, second, and so on). The preceding
+    code snippet will try to stop the query after two seconds of searching.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: After this query runs, you can determine whether or not it was interrupted by
+    calling the object's `hasPartialResults()` method. This Boolean method returns
+    `true` if the query timed out before reaching its natural conclusion.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The second approach, using the `setTimeout()` method, is similar in concept
+    and in the parameters taken:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: However, this method is for situations where the search should fail completely
+    upon timeout, rather than proceeding as if it didn't happen. The preceding query
+    object will throw a `QueryTimeoutException` exception after running for two full
+    seconds, and will not return any results that were found during that time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Be aware that with both of these approaches, Hibernate Search does the best
+    it can to respect the specified period of time. It may actually take a bit more
+    time for the query to halt.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Also, these timeout settings only affect Lucene access. Once your query has
+    finished searching Lucene and starts pulling actual entities from the database,
+    timeout control is in the hands of Hibernate ORM rather than Hibernate Search.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Summary
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In this chapter, we explored more advanced techniques for narrowing search results,
+    improving the quality of match relevance, and increasing performance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can now use Lucene filters to hone in on a fixed subset of matches. We have
+    also seen how to use faceted search to dynamically identify subsets within results.
+    Through projection-based queries, we can reduce or even eliminate the need for
+    actual database calls. We now know how to adjust the relevance of fields at query
+    time rather than at index time only. Last but not least, we are now able to set
+    time limits on our queries and gracefully handle situations where a search runs
+    too long.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the next chapter, we will turn toward administration and maintenance, learning
+    how to configure Hibernate Search and Lucene for optimal performance.
+  prefs: []
+  type: TYPE_NORMAL

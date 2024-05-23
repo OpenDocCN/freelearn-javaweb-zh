@@ -1,0 +1,584 @@
+- en: Chapter 3. Performing Queries
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In the previous chapter, we created various types of persistent objects and
+    mapped them to Lucene search indexes in various ways. However, we have basically
+    used the same keyword query in all the versions of the example application so
+    far.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In this chapter, we will explore other search query types offered by the Hibernate
+    Search DSL, as well as important features such as sorting and pagination that
+    are common to all of them.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Mapping API versus query API
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: So far, we discussed API alternatives for mapping classes to the database with
+    Hibernate ORM. You can map your classes with XML or annotations, using JPA or
+    the traditional API, and Hibernate Search will work fine so long as you are aware
+    of some minor differences.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, when we talk about which API a Hibernate application uses, there are
+    two parts to the answer. Not only is there more than one approach for mapping
+    classes to the database, there are also options for how to query the database
+    at runtime. Hibernate ORM has its traditional API, based on the `SessionFactory`
+    and `Session` classes. It also offers an implementation of the corresponding JPA
+    standards, built around `EntityManagerFactory` and `EntityManager`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: You might have noticed that in the sample code so far, we've been mapping classes
+    to the database with JPA annotations and using the traditional Hibernate `Session`
+    class to query them. This may seem confusing at first, but the mapping and the
+    query APIs are essentially interchangeable. You can mix and match!
+  prefs: []
+  type: TYPE_NORMAL
+- en: So which approach should you use in the Hibernate Search projects? There are
+    advantages to sticking with common standards as much as possible. Once you are
+    experienced with JPA, those skills transfer when you work on other projects that
+    use different JPA implementations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: On the other hand, Hibernate ORM's traditional API is more powerful than the
+    generic JPA standards. Also, Hibernate Search is an extension of Hibernate ORM.
+    You can't migrate a project to a different JPA implementation without first finding
+    some other search strategy altogether.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: So in a nutshell, there is a strong argument for using JPA standards whenever
+    they are adequate. However, Hibernate Search requires Hibernate ORM anyway, so
+    there's no sense in being too dogmatic. Throughout this book, most of the example
+    code will use JPA annotations for mapping classes, and use the traditional Hibernate
+    `Session` class for queries.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using JPA for queries
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Although we will focus on the traditional query API, the downloadable source
+    code also contains a different version of the example application in a `chapter3-entitymanager`
+    folder. This VAPORware Marketplace variation demonstrates the use of JPA across
+    the board, for both mapping and queries.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In the search controller servlet, rather than using a Hibernate `SessionFactory`
+    object to create a `Session` object, it uses a JPA `EntityManagerFactory` instance
+    to create an `EntityManager` object:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We have already seen code samples that use the traditional query API. In those
+    previous examples, the Hibernate ORM `Session` objects were wrapped within Hibernate
+    Search `FullTextSession` objects. These then produced Hibernate `SearchFullTextQuery`
+    objects, which implement the core `org.hibernate.Query` interface:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Constrast that with JPA, where regular `EntityManager` objects are likewise
+    wrapped by `FullTextEntityManager` objects. These create `FullTextQuery` objects,
+    implementing the standard `javax.persistence.Query` interface:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: The traditional `FullTextQuery` class and its JPA counterpart are very similar,
+    but they are separate classes imported from different Java packages. Both offer
+    hooks to much of the Hibernate Search functionality that we've seen so far, and
+    will further explore.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Either version of `FullTextQuery` can be cast to its respective query type,
+    although doing so costs you direct access to the Hibernate Search methods. So,
+    be sure to call any extension methods prior to casting.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you need to access the non-standard methods after casting to a JPA query,
+    then you can use that interface's `unwrap()` method to get back to the underlying
+    `FullTextQuery` implementation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Setting up a project for Hibernate Search and JPA
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: When your Maven-based project includes the `hibernate-search` dependency, it
+    automatically pulls over three dozen related dependencies for you. Unfortunately,
+    JPA query support is not one of them. To use JPA-style queries, we must declare
+    an extra `hibernate-entitymanager` dependency ourselves.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Its version needs to match the version of `hibernate-core` that is already in
+    the dependency hierarchy. This will not always be in sync with the `hibernate-search`
+    version.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Your IDE may offer a way to present the dependency hierarchy visually. Either
+    way, you can always use Maven from the command line to get the same information
+    with this command:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '![Setting up a project for Hibernate Search and JPA](img/9205_03_02.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'As shown in this output, Hibernate Search version 4.2.0.Final uses core Hibernate
+    ORM version 4.1.9.Final. So a `hibernate-entitymanager` dependency should be added
+    to the POM, using the same version as core:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: The Hibernate Search DSL
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '[Chapter 1](ch01.html "Chapter 1. Your First Application"), *Your First Application*,
+    introduced the Hibernate Search DSL, which is the most straightforward approach
+    for writing search queries. When using the DSL, method calls are chained together
+    in such a way that the series resembles a programming language in its own right.
+    If you have worked with criteria queries in Hibernate ORM, then this style will
+    appear very familiar.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Whether you are using the traditional `FullTextSession` object or the JPA-style
+    `FullTextEntityManager` object, each passes a Lucene query that was generated
+    by the `QueryBuilder` class. This class is the starting point for the Hibernate
+    Search DSL, and it offers several Lucene query types.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Keyword query
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The most basic form of search, which we have glimpsed at already, is the **keyword
+    query**. As the name suggests, this query type searches for one or more particular
+    words.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The first step is to obtain a `QueryBuilder` object, configured for searching
+    on a given entity:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'From there, the following diagram describes the possible flows. Dotted gray
+    arrows represent optional side paths:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Keyword query](img/9205OS_03_03.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Keyword query flow (dotted gray arrows represent optional paths)
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In the actual Java code, the DSL for a keyword query would look similar to
+    the following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `onField` method takes the name of a field that is indexed for the relevant
+    entity. If the field is not included in that Lucene index, then the query will
+    break. Associated or embedded object fields may also be searched, using the format
+    `"[container-field-name].[field-name]`" format (for example, `supportedDevices.name`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Optionally, one or more `andField` methods may be used to search multiple fields.
+    Its parameter works in the exact same way as `onField`. Alternatively, you can
+    declare multiple fields all in one step with `onFields`, as shown in the preceding
+    code snippet.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The matching method takes the keyword(s) for which the query is to be searched.
+    This value will generally be a string, although technically the parameter type
+    is a generic object in case you use a field bridge (discussed in the next chapter).
+    Assuming that you pass a string, it may be single keyword or a series of keywords
+    separated by whitespace. By default, Hibernate Search will tokenize the string
+    and search for each keyword individually.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Finally, the `createQuery` method terminates the DSL and returns a Lucene query
+    object. That object may then be used by `FullTextSession` (or `FullTextEntityManager`)
+    to create the final Hibernate Search `FullTextQuery` object:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: Fuzzy search
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: When we use a search engine today, we take for granted that it will be smart
+    enough to fix our typos when we are "close enough" to the correct spelling. One
+    way to add this intelligence to Hibernate Search is by making plain keyword queries
+    **fuzzy**.
+  prefs: []
+  type: TYPE_NORMAL
+- en: With a fuzzy search, keywords match against fields even when they are off by
+    one or more characters. The query runs with a **threshold** value ranging from
+    `0` to `1`, where `0` means that everything matches, and `1` means that only exact
+    matches are acceptable. The fuzziness of the query depends on how close to zero
+    you set the threshold.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The DSL starts with the same keyword method and eventually resumes the keyword
+    query flow with `onField` or `onFields`. However, in between are some new flow
+    possibilities, shown as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Fuzzy search](img/9205OS_03_04.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Fuzzy search flow (dotted gray arrows represent optional paths)
+  prefs: []
+  type: TYPE_NORMAL
+- en: The fuzzy method simply makes a normal keyword query "fuzzy", with a default
+    threshold value of `0.5` (for example, balanced between the two extremes). You
+    can proceed from there with the regular keyword query flow, and that would be
+    perfectly fine.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, you have the option of calling `withThreshold` to specify a different
+    fuzziness value. In this chapter, versions of the VAPORware Marketplace application
+    add fuzziness to the keyword query, with a threshold value of `0.7`. This is strict
+    enough to avoid too many false positives, but fuzzy enough that a misspelled search
+    for "rodio" will now match against the "Athena Internet Radio" app.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: In addition to (or instead of) `withThreshold`, you may also use `withPrefixLength`
+    to adjust the query fuzziness. This integer value is a number of characters at
+    the beginning of each word that you want to exclude from the fuzziness calculation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Wildcard search
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The second variation on a keyword query doesn't involve any higher math algorithms.
+    If you have ever used a pattern like `*.java` to list all files in a directory,
+    then you already have the basic idea.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Adding the **wildcard** method causes a normal keyword query to treat a question
+    mark (`?`) as a valid substitute for any single character. For example, the keyword
+    `201?` would match the field values `2010`, `2011`, `2012`, and so on.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The asterisk (`*`) becomes a substitute for any sequence of zero or more characters.
+    The keyword `down*` matches `download`, `downtown`, and so on.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Hibernate Search DSL for a wildcard search is the same as that for a regular
+    keyword query, only with the zero-parameter `wildcard` method added at the beginning.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Wildcard search](img/9205OS_03_05.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Wildcard search flow (dotted gray arrows represent optional paths)
+  prefs: []
+  type: TYPE_NORMAL
+- en: Exact phrase query
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: When you type a string of keywords into a search engine, you expect to see results
+    matching one or more of those keywords. Not all of the keywords might be present
+    in each result, and they might not appear in the same order that you typed them.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, it has become customary that when you place double quotes around a
+    string, you expect the search results to contain that exact phrase.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Hibernate Search DSL offers a **phrase query** flow for searches of this
+    type.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Exact phrase query](img/9205OS_03_06.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Exact phrase query flow (dotted gray arrows represent optional paths)
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `onField` and `andField` methods behave in the same way as they do with
+    keyword queries. The `sentence` method differs from `matching` only in that its
+    input must be a `String`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A primitive form of fuzziness is available to phrase queries, by using the optional
+    `withSlop` clause. This method takes an integer parameter, representing the number
+    of "extra" words that can be found within a phrase before it is no longer considered
+    a match.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This chapter''s version of the VAPORware Marketplace application now checks
+    for double quotes around the user''s search string. When the input is quoted,
+    the application replaces the keyword query with a phrase query instead:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: Range query
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Phrase queries and the various keyword search types, are all about matching
+    fields to a search term. A **range query** is bit different, in that it looks
+    for fields that are bounded by one or more search terms. In other words, is a
+    field greater than or less than a given value, or in between two values?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Range query](img/9205OS_03_07.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Range query flow (dotted gray arrows represent optional paths)
+  prefs: []
+  type: TYPE_NORMAL
+- en: When the preceding method is used, the queried field(s) must have values greater
+    than or equal to the input parameter. That parameter is of the generic `Object`
+    type for flexibility. Dates and numeric values are typically used, although strings
+    are perfectly fine and will be compared based on an alphabetical order.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As you might guess, the next method is a counterpart in which values must be
+    less than or equal to the input parameter. To declare that matches must fall in
+    between two parameters, inclusively, you would use the `from` and `to` methods
+    (they must be used together).
+  prefs: []
+  type: TYPE_NORMAL
+- en: An `excludeLimit` clause may be applied to any of these clauses. It has the
+    effect of making the range exclusive rather than inclusive. In other words, `from(5).to(10).excludeLimit()`
+    matches a range of `5 <= x < 10`. The modifier could have been placed on the `from`
+    clause rather than the `to`, or on both of them.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In our VAPORware Marketplace application, we previously declined to annotate
+    `CustomerReview.stars` for indexing. However, if we had annotated it with `@Field`,
+    then we could search for all 4- and 5-star reviews with a query similar to the
+    following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: Boolean (combination) queries
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'What if you have an advanced use case where a keyword, phrase, or range query
+    is not enough by itself, but two or more of them *together* could meet your requirements?
+    Hibernate Search allows you to mix queries in any combination with boolean logic:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Boolean (combination) queries](img/9205OS_03_08.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Boolean query flow (dotted gray arrows represent optional paths)
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `bool` method declares that this will be a combination query. It is followed
+    by at least `onemust` or should `clause`, each of which takes a Lucene query object
+    of one of the previously discussed varieties.
+  prefs: []
+  type: TYPE_NORMAL
+- en: When a `must` clause is used, a field must match the nested query in order to
+    match the overall query as a whole. Multiple `must` clauses may be applied, which
+    operate in a **logical-AND** fashion. All of them must succeed or else there is
+    no match.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The optional `not` method serves to logically negate a `must` clause. The effect
+    is that the overall query will only match if that nested query doesn't.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `should` clause roughly approximates a **logical-OR** operation. When a
+    combination consists only of `should` clauses, a field need not match all of them.
+    However, at least one must match in order for the query as a whole to match.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: You can combine `must` and `should` clauses. However, if you do so, then the
+    `should` nested queries become completely optional. If the `must` clause succeeds,
+    the overall query succeeds no matter what. If the `must` clause fails, the overall
+    query fails no matter what. When the two clause types are used together, `should`
+    clauses serve only to help rank the search results by relevance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This example combines a keyword query and a range query to look for "xPhone"
+    apps with 5-star customer reviews:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: Sorting
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: By default, search results come back in the order of their "relevance". In other
+    words, they are ranked by the degree to which they match the query. We will discuss
+    this further over the next two chapters, and learn how to adjust these relevance
+    calculations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, we have the option to change the sorting to some other criteria altogether.
+    In typical situations, you might sort by a date or numeric field, or by a string
+    field in an alphabetical order. In all versions of the VAPORware Marketplace application
+    going forward, users may now sort their search results by the app name.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To sort on a field, special consideration is required when that field is mapped
+    for Lucene indexing. Normally when a string field is indexed, a default analyzer
+    (explored in the next chapter) tokenizes the string. For example, if an `App`
+    entity's `name` field is "Frustrated Flamingos", then separate entries are created
+    in the Lucene index for "frustrated" and "flamingos". This allows for more powerful
+    querying, but we want to sort based on the original untokenized value.
+  prefs: []
+  type: TYPE_NORMAL
+- en: An easy way to support this is by mapping the field twice, which is perfectly
+    fine! As we saw in [Chapter 2](ch02.html "Chapter 2. Mapping Entity Classes"),
+    *Mapping Entity Classes*, Hibernate Search offers a plural `@Fields` annotation.
+    It wraps a comma-separated list of `@Field` annotations, with different analyzer
+    settings.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In the following code snippet, one `@Field` is declared with the (tokenizing)
+    defaults. The second one has its `analyze` element sent to `Analyze.NO`, to disable
+    tokenization, and is given its own distinct field name in the Lucene index:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This new field name can be used as follows to build a Lucene `SortField` object,
+    and attach it to a Hibernate Search `FullTextQuery` object:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: When a list of search results is later returned by `hibernateQuery`, this list
+    will be sorted by the app name, starting from A to Z.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Reverse sorting is possible as well. The `SortField` class also offers a constructor
+    with a third `Boolean` parameter. If that parameter is set to `true`, the sort
+    will work in the exact opposite manner (for example, Z to A).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pagination
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: When a search query returns a huge number of search results, it is usually not
+    desirable (or perhaps even possible) to present them to the user all at once.
+    A common solution is pagination, or displaying search results one "page" at a
+    time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A Hibernate Search `FullTextQuery` object has methods for making pagination
+    easy:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `setMaxResults` method declares the maximum size of the page. On the last
+    line of the preceding code snippet, the apps list will contain no more than five
+    `App` objects, even if the query has thousands of matches.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Of course, pagination wouldn't be very useful if the code always grabbed the
+    first five results. We also need the ability to grab the next page, and then the
+    next page, and so on. So the `setFirstResult` method tells Hibernate Search where
+    to start.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For example, the preceding code snippet starts with the eleventh result item
+    (the parameter is `10`, but results are a zero-indexed). The query is then set
+    to grab the next five results. The next incoming request might therefore use `hibernateQuery.setFirstResult(15)`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The last piece of the puzzle is knowing how many results there are, so you
+    can plan for the correct number of pages:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `getResultSize` method is more powerful than it appears at first glance,
+    because it calculates the number using only Lucene indexes. A regular database
+    query across all matching rows could be a very resource-intensive operation, but
+    it is a relatively lightweight matter for Lucene.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: This chapter's version of the example applications now use pagination for search
+    results, with a maximum of five results per page. Explore the `SearchServlet`
+    and `search.jsp` results page to see how they use the result size and the current
+    starting point to build the "previous" and "next" links as needed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A look at the VAPORware Markeplace updates in action is as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Pagination](img/9205_03_09.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Summary
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In this chapter, we examined the most common use cases in Hibernate Search querying.
+    We can now work with Hibernate Search regardless of whether JPA is used in whole,
+    in part, or not at all. We learned the core query types offered by the Hibernate
+    Search DSL, and have an easy visual access to all of their possible flows rather
+    than having to crawl through the Javadocs to piece them together.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We now know how to sort search results by a particular field, in ascending or
+    descending order. With large result sets, we can now paginate the results for
+    better performance on the backend, and a better user experience on the frontend.
+    The search functionality in our VAPORware Marketplace example is now greater than
+    or equal to many production Hibernate Search applications.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the next chapter, we will look at more advanced mapping techniques, such
+    as handling custom data types and controlling details of the Lucene indexing process.
+  prefs: []
+  type: TYPE_NORMAL

@@ -1,0 +1,525 @@
+- en: Chapter 7. Advanced Performance Strategies
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In this chapter, we will look at some advanced strategies for improving the
+    performance and scalability of production applications, through code as well as
+    server architecture. We will explore options for running applications in multi-node
+    server clusters, to spread out and handle user requests in a distributed fashion.
+    We will also learn how to use sharding to help make our Lucene indexes faster
+    and more manageable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: General tips
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Before diving into some advanced strategies for improving performance and scalability,
+    let''s briefly recap some of the general performance tips already spread across
+    the book:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'When mapping your entity classes for Hibernate Search, use the optional elements
+    of the `@Field` annotation to strip the unnecessary bloat from your Lucene indexes
+    (see [Chapter 2](ch02.html "Chapter 2. Mapping Entity Classes"), *Mapping Entity
+    Classes*):'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: If you are definitely not using index-time boosting (see [Chapter 4](ch04.html
+    "Chapter 4. Advanced Mapping"), *Advanced Mapping*), then there is no reason to
+    store the information needed to make this possible. Set the `norms` element to
+    `Norms.NO`.
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: By default, the information needed for a projection-based query is not stored
+    unless you set the `store` element to `Store.YES` or `Store.COMPRESS` (see [Chapter
+    5](ch05.html "Chapter 5. Advanced Querying"), *Advanced Querying*). If you had
+    projection-based queries that are no longer being used, then remove this element
+    as part of the cleanup.
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Use conditional indexing (see [Chapter 4](ch04.html "Chapter 4. Advanced Mapping"),
+    *Advanced Mapping*) and partial indexing ([Chapter 2](ch02.html "Chapter 2. Mapping
+    Entity Classes"), *Mapping Entity Classes*) to reduce the size of Lucene indexes.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Rely on filters to narrow your results at the Lucene level, rather than using
+    a `WHERE` clause at the database query level (see [Chapter 5](ch05.html "Chapter 5. Advanced
+    Querying"), *Advanced Querying*).
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Experiment with projection-based queries wherever possible (see [Chapter 5](ch05.html
+    "Chapter 5. Advanced Querying"), *Advanced Querying*), to reduce or eliminate
+    the need for database calls. Be aware that with advanced database caching, the
+    benefits might not always justify the added complexity.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Test various index manager options (see [Chapter 6](ch06.html "Chapter 6. System
+    Configuration and Index Management"), *System Configuration and Index Management*),
+    such as trying the near-real-time index manager or the `async` worker execution
+    mode.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Running applications in a cluster
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Making modern Java applications scale in a production environment usually involves
+    running them in a cluster of server instances. Hibernate Search is perfectly at
+    home in a clustered environment, and offers multiple approaches for configuring
+    a solution.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Simple clusters
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'The most straightforward approach requires very little Hibernate Search configuration.
+    Just set up a file server for hosting your Lucene indexes and make it available
+    to every server instance in your cluster (for example, NFS, Samba, and so on):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Simple clusters](img/9207OS_07_01.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: A simple cluster with multiple server nodes using a common Lucene index on a
+    shared drive
+  prefs: []
+  type: TYPE_NORMAL
+- en: Each application instance in the cluster uses the default index manager, and
+    the usual `filesystem` directory provider (see [Chapter 6](ch06.html "Chapter 6. System
+    Configuration and Index Management"), *System Configuration and Index Management*).
+  prefs: []
+  type: TYPE_NORMAL
+- en: In this arrangement, all of the server nodes are true peers. They each read
+    from the same Lucene index, and no matter which node performs an update, that
+    node is responsible for the write. To prevent corruption, Hibernate Search depends
+    on simultaneous writes being blocked, by the locking strategy (that is, either
+    "simple" or "native", see [Chapter 6](ch06.html "Chapter 6. System Configuration
+    and Index Management"), *System Configuration and Index Management*).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Recall that the "near-real-time" index manager is explicitly incompatible with
+    a clustered environment.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The advantage of this approach is two-fold. First and foremost is simplicity.
+    The only steps involved are setting up a filesystem share, and pointing each application
+    instance's directory provider to the same location. Secondly, this approach ensures
+    that Lucene updates are instantly visible to all the nodes in the cluster.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, a serious downside is that this approach can only scale so far. Very
+    small clusters may work fine, but larger numbers of nodes trying to simultaneously
+    access the same shared files will eventually lead to lock contention.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Also, the file server on which the Lucene indexes are hosted is a single point
+    of failure. If the file share goes down, then your search functionality breaks
+    catastrophically and instantly across the entire cluster.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Master-slave clusters
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: When your scalability needs outgrow the limitations of a simple cluster, Hibernate
+    Search offers more advanced models to consider. The common element among them
+    is the idea of a master node being responsible for all Lucene write operations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Clusters may also include any number of slave nodes. Slave nodes may still initiate
+    Lucene updates, and the application code can't really tell the difference. However,
+    under the covers, slave nodes delegate that work to be actually performed by the
+    master node.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Directory providers
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'In a master-slave cluster, there is still an "overall master" Lucene index,
+    which logically stands apart from all of the nodes. This may be filesystem-based,
+    just as it is with a simple cluster. However, it may instead be based on JBoss
+    Infinispan ([http://www.jboss.org/infinispan](http://www.jboss.org/infinispan)),
+    an open source in-memory NoSQL datastore sponsored by the same company that principally
+    sponsors Hibernate development:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In a **filesystem-based** approach, all nodes keep their own local copies of
+    the Lucene indexes. The master node actually performs updates on the overall master
+    indexes, and all of the nodes periodically read from that overall master to refresh
+    their local copies.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: In an **Infinispan-based** approach, the nodes all read from the Infinispan
+    index (although it is still recommended to delegate writes to a master node).
+    Therefore, the nodes do not need to maintain their own local index copies. In
+    reality, because Infinispan is a distributed datastore, portions of the index
+    will reside on each node anyway. However, it is still best to visualize the overall
+    index as a separate entity.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Worker backends
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'There are two available mechanisms by which slave nodes delegate write operations
+    to the master node:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A **JMS** message queue provider creates a queue, and slave nodes send messages
+    to this queue with details about Lucene update requests. The master node monitors
+    this queue, retrieves the messages, and actually performs the update operations.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: You may instead replace JMS with **JGroups** ([http://www.jgroups.org](http://www.jgroups.org)),
+    an open source multicast communication system for Java applications. This has
+    the advantage of being faster and more immediate. Messages are received in real-time,
+    synchronously rather than asynchronously.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: However, JMS messages are generally persisted to a disk while awaiting retrieval,
+    and therefore can be recovered and processed later, in the event of an application
+    crash. If you are using JGroups and the master node goes offline, then all the
+    update requests sent by slave nodes during that outage period will be lost. To
+    fully recover, you would likely need to reindex your Lucene indexes manually.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '![Worker backends](img/9207OS_07_02.jpg)'
+  prefs:
+  - PREF_IND
+  type: TYPE_IMG
+- en: A master-slave cluster using a directory provider based on filesystem or Infinispan,
+    and worker based on JMS or JGroups. Note that when using Infinispan, nodes do
+    not need their own separate index copies.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: A working example
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Experimenting with all of the possible clustering strategies requires consulting
+    the Hibernate Search Reference Guide, as well as the documentation for Infinispan
+    and JGroups. However, we will get started by implementing a cluster with the filesystem
+    and JMS approach, since everything else is just a variation on this standard theme.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This chapter's version of the VAPORware Marketplace application discards the
+    Maven Jetty plugin that we've been using all along. This plugin is great for testing
+    and demo purposes, but it is meant for running a single server instance, and we
+    now need to run at least two Jetty instances simultaneously.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To accomplish this, we will configure and launch Jetty instances programmatically.
+    If you look under `src/test/java/` in the `chapter7` project, there is now a `ClusterTest`
+    class. It is structured for JUnit 4, so that Maven can automatically invoke its
+    `testCluster()` method after a build. Let''s take a look at the relevant portions
+    of that test case method:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: Although this is all running on one physical machine, we are simulating a cluster
+    for test and demo purposes. One Jetty server instance launches on port 8080 as
+    the master node, and another Jetty server launches on port 8181 as a slave node.
+    The difference between the two nodes is that they use separate `web.xml` files,
+    which in turn load different listeners upon startup.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the previous versions of this application, a `StartupDataLoader` class handled
+    all of the database and Lucene initialization. Now, the two nodes use `MasterNodeInitializer`
+    and `SlaveNodeInitializer`, respectively. These in turn load Hibernate ORM and
+    Hibernate Search settings from separate files, named `hibernate.cfg.xml` and `hibernate-slave.cfg.xml`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: There are many ways in which you might configure an application for running
+    as the master node or as a slave node instance. Rather than building separate
+    WARs, with separate versions of `web.xml` or `hibernate.cfg.xml`, you might use
+    a dependency injection framework to load the correct settings based on something
+    in the environment.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Both versions of the Hibernate the `config` file set the following Hibernate
+    Search properties:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`hibernate.search.default.directory_provider`: In previous chapters we have
+    seen this populated with either `filesystem` or `ram`. The other option discussed
+    earlier is `infinispan`.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Here, we use `filesystem-master` and `filesystem-slave` on the master and slave
+    node, respectively. Both of these directory providers are similar to regular `filesystem`,
+    and work with all of the related properties that we've seen so far (e.g. location,
+    locking strategy, etc).
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: However, the "master" variant includes functionality for periodically refreshing
+    the overall master Lucene indexes. The "slave" variant does the reverse, periodically
+    refreshing its local copy with the overall master contents.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '`hibernate.search.default.indexBase`: Just as we''ve seen with single-node
+    versions in the earlier chapters, this property contains the base directory for
+    the *local* Lucene indexes. Since our example cluster here is running on the same
+    physical machine, the master and slave nodes use different values for this property.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`hibernate.search.default.sourceBase`: This property contains the base directory
+    for the *overall master* Lucene indexes. In a production setting, this would be
+    on some sort of shared filesystem, mounted and accessible to all nodes. Here,
+    the nodes are running on the same physical machine, so the master and slave nodes
+    use the same value for this property.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`hibernate.search.default.refresh`: This is the interval (in seconds) between
+    index refreshes. The master node will refresh the overall master indexes after
+    each interval, and slave nodes will use the overall master to refresh their own
+    local copies. This chapter''s version of the VAPORware Marketplace application
+    uses a 10-second setting for demo purposes, but that would be far too short for
+    production. The default setting is 3600 seconds (one hour).'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'To establish a JMS worker backend, there are three additional settings required
+    for the slave node *only*:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`hibernate.search.default.worker.backend`: Set this value to `jms`. The default
+    value, `lucene`, has been applied in earlier chapters because no setting was specified.
+    If you use JGroups, then it would be set to `jgroupsMaster` or `jgroupsSlave`
+    depending upon the node type.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`hibernate.search.default.worker.jms.connection_factory`: This is the name
+    by which Hibernate Search looks up your JMS connection factory in JNDI. This is
+    similar to how Hibernate ORM uses the `connection.datasource` property to retrieve
+    a JDBC connection from the database.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: In both the cases, the JNDI configuration is specific to the app server in which
+    your application runs. To see how the JMS connection factory is set up, see the
+    `src/main/webapp/WEB-INF/jetty-env.xml` Jetty configuration file. We are using
+    Apache ActiveMQ in this demo, but any JMS-compatible provider would work just
+    as well.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '`hibernate.search.default.worker.jms.queue`: The JNDI name of the JMS queue
+    to which slave nodes send write requests to Lucene. This too is configured at
+    the app server level, right alongside the connection factory.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: With these worker backend settings, a slave node will automatically send a message
+    to the JMS queue that a Lucene update is needed. To see that this is happening,
+    the new `MasterNodeInitializer` and `SlaveNodeInitializer` classes each load half
+    of the usual test data set. We will know that our cluster works if all of the
+    test entities are eventually indexed together, and are being returned by search
+    queries that are run from either nodes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Although Hibernate Search sends messages from the slave nodes to the JMS queue
+    automatically, it is your responsibility to have the master node retrieve those
+    messages and process them.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In a JEE environment, you might use a message-driven bean, as is suggested by
+    the Hibernate Search documentation. Spring also has a task execution framework
+    that can be leveraged. However, in any framework, the basic idea is that the master
+    node should spawn a background thread to monitor the JMS queue and process its
+    messages.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This chapter's version of the VAPORware Marketplace application contains a `QueueMonitor`
+    class for this purpose, which is wrapped into a `Thread` object and spawned by
+    the `MasterNodeInitializer` class.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To perform the actual Lucene updates, the easiest approach is to create your
+    own custom subclass of `AbstractJMSHibernateSearchController`. Our implementation
+    is called `QueueController`, and does little more than wrapping this abstract
+    base class.
+  prefs: []
+  type: TYPE_NORMAL
+- en: When the queue monitor receives a `javax.jms.Message` object from the JMS queue,
+    it is simply passed as-is to the controller's base class method `onMessage`. That
+    built-in method handles the Lucene update for us.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: As you can see, there is a lot more involved to a master-slave clustering approach
+    than there is to a simple cluster. However, the master-slave approach offers a
+    dramatically greater upside in scalability.
+  prefs: []
+  type: TYPE_NORMAL
+- en: It also reduces the single-point-of-failure risk. It is true that this architecture
+    involves a single "master" node, through which all Lucene write operations must
+    flow. However, if the master node goes down, the slave nodes continue to function,
+    because their search queries run against their own local index copies. Also, update
+    requests should be persisted by the JMS provider, so that those updates can still
+    be performed once the master node is brought back online.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Because we are spinning up Jetty instances programmatically, rather than through
+    the Maven plugin, we pass a different set of goals to each Maven build. For the
+    `chapter7` project, you should run Maven as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: You will be able to access the "master" node at `http://localhost:8080`, and
+    the "slave" node at `http://localhost:8181`. If you are very quick about firing
+    off a search query on the master node the moment it starts, then you will see
+    it returning only half of the expected results! However, within a few seconds,
+    the slave node updates arrive through JMS. Both the halves of the data set will
+    merge and be available across the cluster.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Sharding Lucene indexes
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Just as you can balance your application load across multiple nodes in a cluster,
+    you may also split up your Lucene indexes through a process called **sharding**.
+    You might consider sharding for performance reasons if your indexes grow to a
+    very large size, as larger index files take longer to index and optimize than
+    smaller shards.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Sharding may offer additional benefits if your entities lend themselves to partitioning
+    (for example, by language, geography, and so on). Performance may be improved
+    if you can predictably steer queries toward the specific appropriate shard. Also,
+    it sometimes makes lawyers happy when you can store "sensitive" data at a physically
+    different location.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Even though its dataset is very small, this chapter''s version of the VAPORware
+    Marketplace application now splits its `App` index into two shards. The relevant
+    line in `hibernate.cfg.xml` looks similar to the following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: As with all of the other Hibernate Search properties that include the substring
+    `default`, this is a global setting. It can be made index-specific by replacing
+    `default` with an index name (for example, `App`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: This exact line appears in both `hibernate.cfg.xml` (used by our "master" node),
+    and `hibernate-slave.cfg.xml` (used by our "slave" node). When running in a clustered
+    environment, your sharding configuration should match all the nodes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'When an index is split into multiple shards, each shard includes the normal
+    index name followed by a number (starting with zero). For example, `com.packtpub.hibernatesearch.domain.App.0`
+    instead of just `com.packtpub.hibernatesearch.domain.App`. This screenshot shows
+    the Lucene directory structure of our two-node cluster, while it is up and running
+    with both nodes configured for two shards:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Sharding Lucene indexes](img/9205_07_03.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: An example of sharded Lucene indexes running in a cluster (note the numbering
+    of each `App` entity directory)
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Just as the shards are numbered on the filesystem, they can be separately configured
+    by number in `hibernate.cfg.xml`. For example, if you want to store the shards
+    at different locations, you might set properties as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: When a Lucene write operation is performed for an entity, or when a search query
+    needs to read from an entity's index, a **sharding strategy** determines which
+    shard to use.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you are sharding simply to reduce the file size, then the default strategy
+    (implemented by `org.hibernate.search.store.impl.IdHashShardingStrategy`) is perfectly
+    fine. It uses each entity's ID to calculate a unique hash code, and distributes
+    the entities among the shards in a roughly even manner. Because the hashing calculation
+    is reproducible, the strategy is able to direct future updates for an entity towards
+    the appropriate shard.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To create your own custom sharding strategy with more exotic logic, you can
+    create a new subclass inheriting from `IdHashShardingStrategy`, and tweak it as
+    needed. Alternatively, you can completely start from scratch with a new class
+    implementing the `org.hibernate.search.store.IndexShardingStrategy` interface,
+    perhaps referring to the source code of `IdHashShardingStrategy` for guidance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Summary
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In this chapter, we learned how to work with applications in a modern distributed
+    server architecture, to allow for scalability and better performance. We have
+    seen a working cluster implemented with a filesystem-based directory provider
+    and JMS-based backend, and now have enough knowledge to explore other approaches
+    involving Inifinispan and JGroups. We used sharding to split a Lucene index into
+    smaller chunks, and know how to go about implementing our own custom sharding
+    strategy, if necessary.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This brings us to the end of our little adventure with Hibernate Search! We
+    have covered a lot of critical concepts about Hibernate, Lucene and Solr, and
+    searches in general. We have learned how to map our data to search indexes, query
+    and update those indexes at runtime, and arrange it all in the best architecture
+    for a given project. We did all of this through an example application, that grew
+    with our knowledge from simple to advanced along the way.
+  prefs: []
+  type: TYPE_NORMAL
+- en: There's always more to learn. Hibernate Search can work with dozens of Solr
+    components for more advanced functionality, and integrating with a new generation
+    of "NoSQL" data stores is possible as well. However, you are now equipped with
+    enough core knowledge to explore these horizons independently, if you wish. Until
+    next time, thank you for reading! You can find me online at `steveperkins.net`,
+    and I would love to hear from you.
+  prefs: []
+  type: TYPE_NORMAL

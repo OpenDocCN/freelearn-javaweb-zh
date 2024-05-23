@@ -1,0 +1,856 @@
+- en: Chapter 4. Advanced Mapping
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: So far, we have learned the basics of mapping objects to Lucene indexes. We
+    have seen how to handle relationships with associated entities and embedded objects.
+    However, the searchable fields have mostly been simple string data.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In this chapter, we will look at how to effectively map other data types. We
+    will explore the process by which Lucene analyzes entities for indexing, and the
+    Solr components that can customize that process. We will see how to adjust the
+    importance of each field, to make sorting by relevance more meaningful. Finally,
+    we will conditionally determine whether or not to index an entity at all, based
+    on its state at runtime.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Bridges
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: The member variables in a Java class may be of an infinite number of custom
+    types. It is usually possible to create custom types in your database as well.
+    With Hibernate ORM, there are dozens of basic types from which more complex types
+    can be constructed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, in a Lucene index, everything ultimately boils down to a string. When
+    you map fields of any other data type for searching, the field is converted to
+    a string representation. In Hibernate Search terminology, the code behind this
+    conversion is called a bridge. Default bridges handle most common situations for
+    you transparently, although you have the ability to write your own bridges for
+    custom scenarios.
+  prefs: []
+  type: TYPE_NORMAL
+- en: One-to-one custom conversion
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The most common mapping scenario is where a single Java property is tied to
+    a single Lucene index field. The `String` variables obviously don't require any
+    conversion. With most other common data types, how they would be expressed as
+    strings is fairly intuitive.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Mapping date fields
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The `Date` values are adjusted to GMT time, and then stored as a string with
+    the format `yyyyMMddHHmmssSSS`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Although this all happens automatically, you do have the option to explicitly
+    annotate the field with `@DateBridge`. You would do so when you don't want to
+    index down to the exact millisecond. This annotation has one required element,
+    `resolution`, which lets you choose a level of granularity from `YEAR`, `MONTH`,
+    `DAY`, `HOUR`, `MINUTE`, `SECOND`, or `MILLISECOND` (the normal default).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The downloadable `chapter4` version of the VAPORware Marketplace application
+    now adds a `releaseDate` field to the `App` entity. It is configured such that
+    Lucene will only store the day, and not any particular time of day.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: Handling null values
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: By default, fields with null values are not indexed regardless of their type.
+    However, you can also customize this behavior. The `@Field` annotation has an
+    optional element, `indexNullAs` , which controls the handling of null values for
+    that mapped field.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: The default setting for this element is `Field.DO_NOT_INDEX_NULL`, which causes
+    null values to be omitted from Lucene indexing. However, when `Field.DEFAULT_NULL_TOKEN`
+    is used, Hibernate Search will index the field with a globally configured value.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The name for this value is `hibernate.search.default_null_token`, and it is
+    set within `hibernate.cfg.xml` (for traditional Hibernate ORM) or `persistence.xml`
+    (for Hibernate configured as a JPA provider). If this value is not configured,
+    then null fields will be indexed with the string `"_null_"`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: You may use this mechanism to apply null-substitution on some fields, and keep
+    the default behavior on other fields. However, the `indexNullAs` element only
+    works with that one substitute value, configured at the global level. If you want
+    to use different null substitutes for different fields or in different scenarios,
+    you must implement that logic through a custom bridge (discussed in the following
+    subsection).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Custom string conversion
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Sometimes you need more flexibility in converting a field to a string value.
+    Rather than relying on the built-in bridge to handle it automatically, you can
+    create your own custom bridge.
+  prefs: []
+  type: TYPE_NORMAL
+- en: StringBridge
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: To map a single Java property to a single index field, your bridge can implement
+    one of two interfaces offered by Hibernate Search. The first of these, `StringBridge`,
+    is for a one-way translation between a property and a string value.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let's say that our `App` entity has a `currentDiscountPercentage` member variable,
+    representing any promotional discount being offered for that app (for example,
+    *25 percent off!*). For easier math operations, this field is stored as a float
+    (*0.25f*). However, if we ever wanted to make discounts searchable, we would want
+    them indexed in a more human-readable percentage format (*25*).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To provide that mapping, we would start by creating a bridge class, implementing
+    the `StringBridge` interface. The bridge class must implement an `objectToString`
+    method, which expects to take our `currentDiscountPercentage` property as an input
+    parameter:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `objectToString` method converts the input as desired, and returns its `String`
+    representation. This will be the value indexed by Lucene.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Notice that this method returns a hardcoded `"0"` when given a null value, or
+    when it encounters any other sort of problem. Custom null-handling is another
+    possible reason for creating a field bridge.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To invoke this bridge class at index-time, add a `@FieldBridge` annotation
+    to the `currentDiscountPercentage` property:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: This entity field is a primitive `float`, yet the bridge class is working with
+    a `Float` wrapper object. For flexibility, `objectToString` takes a generic `Object`
+    parameter that must be cast to the appropriate type. However, thanks to autoboxing,
+    primitives are converted into their object wrappers for us seamlessly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: TwoWayStringBridge
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The second interface for mapping single variables to single fields, `TwoWayStringBridge`,
+    provides bidirectional translation between a value and its string representation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'You implement `TwoWayStringBridge` in a manner similar to what we just saw
+    with the regular `StringBridge` interface. The only difference is that this bidirectional
+    version also requires a `stringToObject` method, for conversions going the other
+    way:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: Tip
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: A bidirectional bridge is only necessary when the field will be an `ID` field
+    within a Lucene index (that is, annotated with `@Id` or `@DocumentId`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ParameterizedBridge
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: For even greater flexibility, it is possible to pass configuration parameters
+    to a bridge class. To do so, your bridge should implement the `ParameterizedBridge`
+    interface, in addition to `StringBridge` or `TwoWayStringBridge`. The class must
+    then implement a `setParameterValues` method for receiving the extra parameters.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'For the sake of argument, let''s say that we wanted our example bridge to be
+    able to write percentages with a greater level of precision, rather than rounding
+    to a whole number. We could pass it a parameter specifying the number of decimal
+    places to use:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: This version of our bridge class expects to receive a parameter named `decimal_places`.
+    Its value is stored in the `decimalPlaces` member variable, and then used inside
+    the `objectToString` method. If no such parameter is passed, then a default of
+    two decimal places will be used to build percentage strings.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The mechanism for actually passing one or more parameters is the `params` element
+    of the `@FieldBridge` annotation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Be aware that all implementations of `StringBridge` or `TwoWayStringBridge`
+    must be thread-safe. Generally, you should avoid any shared resources, and only
+    take additional information through the `ParameterizedBridge` parameters.
+  prefs: []
+  type: TYPE_NORMAL
+- en: More complex mappings with FieldBridge
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The bridge types covered so far are the easiest and most straightforward way
+    to map a Java property to a string index value. However, sometimes you need even
+    greater flexibility, so there are a few field bridge variations supporting a free-form
+    approach.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Splitting a single variable into multiple fields
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Occasionally, the desired relationship between a class property and Lucene index
+    fields may not be one-to-one. For example, let's say that one property represents
+    a filename. However, we would like the ability to search not only by filename,
+    but also by file type (that is, the file extension). One approach is to parse
+    the file extension from the filename property, and thereby use that one variable
+    to create both fields.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `FieldBridge` interface allows us to do this. Implementations must provide
+    a `set` method, which in this example parses the file type from the file name
+    field, and stores them separately:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `luceneOptions` parameter is a helper object for interacting with Lucene,
+    and `document` represents the Lucene data structure to which we are adding fields.
+    We use `luceneOptions.addFieldToDocument()` to add fields to the index, without
+    having to fully understand the Lucene API details.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `name` parameter passed to `set` represents the name of the entity being
+    indexed. Notice that we use this as a base when declaring the names of the two
+    entities being added (that is, `name+".file"` for the filename, and `name+".file_type"`
+    for the file type).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Finally, the `value` parameter is the current field being mapped. Just as with
+    the `StringBridge` interface seen in the `Bridges` section, the method signature
+    here uses a generic `Object` for flexibility. The value must be cast to its appropriate
+    type.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To apply a `FieldBridge` implementation, use the `@FieldBridge` annotation
+    just as we''ve already seen with the other custom bridge types:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: Combining multiple properties into a single field
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: A custom bridge implementing the `FieldBridge` interface may also be used for
+    the reverse purpose, to combine more than one property into a single index field.
+    To gain this degree of flexibility, the bridge must be applied to the *class*
+    level rather than the *field* level. When the `FieldBridge` interface is used
+    in this manner, it is known as a **class bridge**, and replaces the usual mapping
+    mechanism for the entire entity class.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'For example, consider an alternate approach we could have taken with the `Device`
+    entity in our VAPORware Marketplace application. Instead of indexing `manufacturer`
+    and `name` as separate fields, we could have combined them into one `fullName`
+    field. The class bridge for this would still implement the `FieldBridge` interface,
+    but it would concatenate the two properties into one index field as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: Rather than applying an annotation to any particular fields within the `Device`
+    class, we would instead apply a `@ClassBridge` annotation at the class level.
+    Notice that the field-level Hibernate Search annotations have been completely
+    removed, as the class bridge will be responsible for mapping all index fields
+    in this class.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: TwoWayFieldBridge
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Earlier we saw that the simple `StringBridge` interface has a `TwoWayStringBridge`
+    counterpart, providing bidirectional mapping capability for document ID fields.
+    Likewise, the `FieldBridge` interface has a `TwoWayFieldBridge` counterpart for
+    the same reason. When you apply a field bridge interface to a property used by
+    Lucene as an ID (that is, annotated with `@Id` or `@DocumentId`), then you must
+    use the two-way variant.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `TwoWayStringBridge` interface requires the same `objectToString` method
+    as `StringBridge`, and the same `set` method as `FieldBridge`. However, this two-way
+    version also requires a `get` counterpart, for retrieving the string representation
+    from Lucene and converting if the true type is different:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: Analysis
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: When a field is indexed by Lucene, it undergoes a parsing and conversion process
+    called **analysis**. In [Chapter 3](ch03.html "Chapter 3. Performing Queries"),
+    *Performing Queries*, we mentioned that the default **analyzer** tokenizes string
+    fields, and that this behavior should be disabled if you plan to sort on that
+    field.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, much more is possible during analysis. Apache Solr components may be
+    assembled in hundreds of combinations. They can manipulate text in various ways
+    during indexing, and open the door to some really powerful search functionally.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In order to discuss the Solr components that are available, or how to assemble
+    them into a custom analyzer definition, we must first understand the three phases
+    of Lucene analysis:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Character filtering
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Tokenization
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Token filtering
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Analysis begins by applying zero or more **character filters**, which strip
+    or replace characters prior to any other processing. The filtered string then
+    undergoes **tokenization**, splitting it into smaller tokens to make keyword searches
+    more efficient. Finally, zero or more **token filters** remove or replace tokens
+    before they are saved to the index.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: These components are provided by the Apache Solr project, and they number over
+    three-dozen in total. This book cannot dive deeply into every single one, but
+    we can take a look at a few key examples of the three types and see how to apply
+    them generally.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The full documentation for all of these Solr analyzer components may be found
+    at [http://wiki.apache.org/solr/AnalyzersTokenizersTokenFilters](http://wiki.apache.org/solr/AnalyzersTokenizersTokenFilters),
+    with Javadocs at [http://lucene.apache.org/solr/api-3_6_1](http://lucene.apache.org/solr/api-3_6_1).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Character filtering
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'When defining a custom analyzer, character filtering is an optional step. Should
+    this step be desired, there are only three character filter types available:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`MappingCharFilterFactory`: This filter replaces characters (or sequences of
+    characters) with specifically defined replacement text, for example, you might
+    replace occurrences of *1* with *one*, *2* with *two*, and so on.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The mappings between character(s) and replacement value(s) are stored in a resource
+    file, using the standard `java.util.Properties` format, located somewhere in the
+    application's classpath. For each property, the key is the sequence to look for,
+    and the value is the mapped replacement.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: The classpath-relative location of this mappings file is passed to the `MappingCharFilterFactory`
+    definition, as a parameter named `mapping` . The exact mechanism for passing this
+    parameter will be illustrated shortly in the *Defining and Selecting Analyzers*
+    section.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '`PatternReplaceCharFilter`: This filter applies a regular expression, passed
+    via a parameter named `pattern`. Any matches will be replaced with a string of
+    static text passed via a `replacement` parameter.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`HTMLStripCharFilterFactory`: This extremely useful filter removes HTML tags,
+    and replaces escape sequences with their usual text forms (for example, `&gt;`
+    becomes `>`).'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Tokenization
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Character and token filters are both optional when defining a custom analyzer,
+    and you may combine multiple filters of both types. However, the `tokenizer` component
+    is unique. An analyzer definition must contain one, and no more than one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'There are 10 `tokenizer` components available in total. Some illustrative examples
+    include:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`WhitespaceTokenizerFactory`: This simply splits text on whitespace. For instance,
+    *hello world* is tokenized into *hello* and *world*.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`LetterTokenizerFactory`: This is similar to `WhitespaceTokenizrFactory` in
+    functionality, but this tokenizer also splits text on non-letter characters. The
+    non-letter characters are discarded altogether, for example, *please don''t go*
+    is tokenized into *please*, *don*, *t*, and *go*.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`StandardTokenizerFactory`: This is the default `tokenizer` that is automatically
+    applied when you don''t define a custom analyzer. It generally splits on whitespace,
+    discarding extraneous characters. For instance, *it''s 25.5 degrees outside!!!*
+    becomes *it''s*, *25.5*, *degrees*, and *outside*.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: When in doubt, `StandardTokenizerFactory` is almost always the sensible choice.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Token filtering
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'By far the greatest variety in analyzer functionality comes through token filters,
+    with Solr offering two dozen options for use alone or in combination. These are
+    only a few of the more useful examples:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`StopFilterFactory`: This filter simply throws away "stop words", or extremely
+    common words for which no one would ever want to perform a keyword query anyway.
+    The list includes *a*, *the*, *if*, *for*, *and*, *or*, and so on (the Solr documentation
+    presents the full list).'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`PhoneticFilterFactory`: When you use a major search engine, you would probably
+    notice that it can be very intelligent in dealing with your typos. One technique
+    for doing this is to look for words that sound similar to the searched keyword,
+    in case it was misspelled. For example, if you meant to search for *morning*,
+    but misspelled it as *mourning*, the search would still match the intended term!
+    This token filter provides that functionality by indexing phonetically similar
+    strings along with the actual token. The filter requires a parameter named `encoder`,
+    set to the name of a supported encoding algorithm `("DoubleMetaphone"` is a sensible
+    option).'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`SnowballPorterFilterFactory`: Stemming is a process in which tokens are broken
+    down into their root form, to make it easier to match related words. Snowball
+    and Porter refer to stemming algorithms. For instance, the words *developer* and
+    *development* can both be broken down to the root stem *develop*. Therefore, Lucene
+    can recognize a relationship between the two longer words (even though neither
+    one is a substring of the other!) and can return matches on both. This filter
+    takes one parameter, named `language` (for example, `"English"`).'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Defining and selecting analyzers
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: An **analyzer definition** assembles some combination of these components into
+    a logical whole, which can then be referenced when indexing an entity or individual
+    field. Custom analyzers may be defined in a static manner, or may be assembled
+    dynamically based on some conditions at runtime.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Static analyzer selection
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Either approach for defining a custom analyzer begins with an `@AnalyzerDef`
+    annotation on the relevant persistent class. In the `chapter4` version of our
+    VAPORware Marketplace application, let''s define a custom analyzer to be used
+    with the `App` entity''s `description` field. It should strip out any HTML tags,
+    and apply various token filters to reduce clutter and account for typos:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `@AnalyzerDef` annotation must have a name element set, and as previously
+    discussed, an analyzer must always include one and only one tokenizer.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `charFilters` and `filters` elements are optional. If set, they receive
+    lists of one or more factory classes, for character filters and token filters
+    respectively.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Be aware that character filters and token filters are applied *in the order
+    they are listed*. In some cases, changes to the ordering can affect the final
+    result.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `@Analyzer` annotation is used to select and apply a custom analyzer. This
+    annotation may be placed on an individual field, or on the overall class where
+    it will affect every field. In this case, we are only selecting our analyzer definition
+    for the `desciption` field:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It is possible to define multiple analyzers in a single class, by wrapping
+    their `@AnalyzerDef` annotations within a plural `@AnalyzerDefs`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: Obviously, where the `@Analyzer` annotation is later applied, its definition
+    element has to match the appropriate `@AnalyzerDef` annotation's name element.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The `chapter4` version of the VAPORware Marketplace application now strips HTML
+    from the customer reviews. If a search includes the keyword *span*, there will
+    not be a false positive match on reviews containing the `<span>` tag, for instance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Snowball and phonetic filters are being applied to the app descriptions. The
+    keyword *mourning* finds a match containing the word *morning*, and a search for
+    *development* returns an app with *developers* in its description.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Dynamic analyzer selection
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: It is possible to wait until runtime to select a particular analyzer for a field.
+    The most obvious scenario is an application supporting different languages, with
+    analyzer definitions configured for each language. You would want to select the
+    appropriate analyzer based on a language attribute for each object.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To support such a dynamic selection, an `@AnalyzerDiscriminator` annotation
+    is added to a particular field or to the class as a whole. This code snippet uses
+    the latter approach:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'There are two analyzer definitions, one for English and the other for French,
+    and the class `CustomerReviewDiscriminator` is declared responsible for deciding
+    which to use. This class must implement the `Discriminator` interface, and its
+    `getAnalyzerDefinitionName` method:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: If the `@AnalyzerDiscriminator` annotation is placed on a field, then its value
+    for the current object is automatically passed as the first parameter to `getAnalyzerDefinitionName`.
+    If the annotation is placed on the class itself, then a null value is passed instead.
+    The second parameter is the current entity object either way.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In this case, the discriminator is applied at the class level. So we cast that
+    second parameter to type `CustomerReview`, and return the name of the appropriate
+    analyzer based on the object's `language` field. If the language is unknown or
+    if there are other issues, then the method simply returns `null`, telling Hibernate
+    Search to fall back to the default analyzer.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Boosting search result relevance
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: We have already seen that the default sort order for search results is by relevance,
+    meaning the degree to which they match the query. If one entity matches on two
+    fields, while another has only one field match, then that first entity is the
+    more relevant result.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Hibernate Search allows us to adjust how relevance is calculated, by **boosting**
+    the relative importance of entities or fields when they are indexed. These adjustments
+    can be static and fixed, or they can be dynamic and driven by the state of the
+    data at runtime.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Static boosting at index-time
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Fixed boosting, regardless of the actual data, is as simple as annotating a
+    class or field with `@Boost`. This annotation takes a floating-point parameter
+    for its relative weight, with the default weight being 1.0\. So for example, `@Boost(2.0f)`
+    would double the weight of a class or field relative to non-annotated classes
+    and fields.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Our VAPORware Marketplace application searches on several fields and associations,
+    such as the names of supported devices, and comments posted in customer reviews.
+    However, doesn't it make sense that the text under our control (each app's name
+    and full description) should carry more weight than text coming from outside parties?
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To make this adjustment, the `chapter4` version starts by annotating the `App`
+    class itself:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This essentially makes `App` twice as relevant as `Device` or `CustomerReview`.
+    Next, we apply field-level boosting to the name and full description fields:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: We are declaring here that `name` carries slightly more weight than `description`,
+    and they each carry more weight relative to normal fields.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Be aware that class-level and field-level boosting cascade and combine! When
+    more than one boost factor applies to a given field, they are multiplied to form
+    the total factor.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Here, because a weight of 2.0 was already applied to the `App` class itself,
+    `name` has a total effective weight of 3.0 and `description` is at 2.4.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Dynamic boosting at index-time
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'For an example of boosting an entity dynamically based on its data at index-time,
+    let''s say that we wanted to give the `CustomerReview` objects a bit more weight
+    when the reviewer gives a five-star rating. To do this, we apply a `@DynamicBoost`
+    annotation to the class:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This annotation must be passed a class that implements the `BoostStrategy`
+    interface, and its `defineBoost` method:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: When the `@DynamicBoost` annotation was applied to a class, the parameter automatically
+    passed to `defineBoost` is an instance of that class (a `CustomerReview` object
+    in this case). If the annotation had been applied to a particular field, then
+    the automatically-passed parameter would be that field's value.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `float` value returned by `defineBoost` becomes the weight of the class
+    or field that was annotated. In this case, we increase a `CustomerReview` object's
+    weight to 1.5 when it represents a five-star review. Otherwise, we keep the 1.0
+    default.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Conditional indexing
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: There are specialized ways to go about indexing fields, such as using a class
+    bridge or the programmatic mapping API. Generally speaking, though, a property
+    is indexed when it is annotated with `@Field`. Therefore, one obvious way to avoid
+    indexing a field is to simply not apply the annotation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, what if we want an entity class to be searchable in general, but we
+    need to exclude certain instances of that class, based on the state of their data
+    at runtime?
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `@Indexed` annotation has an experimental second element, `interceptor`
+    , that gives us the ability to index conditionally. When this element is set,
+    the normal indexing process will be intercepted by custom code, which can prevent
+    an entity from being indexed based on its current state.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let''s give our VAPORware Marketplace the ability to make apps inactive. Inactive
+    apps will still exist in the database, but should not be shown to customers or
+    indexed for searching. To start, we will add a new property to the `App` entity
+    class:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This new `active` variable has the standard getter and setter methods, and
+    is being defaulted to `true` in our normal constructor. We want individual apps
+    to be excluded from the Lucene index when this variable is `false`, so we add
+    an `interceptor` element to the `@Indexed` annotation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE22]'
+  prefs: []
+  type: TYPE_PRE
+- en: This element must be tied to a class that implements the `EntityIndexingInterceptor`
+    interface. Since we just specified a class named `IndexWhenActiveInterceptor`,
+    we need to now create this class.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE23]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `EntityIndexingInterceptor` interface declares **four methods**, which
+    Hibernate Search will call at various points during an entity object''s life cycle:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`onAdd()`: This is called when the entity instance is first created.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`onDelete()`: This is called when the entity instance is removed from the database.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`onUpdate()`: This is called when an existing instance is updated.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`onCollectionUpdate()`: This version is used when an entity is modified as
+    part of a bulk update with other entities. Typically, implementations of this
+    method simply invoke `onUpdate()`.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Each of these methods should return one of the four possible `IndexingOverride`
+    enum values. The possible **return values** tell Hibernate Search what to do:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`IndexingOverride.SKIP`: This tells Hibernate Search to not modify the Lucene
+    index for this entity instance at this time.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`IndexingOverride.REMOVE`: Hibernate Search will remove the entity if it already
+    exists in an index, or else will do nothing if the entity is not indexed.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`IndexingOverride.UPDATE`: The entity will be updated in the index, or added
+    if it is not already indexed.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`IndexingOverride.APPLY_DEFAULT`: This is equivalent to the custom interceptor
+    not being used in the first place. Hibernate Search will index the entity if this
+    is an `onAdd()` operation, remove it from the index if this is an `onDelete()`,
+    or update the index if this is `onUpdate()` or `onCollectionUpdate()`.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Although the four methods logically imply certain return values, it is actually
+    possible to mix them in any combination if you are dealing with unusual conditions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In our example application, our interceptor examines the entity in `onAdd()`
+    and `onDelete()`. When a new `App` is created, indexing is skipped if its `active`
+    variable is false. When an `App` is updated, it will be removed from the index
+    if has become inactive.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Summary
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In this chapter, we toured the full range of functionality available in mapping
+    persistent objects for search. We can now adjust settings for Hibernate Search's
+    built-in type bridges, and can create highly advanced custom bridges of our own.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We now have a deeper understanding of Lucene analysis. We have worked with some
+    of the most useful custom analyzer components, and know how to independently obtain
+    information on dozens of other Solr components.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We are now able to adjust the relative weight of classes and fields through
+    boosting, to improve the quality of our search results when there are sorted by
+    relevance. Last but not least, we learned how to use conditional indexing to dynamically
+    prevent certain data from being searchable based on its state.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the next chapter, we will turn to more advanced query concepts. We will learn
+    how to filter and categorize search results, and pull data from Lucene alone without
+    needing a database call.
+  prefs: []
+  type: TYPE_NORMAL

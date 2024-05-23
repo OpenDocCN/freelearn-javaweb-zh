@@ -1,0 +1,775 @@
+- en: Chapter 6. System Configuration and Index Management
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In this chapter, we will look at configuration options for Lucene indexes, and
+    learn how to perform basic maintenance tasks. We will see how to toggle between
+    automatic and manual updates to Lucene indexes. We will examine low-latency write
+    operations, synchronous versus asynchronous updates, and other performance tuning
+    alternatives.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We will cover how to defragment and clean up a Lucene index for better performance,
+    and how to use Lucene without touching hard drive storage at all. Last but not
+    least, we will get exposure to the highly powerful **Luke** utility for working
+    with Lucene indexes outside of application code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Automatic versus manual indexing
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: So far, we really haven't had to think much about the timing of when entities
+    are indexed. After all, Hibernate Search is tightly integrated with Hibernate
+    ORM. By default, the add-on updates Lucene whenever the core updates the database.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'However, you have the option of decoupling these operations, and indexing manually
+    if you like. Some common situations where you might consider a manual approach
+    are as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you can easily live with Lucene being out of sync for limited periods, you
+    might want to defer indexing operations until off-peak hours, to reduce system
+    load during times of peak usage.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: If you want to use conditional indexing, but are not comfortable with the experimental
+    nature of `EntityIndexingInterceptor` (refer to [Chapter 4](ch04.html "Chapter 4. Advanced
+    Mapping"), *Advanced Mapping*), you might use manual indexing as an alternative
+    approach.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: If your database may be updated directly, by processes that do not go through
+    Hibernate ORM, you must manually update your Lucene indexes regularly to keep
+    them in sync with the database.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'To disable automatic indexing, set the `hibernate.search.indexing_strategy`
+    property to `manual` in `hibernate.cfg.xml` (or `persistence.xml` if using JPA)
+    as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: Individual updates
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: When automatic indexing is disabled, manual indexing operations are driven by
+    methods on a `FullTextSession` object (either the traditional Hibernate or the
+    JPA version).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Adds and updates
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The most important of these methods is `index`, which works with both **add**
+    and **update** operations on the database side. This method takes one parameter,
+    an instance of any entity class that is configured for Hibernate Search indexing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This chapter''s version of the VAPORware Marketplace application uses manual
+    indexing. `StartupDataLoader` calls `index` for each app, immediately after persisting
+    it in the database:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: On the Lucene side, the `index` method works within the same transactional context
+    as the `save` method on the database side. The indexing only occurs when the transaction
+    commits. In the event of a rollback, the Lucene index is untouched.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Using `index` manually overrides any conditional indexing rules. In other words,
+    the `index` method ignores any `EntityIndexingInterceptor` that is registered
+    with that entity class.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This is not the case for mass updates (see the *Mass updates* section), but
+    is something to bear in mind when considering a manual indexing of individual
+    objects. The code that calls `index` would be responsible for checking any conditions
+    first.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Deletes
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'The basic method for removing an entity from a Lucene index is `purge`. This
+    method is somewhat different from `index`, in that you do not pass it an object
+    instance to remove. Instead, you pass it the class reference for the entity, and
+    the ID of a particular instance to remove (that is, corresponding to `@Id` or
+    `@DocumentId`):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Hibernate Search also offers `purgeAll` , a convenient method for removing
+    all the instances of a particular entity type. This method also takes the entity
+    class reference, although obviously there is no need to pass a specific ID:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: As with `index`, both `purge` and `purgeAll` operate within a transaction. **Deletes**
+    do not actually occur until the transaction commits. Nothing happens in the event
+    of a rollback.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'If you *really* want to write to a Lucene index before the transaction commits,
+    then the zero-parameter `flushToIndexes` method allows you to do so. This might
+    be useful if you are processing a large number of entities, and want to free up
+    memory along the way (with the `clear` method) to avoid `OutOfMemoryException`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: Mass updates
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Adding, updating, and deleting entities individually can be rather tedious,
+    and potentially error-prone if you miss things. Another option is to use `MassIndexer`,
+    which can be thought of as a compromise of sorts between automatic and manual
+    indexing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This utility class is still instantiated and used manually. However, when it
+    is called, it automatically rebuilds the Lucene indexes for all mapped entity
+    classes in one step. There's no need to distinguish between adds, updates, and
+    deletes, because the operation wipes out the entire index and recreates it from
+    scratch.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A `MassIndexer` is instantiated with a `FullTextSession` object''s `createIndexer`
+    method. Once you have an instance, there are two ways to kick off the mass indexing:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `start` method indexes asynchronously, meaning that indexing occurs in a
+    background thread while the flow of code in the main thread continues.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The `startAndWait` method runs the indexing in synchronous mode, meaning that
+    execution of the main thread is blocked until the indexing completes.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'When running in synchronous mode, you need to wrap the operation with a try-catch
+    block in case the main thread is interrupted while waiting:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Tip
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: If practical, it is best to use mass indexing when the application is offline
+    and not responding to queries. Indexing will place the system under heavy load,
+    and Lucene will obviously be in a very inconsistent state relative to the database.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Mass indexing also differs from individual updates in two respects:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A `MassIndexer` operation is not transactional. There is no need to wrap the
+    operation within a Hibernate transaction, and likewise you cannot rely on a rollback
+    if something goes wrong.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`MassIndexer` does respect conditional indexing (refer to [Chapter 4](ch04.html
+    "Chapter 4. Advanced Mapping"), *Advanced Mapping*). If you have an `EntityIndexingInterceptor`
+    registered for that entity class, it will be invoked to determine whether or not
+    to actually index particular instances.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_IND
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: '`MassIndexer` support for conditional indexing was added in the 4.2 generation
+    of Hibernate Search. If you are working with an application that uses an older
+    version, you will need to migrate to 4.2 or higher in order to use `EntityIndexingInterceptor`
+    and `MassIndexer` together.'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Defragmenting an index
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Changes to a Lucene index slowly make it less efficient over time, in the same
+    way that a hard drive can become fragmented. When new entities are indexed, they
+    go into a file (called a **segment**) that is separate from the main index file.
+    When an entity is deleted, it actually remains in the index file and is simply
+    marked as inaccessible.
+  prefs: []
+  type: TYPE_NORMAL
+- en: These techniques help Lucene to keep its indexes as accessible for queries as
+    possible, but it leads to slower performance over time. Having to open multiple
+    segment files is slow, and can run up against operating system limits on the number
+    of open files. Keeping deleted entities in the index makes the files more bloated
+    than they need to be.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The process of merging all of these segments, and really purging deleted entities,
+    is called **optimization**. It is analogous to defragmenting a hard drive. Hibernate
+    Search provides mechanisms for optimizing your indexes on either on a manual or
+    automatic basis.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Manual optimization
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The `SearchFactory` class offers two methods for optimizing Lucene indexes manually.
+    You can call these methods within your application, upon whatever event you like.
+    Alternatively, you might expose them, and trigger your optimizations from outside
+    the application (for example, with a web service called by a nightly cron job).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'You can obtain a `SearchFactory` reference through a `FullTextSession` object''s
+    `getSearchFactory` method. Once you have an instance, its `optimize` method will
+    defragment all available Lucene indexes:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Alternatively, you can use an overloaded version of `optimize`, taking an entity
+    class as a parameter. This method limits the optimization to only that entity''s
+    Lucene index, as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Another option is use a `MassIndexer` to rebuild your Lucene indexes (refer
+    to the *Mass updates* section). Rebuilding an index from scratch leaves it in
+    an optimized state anyway, so further optimization would be redundant if you are
+    already performing that kind of maintenance regularly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A *very* manual approach is to use the Luke utility, outside your application
+    code altogether. See the section on Luke at the very end of this chapter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Automatic optimization
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: An easier, if less flexible approach, is to have Hibernate Search trigger optimization
+    for you automatically. This can be done on a global or a per-index basis. The
+    trigger event can be a threshold number of Lucene changes, or a threshold number
+    of transactions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `chapter6` version of the VAPORware Marketplace application now contains
+    the following four lines in its `hibernate.cfg.xml` file:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: The top two lines, referencing `default` in the property name, establish global
+    defaults for all Lucene indexes. The last two lines, referencing `App`, are override
+    values specific to the `App` entity.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Most of the configuration properties in this chapter may be made index-specific,
+    by replacing the `default` substring with the name of the relevant index.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Normally this is the class name of the entity (for example, `App`), but it could
+    be a custom name if you set the `index` element in that entity's `@Indexed` annotation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Whether you deal at the global or index-specific level, `operation_limit.max`
+    refers to a threshold number of Lucene changes (that is, adds or deletes). `transaction_limit.max`
+    refers to a threshold number of transactions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Overall, this snippet configures the `App` index for optimization after 100
+    transactions or Lucene changes. All other indexes will be optimized after 1,000
+    transactions or changes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Custom optimizer strategy
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'You might enjoy the best of both worlds by using the automatic approach with
+    a custom optimizer strategy. This chapter''s version of the VAPORware Marketplace
+    application uses a custom strategy to only allow optimization during off-peak
+    hours. This custom class extends the default optimizer strategy, but only allows
+    the base class to proceed with optimization when the current time is between midnight
+    and 6:00 a.m.:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: Tip
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The easiest approach is to extend `IncrementalOptimizerStrategy`, and override
+    the `optimize` method with your intercepting logic. However, if your strategy
+    is fundamentally different from the default, then you can start with your own
+    base class. Just have it implement the `OptimizerStrategy` interface.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To declare your own custom strategy, at either the global or per-index level,
+    add a `hibernate.search.X.optimizer.implementation` property to `hibernate.cfg.xml`
+    (where *X* is either *default*, or the name of a particular entity index):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: Choosing an index manager
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: An **index manager** is a component responsible for how and when changes are
+    applied to a Lucene index. It coordinates the optimization strategy, the directory
+    provider, and worker back ends (seen later in this chapter), and various other
+    low-level components.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Hibernate Search includes two index manager implementations out of the box.
+    The default is `directory-based`, and is a very sensible choice in most situations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The other built-in alternative is `near-real-time`. It is a subclass inheriting
+    from the directory-based index manager, but is designed for low-latency index
+    writes. Rather than performing adds or deletes on the disk right away, this implementation
+    queues them in the memory so they may be written more efficiently in batches.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The `near-real-time` implementation offers greater performance than the `directory-based`
+    default, but there are two trade-offs. First, the `near-real-time` implementation
+    is not available when using Lucene in a clustered environment (refer to [Chapter
+    7](ch07.html "Chapter 7. Advanced Performance Strategies"), *Advanced Performance
+    Strategies*). Secondly, because Lucene operations are not written to disk right
+    away, they may be permanently lost in the event of an application crash.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'As with most of the configuration properties covered in this chapter, an index
+    manager may be selected on a global default or on a per-index basis. The difference
+    is including `default`, or an entity index name (for example, `App`) in the property:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: It is possible to write your own index manager implementation. To get a deeper
+    sense of how index managers function, review the source code of the two implementations
+    provided out of the box. The directory-based manager is implemented by `DirectoryBasedIndexManager`,
+    and the near-real-time manager by `NRTIndexManager`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: An easy approach to writing a custom implementation is to subclass one of the
+    two built-in options, and override methods only as needed. If you want to create
+    a custom index manager completely from scratch, then it would need to implement
+    the `org.hibernate.search.indexes.spi.IndexManager` interface.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Applying a custom index manager, at the global or the per-index level, works
+    the same as the built-in options. Just set the appropriate property to your implementation's
+    fully qualified class name (for example, `com.packtpub.hibernatesearch.util.MyIndexManager`)
+    rather than the `directory-based` or `near-real-time` strings.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Configuring workers
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: One of the component types that index managers coordinate are **workers**, which
+    are responsible for the actual updates made to a Lucene index.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you are using Lucene and Hibernate Search in a clustered environment, many
+    of the configuration options are set at the worker level. We will explore those
+    more fully in [Chapter 7](ch07.html "Chapter 7. Advanced Performance Strategies"),
+    *Advanced Performance Strategies*. However, three key configuration options are
+    available in any environment.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Execution mode
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: By default, workers perform Lucene updates **synchronously**. That is, once
+    an update begins, execution of the main thread is blocked until that update completes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Workers may instead be configured to update **asynchronously**, a "fire and
+    forget" mode that spawns a separate thread to perform the work. The advantages
+    are that the main thread will be more responsive, and the workload handled more
+    efficiently. The downside is that the database and the index may be out of sync
+    for very brief periods.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Execution mode is declared in `hibernate.cfg.xml` (or `persistence.xml` for
+    JPA). A global default may be established with the `default` substring, and per-entity
+    configurations may be set with the entity index name (for example, `App`):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: Thread pool
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'By default workers perform updates in only one thread, either the main thread
+    in the synchronous mode, or a single spawned thread in the asynchronous mode.
+    However, you have the option of creating a larger pool of threads to handle the
+    work. The pool may apply at the global default level, or be specific to a particular
+    index:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: Tip
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Because of the way that Lucene indexes are locked during update operations,
+    using a lot of threads in parallel often does not provide the performance boost
+    that you might expect. However, it is worth experimenting when tuning and load-testing
+    an application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Buffer queue
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Pending work gets backed up in a queue, waiting for a thread to free up and
+    deal with it. By default, the size of this buffer is infinite, at least in theory.
+    In reality, it is bound by the amount of system memory available, and an `OutOfMemoryExeception`
+    may be thrown if the buffer grows too large.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Therefore, it is a good idea to place some limit, globally or on a per-index
+    basis, for the size to which these buffer can grow.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: When a buffer reaches the maximum allowable size for its index, additional operations
+    will be performed by the thread which creates them. This blocks execution and
+    slows down performance, but ensures that the application will not run out of memory.
+    Experiment to find a balanced threshold for an application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Selecting and configuring a directory provider
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Both of the built-in index managers use a subclass `DirectoryBasedIndexManager`.
+    As the name implies, both of them make use of Lucene's abstract class `Directory`,
+    to manage the form in which indexes are stored.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the [Chapter 7](ch07.html "Chapter 7. Advanced Performance Strategies"),
+    we will look at some special directory implementations geared for clustered environments.
+    However, in single-server environments the two built-in choices are filesystem
+    storage, and storage in memory.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Filesystem-based
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'By default, Lucene indexes are stored on the filesystem, in the current working
+    directory of the Java application. No configuration is necessary for this arrangement,
+    but it has been explicitly set in all versions of the VAPORware Marketplace application
+    so far with this property in `hibernate.cfg.xml` (or `persistence.xml`):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: As with the other configuration properties that we've seen in this chapter,
+    you could replace `default` with a particular index name (for example, `App`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'When using filesystem-based indexes, you probably want to use a known fixed
+    location rather than the current working directory. You can specify either a relative
+    or absolute path with the `indexBase` property. In all of the VAPORware Marketplace
+    versions that we''ve seen so far, the Lucene indexes have been stored under each
+    Maven project''s `target` directory, so that Maven removes them up before each
+    fresh build:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: Locking strategy
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'All Lucene directory implementations lock their indexes when writing to them,
+    to prevent corruption from multiple processes or threads writing to them simultaneously.
+    There are four locking strategies available, and you can specify one by setting
+    the `hibernate.search.default.locking_strategy` property to one of these strings:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`native`: This is the default strategy for filesystem-based directories, when
+    no locking strategy property is specified. It relies on file locking at the native
+    operating system level, so that if your application crashes the index locks will
+    still be released. However, the downside is that this strategy should not be used
+    when your indexes are stored remotely on a network shared drive.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`simple`: This strategy relies on the JVM to handle file locking. It is safer
+    to use when your Lucene index is on a remote shared drive, but locks will not
+    be cleanly released if the application crashes or has to be killed.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`single`: This strategy does not create a lock file on the filesystem, but
+    rather uses a Java object in memory (similar to a `synchronized` block in multithreaded
+    Java code). For a single-JVM application, this works well no matter where the
+    index files are, and there is no issue with locks being released after a crash.
+    However, this strategy is only viable if you are sure that no other process outside
+    the JVM might write to your index files.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`none`: It does not use locking at all. This is *not* a recommended option.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: To remove locks that were not cleanly released, use the Luke utility explored
+    in the *Using the Luke utility* section of this chapter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: RAM-based
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: For testing and demo purposes, our VAPORware Marketplace application has used
+    an in-memory H2 database throughout this book. It is recreated every time the
+    application starts, and is destroyed when the application stops, with nothing
+    being persisted to permanent storage along the way.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Lucene indexes are able to work in the exact same manner. In this chapter''s
+    version of the example application, the `hibernate.cfg.xml` file has been modified
+    to store its index in RAM rather than on the filesystem:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The RAM-based directory provider initializes its Lucene indexes when the Hibernate
+    `SessionFactory` (or JPA `EntityManagerFactory`) is created. Be aware that when
+    you close this factory, it destroys all your indexes!
+  prefs: []
+  type: TYPE_NORMAL
+- en: This shouldn't be a problem when using a modern dependency-injection framework,
+    because the framework will keep your factory in memory and available when needed.
+    Even in our vanilla example application, we have stored a singleton `SessionFactory`
+    in the `StartupDataLoader` class for this reason.
+  prefs: []
+  type: TYPE_NORMAL
+- en: An in-memory index would seem to offer greater performance, and it may be worth
+    experimenting with in your application tuning. However, it is not generally recommended
+    to use the RAM-based directory provider in production settings.
+  prefs: []
+  type: TYPE_NORMAL
+- en: First and foremost, it is easy to run out of memory and crash the application
+    with a large data set. Also, your application has to rebuild its indexes from
+    scratch upon each and every restart. Clustering is not an option, because only
+    the JVM which created the in-memory index has access to that memory. Last but
+    not least, the filesystem-based directory provider already makes intelligent use
+    of caching, and its performance is surprisingly comparable to the RAM-based provider.
+  prefs: []
+  type: TYPE_NORMAL
+- en: All that being said, the RAM-based provider is a common approach for testing
+    applications. Unit tests are likely to involve fairly small sets of data, so running
+    out of memory is not a concern. Also, having the indexes completely and cleanly
+    destroyed in between each unit test might be more of a feature than a drawback.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The RAM-based directory provider defaults to the `single` locking strategy,
+    and it really makes no sense to change this.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using the Luke utility
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Hibernate ORM gives your application code pretty much everything it needs to
+    interact with the database. However, you probably still use some sort of SQL client
+    to manually work with your database outside the context of your application code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Likewise, it can be useful to explore a Lucene index manually without having
+    to write code for the task. Luke ([http://code.google.com/p/luke](http://code.google.com/p/luke))
+    is a very useful utility that fills this role for Lucene. You can use Luke to
+    browse your indexes, test queries, and perform helpful tasks such as removing
+    index locks that did not cleanly release.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The Luke download is a monolithic executable JAR file. Double-clicking the
+    JAR, or otherwise executing it from a console prompt, brings up a graphical interface
+    and a prompt for your index location, as shown in the following screenshot:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Using the Luke utility](img/9205_06_01.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: The previous screenshot shows Luke at startup. Unfortunately, Luke can only
+    access filesystem-based indexes, not the RAM-based index used in this chapter.
+    So in these examples, Luke points to the `chapter5` code file directory's Maven
+    project workspace. The `App` entity index is located under `target/luceneIndex/com.packtpub.hibernatesearch.domain.App`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Notice the **Force unlock, if** **locked** checkbox near the top of the open-index
+    dialog box. If you have an index for which a file lock did not cleanly release
+    (refer to the *Locking strategy* section), then you can fix the problem by checking
+    this box and opening the index.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Once you have opened a Lucene index, Luke displays an assortment of information
+    about the number of indexed documents (that is, entities), the current state of
+    optimization (that is, fragmentation), and other details, as shown in the following
+    screenshot:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Using the Luke utility](img/9205_06_02.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: From the **Tools** menu at the top of the utility, you have options for performing
+    basic maintenance tasks such as checking the index for corruption, or manual optimization
+    (that is, defragmenting). These operations are best performed during off-peak
+    hours, or during a full outage window.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Using the Luke utility](img/9205_06_03.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'The **Documents** tab allows you to browse through entities one by one, which
+    may have some limited use. Much more interesting is the **Search** tab, which
+    allows you to explore your index using free-form Lucene queries, as shown in the
+    following screenshot:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Using the Luke utility](img/9205_06_04.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'The full-blown Lucene API is beyond the scope of this book, but here are some
+    basics to get you started:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Search expressions are in the form of a field name and a desired value, separated
+    by a colon. For example, to search for apps in the `business` category, use the
+    search expression `category:business`.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Associated items may be specified with the entity field name, followed by a
+    period, followed by the field name within the associated item. In the above screenshot,
+    we are searching for all apps supported on the `xPhone` device, by using the search
+    expression `supportedDevices.name:xphone`.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Remember that the default analyzer converts terms into lower case during the
+    indexing process. So if you wanted to search on `xPhone` for example, be sure
+    to type it as `xphone`.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'If you double-click on one of the search results found, then Luke flips over
+    to the **Documents** tab with the relevant document loaded. Click on the **Reconstruct
+    & Edit** button to examine that entity''s fields, as shown in the following screenshot:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Using the Luke utility](img/9205_06_05.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: Browsing this data will give you a feel for how the analyzer parses your entities.
+    Words will be filtered out, and text will be tokenized unless you configured the
+    `@Field` annotation to the contrary (as we did with `sorting_name`). If a Hibernate
+    Search query doesn't return the results that you expect, browsing field data in
+    Luke can help you spot the issue.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Summary
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In this chapter we saw how to update Lucene indexes manually, one entity object
+    at a time or in bulk, as an alternative to letting Hibernate Search manage updates
+    automatically. We learned about the fragmentation that accumulates from Lucene
+    update operations, and how to approach optimization on a manual or automatic basis.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We explored various performance tuning options for Lucene, from low-latency
+    writes to multi-threaded asynchronous updates. We now know how to configure Hibernate
+    Search for creating Lucene indexes on either the filesystem or RAM, and why you
+    might choose one over the other. Finally, we worked with the Luke utility to inspect
+    and perform maintenance tasks on a Lucene index without having to go through an
+    application's Hibernate Search code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the next chapter, we will look at some advanced strategies for improving
+    the performance of your applications. This will include recapping the performance
+    tips covered so far, before diving into server clusters and Lucene index sharding.
+  prefs: []
+  type: TYPE_NORMAL

@@ -1,0 +1,585 @@
+- en: Chapter 1. Your First Application
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: To explore the capabilities of **Hibernate Search**, we will work with a twist
+    on the classic "Java Pet Store" sample application. Our version, the "VAPORware
+    Marketplace", will be an online catalog of software apps. Think of such stores
+    run by Apple, Google, Microsoft, Facebook, and… well, pretty much every other
+    company now.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Our app market will give us plenty of opportunities to search data in different
+    ways. Of course, there are titles and descriptions as in most product catalogs.
+    However, software apps involve an expanded set of data points, such as genre,
+    version, and supported devices. These different facets will let us take a look
+    at the many features that Hibernate Search makes available.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'At a high level, incorporating Hibernate Search in an application requires
+    the following three steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Adding information to your entity classes, so that Lucene will know how to index
+    them.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Writing one or more search queries in the relevant portions of your application.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Setting up your project, so that the required dependencies and configuration
+    for Hibernate Search are available in the first place.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: In future projects, after we have a decent understanding of the basics, we would
+    probably start with this third bullet-point. However, for the time being, let
+    us jump straight into some code!
+  prefs: []
+  type: TYPE_NORMAL
+- en: Creating an entity class
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'To keep things simple, this first cut of our application will include only
+    one entity class. This `App` class describes a software application and is the
+    central entity with which all the other entity classes will be associated. For
+    now though, we will give an "app" three basic data points:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A name
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: An image to display on the marketplace site
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: A long description
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'The Java code is as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: This class is a basic **plain old Java object** (**POJO**), just member variables
+    and getter/setter methods for working with them. However, notice the annotations
+    that are highlighted.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: If you are accustomed to Hibernate 3.x, note that version 4.x deprecates many
+    of Hibernate's own mapping annotations in favor of their **Java Persistence API**
+    (**JPA)** 2.0 counterparts. We will discuss JPA further in [Chapter 3](ch03.html
+    "Chapter 3. Performing Queries"), *Performing Queries*. For now, simply notice
+    that the JPA annotations here are essentially identical to their native Hibernate
+    counterparts, other than belonging to the `javax.persistence` package.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The class itself is annotated with `@Entity`, which tells Hibernate to map the
+    class to a database table. Since we did not explicitly specify a table name, by
+    default Hibernate will create a table named `APP` for the `App` class.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `id` field is annotated with both `@Id` and `@GeneratedValue`. The former
+    simply tells Hibernate that this field maps to the primary key of the database
+    table. The latter declares that the values should be generated automatically when
+    new rows are inserted. This is why our constructor method doesn't populate a value
+    for `id`, because we're counting on Hibernate to handle it for us.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Finally, we annotate our three data points with `@Column`, telling Hibernate
+    that these variables correspond with columns in the database table. Normally,
+    the name of the column will be the same as the variable name, and Hibernate will
+    assume some sensible defaults about the column length, whether to allow null values,
+    and so on. However, these settings may be declared explicitly (as we are doing
+    here), by setting the column length for description to 1,000 characters.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Preparing the entity for Hibernate Search
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Now that Hibernate knows about our domain object, we need to tell the Hibernate
+    Search add-on how to manage it with **Lucene**.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can use some advanced options to leverage the full power of Lucene, and as
+    this application develops we will do just that. However, using Hibernate Search
+    in a basic scenario is as simple as adding two annotations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'First, we''ll add the `@Indexed` annotation to the class itself:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: This simply declares that Lucene should build and use an index for this entity
+    class. This annotation is optional. When you write a large-scale application,
+    many of its entity classes may not be relevant to searching. Hibernate Search
+    only needs to tell Lucene about those types that will be searchable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Secondly, we will declare searchable data points with the `@Field` annotation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Notice that we're only applying this annotation to the `name` and `description`
+    member variables. We did not annotate `image`, because we don't care about searching
+    for apps by their image filenames. We likewise did not annotate `id`, because
+    you don't exactly need a powerful search engine to find a database table row by
+    its primary key!
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Deciding what to annotate is a judgment call. The more entities you annotate
+    for indexing, and the more member variables you annotate as fields, the more rich
+    and powerful your Lucene indexes will be. However, if we annotate superfluous
+    stuff just because we can, then we make Lucene do unnecessary work that can hurt
+    performance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In [Chapter 7](ch07.html "Chapter 7. Advanced Performance Strategies"), *Advanced
+    Performance Strategies*, we will explore such performance considerations in greater
+    depth. Right now, we're all set to search for apps by name or description.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Loading the test data
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'For test and demo purposes, we will use an embedded database that should be
+    purged and refreshed each time we start the application. With a Java web application,
+    an easy way to invoke the code at startup time is by using `ServletContextListener`.
+    We simply create a class implementing this interface, and annotate it with `@WebListener`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `contextInitialized` method will now be invoked automatically when the server
+    starts up. We will use this method to set up a Hibernate session factory, and
+    populate the database with some test data. The `contextDestroyed` method will
+    likewise be automatically invoked when the server shuts down. We will use this
+    method to explicitly close our session factory when done.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Multiple places within our application will need a simple and thread-safe means
+    for opening connections to the database (that is, Hibernate `Session` objects).
+    So, we also add a `public static synchronized` method named `openSession()`. This
+    method serves as the thread-safe gatekeeper for creating sessions from a singleton
+    `SessionFactory`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In more complex applications, you would probably use a dependency-injection
+    framework, such as Spring or CDI. This would be a bit distracting in our small
+    example application, but these frameworks give you a safe mechanism for injecting
+    `SessionFactory` or `Session` objects without having to code it manually.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In fleshing out the `contextInitialized` method, we start by obtaining a Hibernate
+    session and beginning a new transaction:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: Inside the transaction, we can create all the sample data we want, by instantiating
+    and persisting `App` objects. In the interest of readability, only one object
+    is created here. However, the downloadable source code available at [http://www.packtpub.com](http://www.packtpub.com)
+    contains a full assortment of test examples.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Writing the search query code
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Our VAPORware Marketplace web application will be based on a Servlet 3.0 controller/model
+    class, rendering a JSP/JSTL view. The goal is to make things simple, so that we
+    can focus on the Hibernate Search aspects. After reviewing this example application,
+    it should be easy to adapt the same logic in JSF or Spring MVC, or even newer
+    JVM-based frameworks, such as Play or Grails.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To start, we will write a trivial `index.html` page, containing a text box
+    for users to enter search keywords:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This form collects one or more keywords in the CGI parameter `searchString`
+    , and posts it to a URL with the relative `/search` path. We now need to register
+    a controller servlet to respond to those posts:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `@WebServlet` annotation maps this servlet to the relative URL `/search`,
+    so that forms posting to this URL will invoke the `doPost` method. This method
+    will process a search, and forward the request to a JSP view for rendering.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Now, we get to the real heart of the matter—executing the search query. We create
+    a `FullTextSession` object, a Hibernate Search extension that wraps a normal `Session`
+    with Lucene search capability.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Now that we have a Hibernate `Search` session at our disposal, we can grab
+    the user''s keyword(s)and perform the Lucene search:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: As its name suggests, `QueryBuilder` is used to build queries involving a particular
+    entity class. Here, we instantiate a builder for our `App` entity.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Notice the long chain of method calls on the third line of the preceding code.
+    From the perspective Java, we are calling a method, calling another method on
+    the object returned, and repeating that process. However, from a plain English
+    perspective, this chain of method calls resembles a sentence:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Build** a query of **keyword** type, on the entity **fields** "name" and
+    "description", **matching** against the keywords in "searchString".'
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: This API style is quite intentional. Since it resembles a language in its own
+    right, it is referred to as the Hibernate Search **DSL** (**domain-specific language**).
+    If you have ever used criteria queries in Hibernate ORM, then the look-and-feel
+    here should be quite familiar to you.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We have now created an `org.apache.lucene.search.Query` object, which Hibernate
+    Search translates under the covers into a Lucene search. This magic flows in both
+    directions! Lucene search results can be translated into a standard `org.hibernate.Query`
+    object, and used the same as any normal database query:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: Using the `hibernateQuery` object, we fetch all of the `App` entities that were
+    found in our search, and stick them on the servlet request. If you recall, the
+    last line of our method forwards this request to a `search.jsp` view for display.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This JSP view will start off very basic, using JSTL tags to grab the `App`
+    results off the request and iterate through them:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: Selecting a build system
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: So far, we have approached our application in somewhat reverse order. We basically
+    skipped past the initial project setup and dove straight away into code, so that
+    all the plumbing would make more sense once we got there.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Well, we have now arrived! We need to pull all of this code together into an
+    organized project structure, make sure that all of its JAR file dependencies are
+    available, and establish a process for running the web application or packaging
+    it up as a WAR file. We need a project build system.
+  prefs: []
+  type: TYPE_NORMAL
+- en: One approach that we won't consider is doing all of this by hand. For a small
+    application using bare-bones Hibernate ORM, we might depend on just over a half-dozen
+    JAR files. At that scale, we might consider setting up a standard project in our
+    preferred IDE (for example, Eclipse, NetBeans, or IntelliJ). We could grab a binary
+    distribution from the Hibernate website and copy the necessary JAR files manually,
+    letting the IDE take it from there.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The problem is that Hibernate Search has a lot going on beneath the covers.
+    By the time the time you finish adding the dependencies for Lucene and even the
+    minimal Solr components, the list of dependencies will be multiplied several times
+    over. Even here in the first chapter, our very basic VAPORware Marketplace application
+    already requires over three dozen JAR files to compile and run. These libraries
+    are highly interdependent, and if you upgrade one of them, it can be a real nightmare
+    to avoid conflicts.
+  prefs: []
+  type: TYPE_NORMAL
+- en: At this level of dependency management, it becomes crucial to use an automated
+    build system for sorting out these matters. Throughout the code examples in the
+    book, we will primarily be using Apache Maven for build automation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The two primary characteristics of Maven are a convention-over-configuration
+    approach to basic builds, and a powerful system for managing a project's JAR file
+    dependencies. As long as a project conforms to a standard structure, we don't
+    even have to tell Maven how to compile it. This is considered boilerplate information.
+    Also, when we tell Maven which libraries and versions a project depends on, Maven
+    will figure out the entire dependency hierarchy for us. It determines which libraries
+    the dependencies themselves depend on, and so forth. A standard repository format
+    has been created for Maven (see [http://search.maven.org](http://search.maven.org)
+    for the largest public example), so that common libraries can all be retrieved
+    automatically without having to hunt them down.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Maven does have its critics. By default, its configuration is XML-based, which
+    has fallen out of fashion in recent years. More importantly, there is a learning
+    curve when a developer needs to do something beyond the boilerplate basics. He
+    or she must learn about the available plugins, how the lifecycle of a Maven build
+    works, and how to configure a plugin for the appropriate lifecycle stage. Many
+    developers have had frustrating experiences with that learning curve.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Several other build systems have been created recently as attempts to harness
+    the same power as Maven in a simpler form (for example, the Groovy-based Gradle,
+    the Scala-based SBT, the Ruby-based Buildr, and so on). However, it is important
+    to note that all of these newer systems are still designed to fetch dependencies
+    from a standard Maven repository. If you wish to use some other dependency management
+    and build system, then the concepts seen in this book will carry over directly
+    to these other tools.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To showcase a more manual non-Maven approach, the sample code available for
+    download from Packt Publishing's website includes an Ant-based version of this
+    chapter's example application. Look for the subdirectory `chapter1-ant`, corresponding
+    to the Maven-based `chapter1` example. A `README` file in the root of this subdirectory
+    highlights the differences. However, the main takeaway is that the concepts shown
+    in the book should translate fairly easily to any modern build system for Java
+    applications.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Setting up the project and importing Hibernate Search
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'We can create a Maven project using our IDE of choice. Eclipse works with Maven
+    through an optional `m2e` plugin, and NetBeans uses Maven as its native build
+    system out of the box. If Maven is installed on a system, you could also choose
+    to create the project from the command line:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: Time can be saved in either case by using a Maven `archetype`, which is basically
+    a template for a given type of project. Here, `maven-archetype-webapp` gives us
+    an empty web application, configured for packaging as a WAR file. `fieldsgroupId`
+    and `artifactId` can be anything we wish. They serve to identify our build output
+    if we stored it in a Maven repository.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `pom.xml` Maven configuration file for our newly-created project starts
+    off looking similar to the following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Our first order of business is to declare which dependencies are needed to
+    compile and run. Inside the `<dependencies>` element, let''s add an entry for
+    Hibernate Search:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: Wait, didn't we say earlier that this was going to require over three dozen
+    dependencies? Yes, that is true, but it doesn't mean you have to deal with them
+    all! When Maven reaches out to a repository and grabs this one dependency, it
+    will also receive information about all of its dependencies. Maven climbs down
+    the ladder as deep as it goes, sorting out any conflicts at each step, and calculating
+    a dependency hierarchy so that you don't have to.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Our application needs a database. To keep things simple, we will use H2 ([www.h2database.com](http://www.h2database.com)),
+    an embeddable database system that fits in a single 1 MB JAR file. We will also
+    use **Apache Commons** **Database Connection Pools** ([commons.apache.org/dbcp](http://commons.apache.org/dbcp))
+    to avoid opening and closing database connections unnecessarily. These require
+    declaring only one dependency each:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Last but not least, we want to specify that our web application is using version
+    3.x of the JEE Servlet API. In the following dependency, we specify the scope
+    as `provided`, telling Maven not to bundle this JAR inside our WAR file, because
+    we expect our server to make it available anyway:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: With our POM file complete, we can copy into our project those source files
+    that were created earlier. The three Java classes are listed under the `src/main/java`
+    subdirectory. The `src/main/webapp` subdirectory represents the document root
+    for our web application. The `index.html` search page, and its `search.jsp` results
+    counterpart go here. Download and examine the structure of the project example.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Running the application
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Running a Servlet 3.0 application requires Java 6 or higher, and a compatible
+    servlet container such as Tomcat 7\. However, if you are using an embedded database
+    to make testing and demonstration easier, then why not use an embedded application
+    server too?
+  prefs: []
+  type: TYPE_NORMAL
+- en: The **Jetty web** **server** ([www.eclipse.org/jetty](http://www.eclipse.org/jetty))
+    has a very nice plugin for Maven and Ant, which let developers launch their applications
+    from a build script without having a server installed. Jetty 8 or higher supports
+    the Servlet 3.0 specification.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To add the Jetty plugin to your Maven POM, insert a small block of XML just
+    inside the `root` element:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: The highlighted `<configuration>` element is optional. On most operating systems,
+    after Maven has launched an embedded Jetty instance, you can make changes and
+    see them take effect immediately without a restart. However, due to issues with
+    how Microsoft Windows handles file locking, you can't always save changes while
+    the Jetty instance is running.
+  prefs: []
+  type: TYPE_NORMAL
+- en: So if you are using Windows and would like the ability to make changes on-the-fly,
+    make your own custom copy of `webdefault.xml` and save it to the location referenced
+    in the preceding snippet. This file can be found by downloading and opening a
+    `jetty-webapp` JAR file in an unzip tool, or by simply downloading this example
+    application from the Packt Publishing website. The trick for Windows users is
+    to locate the `useFileMappedBuffer` parameter, and change its value to `false`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Now that you have a web server, let''s have it create and manage an H2 database
+    for us. When the Jetty plugin starts up, it will automatically look for the file
+    `src/main/webapp/WEB-INF/jetty-env.xml`. Let''s create this file and populate
+    it with the following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This causes Jetty to spawn a pool of H2 database connections, with the JDBC
+    URL specifying an in-memory database rather than a persistent database on the
+    filesystem. We register this data source with the JNDI as `jdbc/vaporwareDB`,
+    so our application can access it by that name. We add a corresponding reference
+    to our application''s `src/main/webapp/WEB-INF/web.xml` file:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Finally, we need to tie this database resource to Hibernate by way of a standard
+    `hibernate.cfg.xml` file, which we will create under `src/main/resources`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: The first highlighted line associates the Hibernate session factory with the
+    Jetty-managed `jdbc/vaporwareDBdata` source. The very last highlighted line declares
+    `App` as an entity class tied to this session factory. Right now we only have
+    this one entity, but we will add more `<class>` elements here as more entities
+    are introduced in later chapters.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In between, most of the `<properties>` elements relate to core settings that
+    are probably familiar to experienced Hibernate users. However, the highlighted
+    properties are directed at the Hibernate Search add-on. `hibernate.search.default.directory_provider`
+    declares that we want to store our Lucene indexes on the filesystem, as opposed
+    to in-memory. `hibernate.search.default.indexBase` specifies a location for the
+    indexes, in a subdirectory within our project that Maven cleans up for us during
+    the build process anyway.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Okay, we have an application, a database, and a server bringing the two together.
+    Now, we can actually deploy and launch, by running Maven with the `jetty:run`
+    goal:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `clean` goal removes traces of previous builds, and Maven then assembles
+    our web application because this is implied by `jetty:run`. Our code is quickly
+    compiled, and a Jetty server is launched on `localhost:8080`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Running the application](img/9205_01_02.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'We are live! We can now search for apps, using any keywords we like. A quick
+    hint: in the downloadable sample code, all of the test data records contain the
+    word `app` in their descriptions:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Running the application](img/9205_01_03.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'The downloadable sample code spruces up the HTML for a more professional look.
+    It also adds each app''s image alongside its name and description:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Running the application](img/9205_01_04.jpg)'
+  prefs: []
+  type: TYPE_IMG
+- en: The Maven command `mvn clean package` lets us package the application up as
+    a WAR file, so we can deploy it to a standalone server outside of the Maven Jetty
+    plugin. You can use any Java server compatible with the Servlet 3.0 specification
+    (for example, Tomcat 7+), so long as you know how to set up a data source with
+    the JNDI name `jdbc/vaporwareDB`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For that matter, you can replace `H2` with any standalone database that you
+    like. Just add an appropriate JDBC driver to your Maven dependencies, and update
+    the settings within `persistence.xml`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Summary
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In this chapter, we learned about the relationship between Hibernate ORM, the
+    Hibernate Search add-on, and the underlying Lucene search engine. We saw how to
+    map entities and fields to make them available for searching. We used the Hibernate
+    Search DSL to write a full-text search query across multiple fields, and worked
+    with the results as we would during a normal database query. We used an automated
+    build process to compile our application, and deployed it to a web server with
+    a live database.
+  prefs: []
+  type: TYPE_NORMAL
+- en: With these tools alone, we could incorporate Hibernate Search right now into
+    many real-world applications, using any other server or database. In the next
+    chapter, we will dive deeper into the options that Hibernate Search makes available
+    for mapping entity objects to Lucene indexes. We will see how to handle an expanded
+    data model, associating our VAPORware apps with devices and customer reviews.
+  prefs: []
+  type: TYPE_NORMAL
