@@ -133,16 +133,20 @@
   id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 微服务与 SOA 有很多共同的特征，比如对服务和如何让一个服务与另一个服务解耦的关注。SOA 是围绕单体应用集成而演变的，通过暴露大部分基于**简单对象访问协议**
+    (**SOAP**) 的 API。因此，中间件如**企业服务总线** (**ESB**) 对 SOA 非常重要。微服务更简单，尽管它们可能使用消息总线，但只是用于消息传输，其中不包含任何逻辑。它仅仅基于智能端点。
 - en: 'Tony Pujals defined microservices beautifully:'
   id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: Tony Pujals 对微服务做了很好的定义：
 - en: In my mental model, I think of self-contained (as in containers) lightweight
     processes communicating over HTTP, created and deployed with relatively small
     effort and ceremony, providing narrowly-focused APIs to their consumers.
   id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 在我的心智模型中，我想象的是自我包含（如同容器）的轻量级进程，通过 HTTP 进行通信，创建和部署相对简单，为消费者提供狭窄焦点的 API。
 - en: Though Tony only talks about the HTTP, event-driven microservices may use the
     different protocol for communication. You can make use of Kafka for implementing
     the event-driven microservices. Kafka uses the wire protocol, a binary protocol
@@ -150,11 +154,14 @@
   id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管 Tony 只提到了 HTTP，但事件驱动的微服务可能使用不同的协议进行通信。你可以使用 Kafka 来实现事件驱动的微服务。Kafka 使用的是线协议，一种基于
+    TCP 的二进制协议。
 - en: Monolithic architecture overview
   id: totrans-23
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 单体架构概述
 - en: Microservices is not something new, it has been around for many years. For example,
     Stubby, a general purpose infrastructure based on **Remote** **Procedure** **Call**
     (**RPC**) was used in Google data centers in the early 2000s to connect a number
@@ -164,6 +171,8 @@
   id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: Microservices 并不是什么新鲜事物，它已经存在了很多年。例如，Stubby 是一个基于**远程** **过程** **调用** (**RPC**)
+    的通用基础设施，早在2000年代初，它就被用于连接 Google 数据中心内和跨数据中心的多个服务。它近期之所以受到关注，是因为它的流行度和可见度。在微服务变得流行之前，开发本地和云应用程序主要采用的是单体架构。
 - en: Monolithic architecture allows the development of different components such
     as presentation, application logic, business logic, and **Data Access Objects**
     (**DAO**), and then you either bundle them together in **Enterprise Archive**
@@ -172,23 +181,28 @@
   id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 单体架构允许开发不同的组件，如表示层、应用逻辑、业务逻辑和**数据访问对象** (**DAO**)，然后你可以将它们捆绑在**企业存档** (**EAR**)
+    或**网络存档** (**WAR**) 中，或者将它们存储在单个目录层次结构中（例如，Rails、NodeJS 等）。
 - en: Many famous applications such as Netflix have been developed using microservices
     architecture. Moreover, eBay, Amazon, and Groupon have evolved from monolithic
     architecture to a microservices architecture.
   id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 许多著名的应用程序，如 Netflix，都是使用微服务架构开发的。此外，eBay、Amazon 和 Groupon 也从单体架构演变为微服务架构。
 - en: Now that you have had an insight into the background and history of microservices,
     let's discuss the limitations of a traditional approach, namely monolithic application
     development, and compare how microservices would address them.
   id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 既然你已经对微服务的背景和历史有了了解，那么让我们讨论一下传统方法，即单体应用开发的局限性，并比较微服务如何解决这些问题。
 - en: Limitation of monolithic architecture versus its solution with microservices
   id: totrans-28
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 单体架构的限制及其微服务的解决方案
 - en: As we know, change is eternal. Humans always look for better solutions. This
     is how microservices became what it is today and it may evolve further in the
     future. Today, organizations are using Agile methodologies to develop applications--it
@@ -200,6 +214,7 @@
   id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 众所周知，变化是永恒的。人类总是寻求更好的解决方案。这就是微服务成为今天这个样子，并可能在未来进一步发展的原因。今天，组织正在使用敏捷方法开发应用程序——这是一个快速的开发环境，并且在云计算和分布式技术发明之后规模也更大了。许多人认为单体架构也可以达到类似的目的，并且与敏捷方法论保持一致，但微服务仍在许多方面为生产就绪应用程序提供了更好的解决方案。
 - en: To understand the design differences between monolithic and microservices, let's
     take an example of a restaurant table-booking application. This application may
     have many services such as customers, bookings, analytics and so on, as well as
@@ -207,29 +222,35 @@
   id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了理解单体和微服务之间的设计差异，让我们以一个餐厅预订应用程序为例。这个应用程序可能有很多服务，如客户、预订、分析等，以及常规组件，如展示和数据库。
 - en: We'll explore three different designs here; traditional monolithic design, monolithic
     design with services, and microservices design.
   id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将探讨三种不同的设计：传统的单体设计、带服务的单体设计以及微服务设计。
 - en: Traditional monolithic design
   id: totrans-32
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 传统的单体设计
 - en: 'The following diagram explains the traditional monolithic application design.
     This design was widely used before SOA became popular:'
   id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的图表解释了传统的单体应用程序设计。这种设计在SOA变得流行之前被广泛使用：
 - en: '![](img/8fb71694-894b-43f1-babd-d1bebad0c078.png)'
   id: totrans-34
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/8fb71694-894b-43f1-babd-d1bebad0c078.png)'
 - en: Traditional monolithic application design
   id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 传统的单体应用程序设计
 - en: In traditional monolithic design, everything is bundled in the same archive
     such as **Presentation** code, **Application Logic** and **Business Logic** code,
     and **DAO** and related code that interacts with the database files or another
@@ -237,11 +258,13 @@
   id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 在传统的单体设计中，一切都被打包在同一个档案中，如**展示**代码、**应用逻辑**和**业务逻辑**代码，以及**DAO**和相关代码，这些代码与数据库文件或其他来源交互。
 - en: Monolithic design with services
   id: totrans-37
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 带服务的单体设计
 - en: 'After SOA, applications started being developed based on services, where each
     component provides the services to other components or external entities. The
     following diagram depicts the monolithic application with different services;
@@ -250,15 +273,18 @@
   id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 在SOA之后，基于服务的应用程序开始被开发，每个组件为其他组件或外部实体提供服务。下面的图表展示了带有不同服务的单体应用程序；在这里，服务与**展示**组件一起使用。所有服务、**展示**组件或任何其他组件都被捆绑在一起：
 - en: '![](img/56e1f42d-382d-47e8-82da-b8014ad4e11a.png)'
   id: totrans-39
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/56e1f42d-382d-47e8-82da-b8014ad4e11a.png)'
 - en: Services design
   id: totrans-40
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 服务设计
 - en: The following third design depicts the microservices. Here, each component represents
     autonomy. Each component could be developed, built, tested, and deployed independently.
     Here, even the application **User Interface** (**UI**) component could also be
@@ -267,11 +293,13 @@
   id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来的第三种设计展示了微服务。在这里，每个组件都代表自主性。每个组件可以独立开发、构建、测试和部署。在这里，即使是应用程序**用户界面**（**UI**）组件也可以是一个客户端，并消费微服务。为了我们的示例，设计层在µService内部使用。
 - en: 'The **API Gateway** provides the interface where different clients can access
     the individual services and solve the following problems:'
   id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: '**API网关**提供接口，不同的客户端可以访问单个服务，解决以下问题：'
 - en: What do you do when you want to send different responses to different clients
     for the same service? For example, a booking service could send different responses
     to a mobile client (minimal information) and a desktop client (detailed information)
@@ -279,14 +307,17 @@
   id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 当你想要为同一服务发送不同响应给不同客户端时，你会怎么做？例如，一个预订服务可以为移动客户端（最小信息）和桌面客户端（详细信息）发送不同的响应，提供不同的详细信息，对第三个客户端再次发送不同的信息。
 - en: 'A response may require fetching information from two or more services:'
   id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个响应可能需要从两个或更多服务中获取信息：
 - en: '![](img/2111f31f-e230-4141-bd2d-f52e304ca197.png)'
   id: totrans-45
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/2111f31f-e230-4141-bd2d-f52e304ca197.png)'
 - en: After observing all the sample design diagrams, which are very high-level designs,
     you might find out that in monolithic design, the components are bundled together
     and tightly coupled.
@@ -631,12 +662,14 @@
   id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 开发人员可以拥有更小的代码和更好的特性实现，从而与产品的用户建立更强的共情关系。这有助于在特性实现上取得更好的动机和清晰度。与用户的共情关系可以实现更短的反馈循环，更好地快速优先处理特性管道。更短的反馈循环也可以使缺陷检测更快。
 - en: Each microservices team works independently and new features or ideas can be
     implemented without being coordinated with larger audiences. The implementation
     of end-point failures handling is also easily achieved in the microservices design.
   id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 每个微服务团队独立工作，可以无需与更多人协调就实施新功能或想法。在微服务设计中，端点失败处理也很容易实现。
 - en: Recently, at one of the conferences, a team demonstrated how they had developed
     a microservices-based transport-tracking application including iOS and Android
     applications within 10 weeks, which had Uber-type tracking features. A big consulting
@@ -645,11 +678,13 @@
   id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 最近，在一场会议中，一个团队展示了他们如何在一个为期10周的项目中开发了一个基于微服务的运输跟踪应用程序，包括iOS和Android应用程序，并具有Uber类型的跟踪功能。一家大型咨询公司为其客户提供了一个为期七个月的同一应用程序估计。这显示了微服务如何与敏捷方法和持续集成/持续部署（CI/CD）保持一致。
 - en: Microservices build pipeline
   id: totrans-90
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 微服务构建管道
 - en: Microservices could also be built and tested using the popular CI/CD tools such
     as Jenkins, TeamCity, and so on. It is very similar to how a build is done in
     a monolithic application. In microservices, each microservice is treated like
@@ -657,56 +692,67 @@
   id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: 微服务也可以使用流行的持续集成/持续部署（CI/CD）工具如Jenkins、TeamCity等来构建和测试。这与在单体应用中进行构建非常相似。在微服务中，每个微服务都被当作一个小应用程序来对待。
 - en: 'For example, once you commit the code in the repository (SCM), CI/CD tools
     trigger the build process:'
   id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，一旦您在仓库（SCM）中提交代码，CI/CD工具就会触发构建过程：
 - en: Cleaning code
   id: totrans-93
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 清理代码
 - en: Code compilation
   id: totrans-94
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 代码编译
 - en: Unit test execution
   id: totrans-95
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 执行单元测试
 - en: Contract/Acceptance test execution
   id: totrans-96
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 合同/验收测试执行
 - en: Building the application archives/container images
   id: totrans-97
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 构建应用程序归档/容器镜像
 - en: Publishing the archives/container images to repository management
   id: totrans-98
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 将归档/容器镜像发布到仓库管理
 - en: Deployment on various Delivery environments such as Dev, QA, Stage, and so on
   id: totrans-99
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 在各种交付环境（如Dev、QA、Stage等）上进行部署
 - en: Integration and Functional test execution
   id: totrans-100
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 集成和功能测试执行
 - en: Any other steps
   id: totrans-101
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 其他任何步骤
 - en: Then, release-build triggers that change the SNAPSHOT or RELEASE version in
     `pom.xml` (in case of Maven) build the artifacts as described in the normal build
     trigger. Publish the artifacts to the artifacts repository. Tag this version in
@@ -715,11 +761,13 @@
   id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 然后，在`pom.xml`（对于Maven）中，发布构建触发器会更改SNAPSHOT或RELEASE版本，按照正常的构建触发器描述构建工件。将工件发布到工件仓库。在仓库中为此版本打上标签。如果您使用容器镜像，则将容器镜像作为构建的一部分来构建。
 - en: Deployment using a container such as Docker
   id: totrans-103
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 使用如Docker之类的容器进行部署
 - en: Owing to the design of microservices, you need to have an environment that provides
     flexibility, agility, and smoothness for continuous integration and deployment
     as well as for shipment. Microservices deployments need speed, isolation management,
@@ -727,6 +775,7 @@
   id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于微服务的设计，您需要一个提供灵活性、敏捷性和平滑性的环境，以便进行持续集成和部署，以及发货。微服务的部署需要速度、隔离管理以及敏捷的生命周期。
 - en: Products and software can also be shipped using the concept of an intermodal-container
     model. An intermodal-container is a large standardized container, designed for
     intermodal freight transport. It allows cargo to use different modes of transport—truck,
@@ -737,12 +786,14 @@
   id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 产品和软件也可以使用集装箱模型进行运输。集装箱是一种大型标准化容器，专为多式联运而设计。它允许货物使用不同的运输方式——卡车、铁路或船舶，而无需卸载和装载。这是一种存储和运输物品高效且安全的方式。它解决了运输问题，过去这是一个耗时、劳动密集型的过程，重复处理经常会损坏易碎物品。
 - en: Shipping containers encapsulate their content. Similarly, software containers
     are starting to be used to encapsulate their contents (products, applications,
     dependencies, and so on).
   id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 运输集装箱封装了它们的内容。同样，软件容器正开始被用来封装它们的内容（产品、应用程序、依赖项等）。
 - en: Previously, **Virtual Machines** (**VMs**) were used to create software images
     that could be deployed where needed. Later, containers such as Docker became more
     popular as they were compatible with both traditional virtual stations systems
@@ -752,11 +803,13 @@
   id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 以前，**虚拟机**（**VM**）被用来创建可以在需要时部署的软件镜像。后来，像Docker这样的容器变得更为流行，因为它们既兼容传统的虚拟站系统，也兼容云环境。例如，在开发人员的笔记本电脑上部署多个虚拟机是不切实际的。构建和引导虚拟机通常是I/O密集型的，因此速度较慢。
 - en: Containers
   id: totrans-108
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 容器
 - en: A container (for example, Linux containers) provides a lightweight runtime environment
     consisting of the core features of virtual machines and the isolated services
     of operating systems. This makes the packaging and execution of microservices
@@ -764,12 +817,14 @@
   id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 容器（例如，Linux容器）提供了一个轻量级的运行时环境，该环境包括了虚拟机的核心功能和操作系统的隔离服务。这使得微服务的打包和执行变得容易且流畅。
 - en: As the following diagram shows, a container runs as an application (microservice)
     within the **Operating** **System**. The OS sits on top of the hardware and each
     OS could have multiple containers, with a container running the application.
   id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 如以下图表所示，容器作为应用程序（微服务）在**操作系统**内运行。操作系统位于硬件之上，每个操作系统可能具有多个容器，其中一个容器运行应用程序。
 - en: 'A container makes use of an operating system''s kernel interfaces, such as
     **cnames** and **namespaces**, that allow multiple containers to share the same
     kernel while running in complete isolation to one another. This gives the advantage
@@ -778,19 +833,23 @@
   id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 容器利用操作系统的内核接口，如**cnames**和**namespaces**，使得多个容器能够在完全隔离的情况下共享同一个内核。这使得不需要为每个使用情况完成一个操作系统安装；结果是它消除了开销。它还使硬件**得到最佳利用**：
 - en: '![](img/a8adb807-2da8-4607-a466-8fe5b9cf4a0f.png)'
   id: totrans-112
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/a8adb807-2da8-4607-a466-8fe5b9cf4a0f.png)'
 - en: Layer diagram for containers
   id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 容器层图
 - en: Docker
   id: totrans-114
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Docker
 - en: Container technology is one of the fastest growing technologies today, and Docker
     leads this segment. Docker is an open source project and it was launched in 2013\.
     10,000 developers tried it after its interactive tutorial launched in August 2013\.
@@ -801,6 +860,7 @@
   id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 容器技术是当今发展最快的技术之一，Docker领导这一领域。Docker是一个开源项目，它于2013年启动。2013年8月其互动教程发布后，10,000名开发者尝试了它。到2013年6月其1.0版本发布时，它已经被下载了275万次。许多大型公司已经与Docker签署了合作伙伴协议，如微软、红帽、惠普、OpenStack，以及服务提供商如亚马逊网络服务、IBM和谷歌。
 - en: As we mentioned earlier, Docker also makes use of the Linux kernel features,
     such as cgroups and namespaces, to ensure resource isolation and packaging of
     the application with its dependencies. This packaging of dependencies enables
@@ -811,11 +871,13 @@
   id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 如我们之前提到的，Docker也利用了Linux内核的功能，如cgroups和namespaces，以确保资源隔离和应用及其依赖的打包。这种依赖的打包使得应用能够如预期地在不同的Linux操作系统/发行版上运行，支持一定程度的可移植性。此外，这种可移植性允许开发者在任何语言中开发应用程序，然后轻松地将它从笔记本电脑部署到测试或生产服务器。
 - en: Docker runs natively on Linux. However, you can also run Docker on Windows and
     MacOS using VirtualBox and boot2docker.
   id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: Docker原生运行在Linux上。然而，你也可以使用VirtualBox和boot2docker在Windows和MacOS上运行Docker。
 - en: Containers are comprised of just the application and its dependencies including
     the basic operating system. This makes it lightweight and efficient in terms of
     resource utilization. Developers and system administrators get interested in container's
@@ -823,16 +885,19 @@
   id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 容器只包括应用程序及其依赖项，包括基本操作系统。这使得它在资源利用方面轻量且高效。开发人员和系统管理员对容器的可移植性和高效资源利用感兴趣。
 - en: Everything in a Docker container executes natively on the host and uses the
     host kernel directly. Each container has its own user namespace.
   id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: Docker容器中的所有内容都在宿主机上以原生方式执行，并直接使用宿主机内核。每个容器都有自己的用户命名空间。
 - en: Docker's architecture
   id: totrans-120
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Docker的架构
 - en: 'As specified on Docker documentation, Docker architecture uses client-server
     architecture. As shown in the following figure (sourced from Docker''s website:
     [https://docs.docker.com/engine/docker-overview/](https://docs.docker.com/engine/docker-overview/)),
@@ -843,6 +908,7 @@
   id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 如Docker文档所述，Docker架构采用客户端-服务器架构。如图所示（来源于Docker官网：[https://docs.docker.com/engine/docker-overview/](https://docs.docker.com/engine/docker-overview/)），Docker客户端主要是用户界面，用于终端用户；客户端与Docker守护进程进行通信。Docker守护进程负责构建、运行和分发你的Docker容器。Docker客户端和守护进程可以运行在同一系统或不同机器上。
 - en: The Docker client and daemon communicate via sockets or through a RESTful API.
     Docker registers are public or private Docker image repositories from which you
     upload or download images, for example, Docker Hub ([hub.docker.com](https://hub.docker.com/))
@@ -850,18 +916,23 @@
   id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: Docker客户端和守护进程通过套接字或通过RESTful API进行通信。Docker注册表是公开或私有的Docker镜像仓库，你可以从中上传或下载镜像，例如，Docker
+    Hub（[hub.docker.com](https://hub.docker.com/)）是一个公开的Docker注册表。
 - en: '![](img/0ad926bf-861d-4c67-9004-46caa8f4fe7f.png)'
   id: totrans-123
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/0ad926bf-861d-4c67-9004-46caa8f4fe7f.png)'
 - en: Docker's architecture
   id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: Docker的架构
 - en: 'The primary components of Docker are:'
   id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: Docker的主要组件包括：
 - en: '**Docker image**: A Docker image is a read-only template. For example, an image
     could contain an Ubuntu operating system with Apache web server and your web application
     installed. Docker images are a build component of Docker and images are used to
@@ -872,6 +943,8 @@
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**Docker镜像**：Docker镜像是一个只读模板。例如，一个镜像可能包含一个带有Apache网页服务器和你的网页应用的Ubuntu操作系统。Docker镜像
+    是Docker构建组件之一，镜像用于创建Docker容器。Docker提供了一种简单的方法来构建新的镜像或更新现有镜像。你也可以使用他人创建的镜像，/或扩展它们。'
 - en: '**Docker container**: A Docker container is created from a Docker image. Docker
     works so that the container can only see its own processes, and have its own filesystem
     layered onto a host filesystem and a networking stack, which pipes to the host-networking
@@ -880,20 +953,24 @@
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**Docker容器**：Docker容器是从Docker镜像创建的。Docker的工作原理是，容器只能看到自己的进程，并且在其宿主文件系统之上有自己的文件系统层和网络堆栈，这些管道到宿主网络堆栈。Docker**容器**可以被运行、启动、停止、移动或删除。'
 - en: Deployment
   id: totrans-128
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 部署
 - en: 'Microservices deployment with Docker deals with three parts:'
   id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用Docker进行微服务部署涉及三个部分：
 - en: Application packaging, for example, JAR
   id: totrans-130
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 应用程序打包，例如，JAR
 - en: Building Docker image with a JAR and dependencies using a Docker instruction
     file, the Dockerfile, and command `docker build`. It helps to repeatedly create
     the image
@@ -901,23 +978,28 @@
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 使用Docker指令文件，Dockerfile和命令`docker build`构建包含JAR和依赖项的Docker镜像。它有助于反复创建镜像。
 - en: Docker container execution from this newly built image using command `docker
     run`
   id: totrans-132
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 使用命令`docker run`从新构建的镜像中执行Docker容器。
 - en: 'The preceding information will help you to understand the basics of Docker.
     You will learn more about Docker and its practical usage in [Chapter 5](b1f93b4e-3475-4d8a-8c9f-697b0fd4410c.xhtml),
     *Deployment and Testing*. Source and reference, refer to: [https://docs.docker.com](https://docs.docker.com).'
   id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 前面的信息将帮助你理解Docker的基础知识。你将在[第5章](b1f93b4e-3475-4d8a-8c9f-697b0fd4410c.xhtml)，*部署与测试*中了解更多关于Docker及其实际应用。源代码和参考资料，参考：
+    [https://docs.docker.com](https://docs.docker.com)。
 - en: Summary
   id: totrans-134
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 总结
 - en: In this chapter, you have learned or recapped the high-level design of large
     software projects, from traditional monolithic to microservices applications.
     You were also introduced to a brief history of microservices, the limitation of
