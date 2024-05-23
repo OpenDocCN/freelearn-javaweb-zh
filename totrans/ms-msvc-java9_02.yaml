@@ -1208,35 +1208,43 @@
   id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: 它返回前面JSON响应状态为200，如下所示：
 - en: '![](img/26a95ed3-d396-4b16-861e-5de873e8ee7c.png)'
   id: totrans-182
   prefs: []
   type: TYPE_IMG
+  zh: '![](img/26a95ed3-d396-4b16-861e-5de873e8ee7c.png)'
 - en: Calculation (`power`) resource test with Postman
   id: totrans-183
   prefs: []
   type: TYPE_NORMAL
+  zh: 计算（`power`）资源测试使用Postman
 - en: Some more positive test scenarios
   id: totrans-184
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 一些更多正测试场景
 - en: 'In the following table, all the URLs start with `http://localhost:8080`:'
   id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下表格中的所有URL均以`http://localhost:8080`开头：
 - en: '| URL | Output JSON |'
   id: totrans-186
   prefs: []
   type: TYPE_TB
+  zh: '| URL | 输出JSON |'
 - en: '| --- | --- |'
   id: totrans-187
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| `/calculation/sqrt/12344.234` |'
   id: totrans-188
   prefs: []
   type: TYPE_TB
+  zh: '| `/calculation/sqrt/12344.234` |'
 - en: '[PRE15]'
   id: totrans-189
   prefs: []
@@ -1246,11 +1254,14 @@
   id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: '|'
 - en: '| The `/calculation/sqrt/-9344.34` of the `Math.sqrt` function''s special scenario:If
     the argument is `NaN` or less than zero, then the result is `NaN` |'
   id: totrans-191
   prefs: []
   type: TYPE_TB
+  zh: '| `/calculation/sqrt/-9344.34`的`Math.sqrt`函数的特殊场景：如果参数是`NaN`或小于零，则结果是`NaN`
+    |'
 - en: '[PRE16]'
   id: totrans-192
   prefs: []
@@ -1260,10 +1271,12 @@
   id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: '|'
 - en: '| `/calculation/power?base=2.09&exponent=4.5` |'
   id: totrans-194
   prefs: []
   type: TYPE_TB
+  zh: '| `/calculation/power?base=2.09&exponent=4.5` |'
 - en: '[PRE17]'
   id: totrans-195
   prefs: []
@@ -1273,10 +1286,12 @@
   id: totrans-196
   prefs: []
   type: TYPE_NORMAL
+  zh: '|'
 - en: '| `/calculation/power?base=-92.9&exponent=-4` |'
   id: totrans-197
   prefs: []
   type: TYPE_TB
+  zh: '| `/calculation/power?base=-92.9&exponent=-4` |'
 - en: '[PRE18]'
   id: totrans-198
   prefs: []
@@ -1286,28 +1301,34 @@
   id: totrans-199
   prefs: []
   type: TYPE_NORMAL
+  zh: '|'
 - en: Negative test scenarios
   id: totrans-200
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 负测试场景
 - en: 'Similarly, you could also perform some negative scenarios as shown in the following
     table. In this table, all the URLs start with `http://localhost:8080`:'
   id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: 同样，您也可以执行一些负场景，如下表所示。在此表中，所有URL均以`http://localhost:8080`开头：
 - en: '| URL | Output JSON |'
   id: totrans-202
   prefs: []
   type: TYPE_TB
+  zh: '| URL | 输出JSON |'
 - en: '| --- | --- |'
   id: totrans-203
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| `/calculation/power?base=2a&exponent=4` |'
   id: totrans-204
   prefs: []
   type: TYPE_TB
+  zh: '| `/calculation/power?base=2a&exponent=4` |'
 - en: '[PRE19]'
   id: totrans-205
   prefs: []
@@ -1317,10 +1338,12 @@
   id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: '|'
 - en: '| `/calculation/power?base=2&exponent=4b` |'
   id: totrans-207
   prefs: []
   type: TYPE_TB
+  zh: '| `/calculation/power?base=2&exponent=4b` |'
 - en: '[PRE20]'
   id: totrans-208
   prefs: []
@@ -1330,10 +1353,12 @@
   id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: '|'
 - en: '| `/calculation/power?base=2.0a&exponent=a4` |'
   id: totrans-210
   prefs: []
   type: TYPE_TB
+  zh: '| `/calculation/power?base=2.0a&exponent=a4` |'
 - en: '[PRE21]'
   id: totrans-211
   prefs: []
@@ -1343,10 +1368,12 @@
   id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: '|'
 - en: '| `/calculation/sqrt/144a` |'
   id: totrans-213
   prefs: []
   type: TYPE_TB
+  zh: '| `/calculation/sqrt/144a` |'
 - en: '[PRE22]'
   id: totrans-214
   prefs: []
@@ -1356,10 +1383,12 @@
   id: totrans-215
   prefs: []
   type: TYPE_NORMAL
+  zh: '|'
 - en: '| `/calculation/sqrt/144.33$` |'
   id: totrans-216
   prefs: []
   type: TYPE_TB
+  zh: '| `/calculation/sqrt/144.33$` |'
 - en: '[PRE23]'
   id: totrans-217
   prefs: []
@@ -1369,16 +1398,19 @@
   id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: '|'
 - en: Summary
   id: totrans-219
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 总结
 - en: In this chapter, you have explored various aspects of setting up a development
     environment, Maven configuration, Spring Boot configuration, and so on.
   id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本章中，您已经探索了设置开发环境、Maven配置、Spring Boot配置等方面的各种方面。
 - en: You have also learned how to make use of Spring Boot to develop a sample REST
     service application. We learned how powerful Spring Boot is—it eases development
     so much that you only have to worry about the actual code, and not about the boilerplate
@@ -1388,6 +1420,8 @@
   id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: 您还学习了如何使用Spring Boot开发一个示例REST服务应用程序。我们了解到Spring Boot有多强大——它极大地简化了开发，以至于你只需要担心实际代码，而不需要担心编写
+    boilerplate 代码或配置。我们还把我们代码打包成一个带有内嵌应用容器Jetty的JAR文件。它允许它运行并访问Web应用程序，而无需担心部署。
 - en: In the next chapter, you will learn the **domain-driven design** (**DDD**) using
     a sample project that can be used across the rest of the chapters. We'll use the
     sample project **online table reservation system** (**OTRS**) to go through various
@@ -1397,6 +1431,7 @@
   id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: 在下一章中，您将学习**领域驱动设计**（**DDD**）。我们使用一个可以用于其他章节的示例项目来了解DDD。我们将使用名为**在线餐桌预订系统**（**OTRS**）的示例项目来经历微服务开发的各个阶段并了解DDD。在完成[第3章](8d3fd180-4f27-4bf7-bb86-c180ac200687.xhtml)，《领域驱动设计》之后，您将了解DDD的基础知识。
 - en: 'You will understand how to practically use the DDD by design sample services.
     You will also learn to design the domain models and REST services on top of it.
     The following are a few links that you can take a look at to learn more about
@@ -1404,16 +1439,19 @@
   id: totrans-223
   prefs: []
   type: TYPE_NORMAL
+  zh: 你将理解如何实际使用DDD设计示例服务。你还将学习如何在它之上设计领域模型和REST服务。以下是一些你可以查看以了解更多关于我们在此处使用的工具的链接：
 - en: '**Spring** **Boot**: [http://projects.spring.io/spring-boot/](http://projects.spring.io/spring-boot/)'
   id: totrans-224
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**Spring** **Boot**：[http://projects.spring.io/spring-boot/](http://projects.spring.io/spring-boot/)'
 - en: '**Download** **NetBeans**: [https://netbeans.org/downloads](https://netbeans.org/downloads)'
   id: totrans-225
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**下载** **NetBeans**：[https://netbeans.org/downloads](https://netbeans.org/downloads)'
 - en: '**Representational State Transfer** (**REST**): Chapter 5 ([https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm](https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm))
     of Roy Thomas Fielding''s Ph.D. dissertation *Architectural Styles and the Design
     of Network-based Software Architectures*'
@@ -1421,6 +1459,7 @@
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**表示状态传输**（**REST**）：Roy Thomas Fielding博士学位论文《架构风格与基于网络的软件体系结构设计》的第5章（[https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm](https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm)）'
 - en: '**REST**: [https://en.wikipedia.org/wiki/Representational_state_transfer](https://en.wikipedia.org/wiki/Representational_state_transfer)'
   id: totrans-227
   prefs:
